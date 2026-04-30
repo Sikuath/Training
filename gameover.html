@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>GAME OVER</title>
+<link rel="stylesheet" href="retro.css">
+</head>
+
+<body>
+
+<div class="gameover-screen">
+
+  <h1 class="glitch">GAME OVER</h1>
+
+  <p>SCORE : <span id="score">0</span></p>
+
+  <input id="pseudo" maxlength="3" autofocus />
+
+  <button onclick="saveScore()">OK</button>
+
+</div>
+
+<script>
+
+/* =========================
+   AFFICHAGE SCORE (SAFE)
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const raw = localStorage.getItem("finalScore");
+
+  const score = (raw !== null && !isNaN(raw)) ? raw : 0;
+
+  document.getElementById("score").textContent = score;
+});
+
+/* =========================
+   SAUVEGARDE SCORE
+========================= */
+
+function saveScore() {
+
+  let input = document.getElementById("pseudo").value;
+
+  let name = (input || "")
+    .toUpperCase()
+    .trim()
+    .slice(0, 3);
+
+  if (!name) return;
+
+  const finalScore = Number(localStorage.getItem("finalScore") || 0);
+
+  let data = [];
+
+  try {
+    data = JSON.parse(localStorage.getItem("ranking") || "[]");
+  } catch (e) {
+    data = [];
+  }
+
+  if (!Array.isArray(data)) data = [];
+
+  data.push({
+    name: name,
+    score: finalScore
+  });
+
+  data.sort((a, b) => b.score - a.score);
+  data = data.slice(0, 10);
+
+  localStorage.setItem("ranking", JSON.stringify(data));
+
+  window.location.href = "score.html";
+}
+
+</script>
+
+</body>
+</html>

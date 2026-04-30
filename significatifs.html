@@ -2,12 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Duolingo PC - Chiffres significatifs</title>
+  <title>Chiffres significatifs</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="layout.css">
-  <link rel="stylesheet" href="quiz.css">
   <link rel="stylesheet" href="significatifs.css">
 
   <script>
@@ -17,7 +14,6 @@
 
 <body class="page significatifs-page">
 
-  <!-- TOP BAR -->
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
     <a class="rappel" href="rappels.html">📘 Rappels</a>
@@ -25,56 +21,38 @@
 
   <!-- HUD -->
   <div class="hud">
-    <div>🔥 Streak : <span id="streak">0</span></div>
+    <div>⏱ Temps : <span id="timer">180s</span></div>
     <div>⭐ Score : <span id="score">0</span></div>
+    <div>🔥 Streak : <span id="streak">0</span></div>
     <div>🏆 Niveau : <span id="level">1</span></div>
   </div>
 
-  <!-- PROGRESSION -->
   <div class="progress-bar">
     <div id="progress"></div>
   </div>
 
-  <!-- CARTE CENTRALE -->
   <div class="quiz-card" id="card">
 
-    <div id="screen">
+    <h2>Chiffres significatifs</h2>
 
-      <h2>📊 Chiffres significatifs</h2>
+    <p id="question">Clique sur Démarrer</p>
 
-      <p id="question">Clique sur Démarrer</p>
+    <input type="number" id="answer" placeholder="Réponse">
 
-      <input type="number" id="answer" placeholder="Réponse">
+    <p id="feedback"></p>
 
-      <p id="feedback"></p>
-
-      <div class="buttons">
-        <button id="startBtn" onclick="startGame()">Démarrer</button>
-        <button id="validateBtn" onclick="submit()" style="display:none;">Valider</button>
-        <button id="stopBtn" onclick="stopGame()" style="display:none;">Stop</button>
-      </div>
-
+    <div class="buttons">
+      <button id="startBtn" onclick="startGame()">Démarrer</button>
+      <button id="validateBtn" onclick="submit()" style="display:none;">Valider</button>
+      <button id="stopBtn" onclick="endGame()" style="display:none;">Fin</button>
     </div>
 
   </div>
 
-  <!-- CLASSEMENT LOCAL -->
-  <div class="ranking">
-    <h3>🏆 Classement local</h3>
-    <div id="rankingList"></div>
-  </div>
+  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+  <audio id="badHeavy" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
-  <!-- SONS -->
-  <audio id="goodSound" preload="auto"
-    src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-
-  <audio id="badLight" preload="auto"
-    src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
-
-  <audio id="badHeavy" preload="auto"
-    src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-
-  <!-- JS -->
   <script src="significatifs.js"></script>
 
 </body>

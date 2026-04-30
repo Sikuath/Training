@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>SCORES</title>
+<link rel="stylesheet" href="retro.css">
+</head>
+
+<body>
+
+<h1>HIGH SCORES</h1>
+
+<div id="board"></div>
+
+<button onclick="location.href='significatifs.html'">
+REPLAY
+</button>
+
+<script>
+
+function load() {
+
+  let data = JSON.parse(localStorage.getItem("ranking") || "[]");
+
+  data.sort((a,b) => b.score - a.score);
+
+  const board = document.getElementById("board");
+
+  if (data.length === 0) {
+    board.innerHTML = "Aucun score";
+    return;
+  }
+
+  board.innerHTML = data.map((d,i) => `
+    <div>
+      ${i+1}. ${d.name} - ${d.score}
+    </div>
+  `).join("");
+}
+
+load();
+
+</script>
+
+</body>
+</html>

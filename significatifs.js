@@ -1,32 +1,57 @@
+
 let questions = [];
 let i = 0;
+
 let score = 0;
 let streak = 0;
 let level = 1;
+
 let playing = false;
+let gameOver = false;
+
+let timeLeft = 180;
+let timer = null;
+
+let finalScore = 0; // 🔥 FIX CRITIQUE (tu l'utilisais sans le déclarer)
+
+/* =========================
+   DIGIT BIAISÉ
+========================= */
+
+function digit() {
+  return Math.random() < 0.3
+    ? 0
+    : Math.floor(Math.random() * 9) + 1;
+}
 
 /* =========================
    GENERATION
 ========================= */
 
 function generate() {
+
   const set = new Set();
   questions = [];
 
   while (questions.length < 200) {
 
-    const cs = Math.floor(Math.random() * 5) + 1;
-    const type = Math.floor(Math.random() * 3);
+    let cs;
 
-    let obj;
+    if (Math.random() < 0.7) cs = Math.floor(Math.random() * 4) + 2;
+    else cs = Math.floor(Math.random() * 3) + 5;
 
-    if (type === 0) obj = genInteger(cs);
-    if (type === 1) obj = genDecimal(cs);
-    if (type === 2) obj = genScientific(cs);
+    const type = Math.floor(Math.random() * 4);
 
-    if (obj && !set.has(obj.q)) {
-      set.add(obj.q);
-      questions.push(obj);
+    let q;
+
+    if (type === 0) q = genInteger(cs);
+    if (type === 1) q = genDecimal(cs);
+    if (type === 2) q = genScientific(cs);
+    if (type === 3) q = genHardcore();
+
+    if (!set.has(q.q)) {
+      set.add(q.q);
+      questions.push(q);
     }
   }
 
@@ -34,57 +59,48 @@ function generate() {
 }
 
 /* =========================
-   ENTIER
+   INTEGER
 ========================= */
 
 function genInteger(cs) {
 
   let s = "";
 
-  for (let i = 0; i < cs; i++) {
-    if (i === 0) {
-      s += Math.floor(Math.random() * 9 + 1);
-    } else {
-      s += Math.floor(Math.random() * 10);
-    }
+  for (let k = 0; k < cs; k++) {
+    s += (k === 0)
+      ? Math.floor(Math.random() * 9 + 1)
+      : digit();
   }
 
   return { q: s, a: cs };
 }
 
 /* =========================
-   DECIMAL CORRIGÉ
+   DECIMAL
 ========================= */
 
 function genDecimal(cs) {
 
-  // pas de décimal pour 1 CS
-  if (cs === 1) {
-    return genInteger(cs);
-  }
+  if (cs === 1) return genInteger(cs);
 
   let digits = "";
 
-  for (let i = 0; i < cs; i++) {
-
-    if (i === 0) {
-      // 🔥 pas de zéro en tête
-      digits += Math.floor(Math.random() * 9 + 1);
-    } else {
-      digits += Math.floor(Math.random() * 10);
-    }
-
+  for (let k = 0; k < cs; k++) {
+    digits += (k === 0)
+      ? Math.floor(Math.random() * 9 + 1)
+      : digit();
   }
 
   const pos = Math.floor(Math.random() * (cs - 1)) + 1;
 
-  let q = digits.slice(0, pos) + "," + digits.slice(pos);
-
-  return { q, a: cs };
+  return {
+    q: digits.slice(0, pos) + "," + digits.slice(pos),
+    a: cs
+  };
 }
 
 /* =========================
-   SCIENTIFIQUE PROPRE
+   SCIENTIFIQUE
 ========================= */
 
 function genScientific(cs) {
@@ -92,66 +108,92 @@ function genScientific(cs) {
   let first = Math.floor(Math.random() * 9 + 1);
 
   let rest = "";
-  for (let i = 0; i < cs - 1; i++) {
-    rest += Math.floor(Math.random() * 10);
-  }
+  for (let k = 0; k < cs - 1; k++) rest += digit();
 
-  let mant = cs === 1 ? String(first) : first + "," + rest;
+  let mant = cs === 1 ? first : first + "," + rest;
 
   let exp = Math.floor(Math.random() * 10 - 5);
-
   let sign = exp < 0 ? "⁻" : "";
-  let absExp = Math.abs(exp);
 
-  let q = mant + " × 10" + sign + "<sup>" + absExp + "</sup>";
-
-  return { q, a: cs };
+  return {
+    q: mant + " × 10" + sign + "<sup>" + Math.abs(exp) + "</sup>",
+    a: cs
+  };
 }
 
 /* =========================
-   AUDIO
+   HARDCORE
 ========================= */
 
-function sound(type) {
-  const map = {
-    good: "goodSound",
-    light: "badLight",
-    heavy: "badHeavy"
-  };
+function genHardcore() {
 
-  const audio = document.getElementById(map[type]);
-  if (!audio) return;
+  const list = [
+    { q: "1002", a: 4 },
+    { q: "2,0300", a: 4 },
+    { q: "0,0020580", a: 6 },
+    { q: "1,200 × 10<sup>3</sup>", a: 4 },
+    { q: "4,050 × 10<sup>-2</sup>", a: 4 }
+  ];
 
-  audio.currentTime = 0;
-  audio.play().catch(()=>{});
+  return list[Math.floor(Math.random() * list.length)];
 }
 
 /* =========================
-   GAME
+   TIMER
+========================= */
+
+function startTimer() {
+
+  timer = setInterval(() => {
+
+    if (gameOver) return;
+
+    timeLeft--;
+
+    const t = document.getElementById("timer");
+    if (t) t.textContent = timeLeft + "s";
+
+    if (timeLeft <= 0) {
+      endGame();
+    }
+
+  }, 1000);
+}
+
+/* =========================
+   START GAME
 ========================= */
 
 function startGame() {
+
+  console.log("START OK");
+
   generate();
 
   playing = true;
+  gameOver = false;
+
   i = 0;
   score = 0;
   streak = 0;
   level = 1;
 
+  timeLeft = 180;
+
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("validateBtn").style.display = "inline-block";
-  document.getElementById("stopBtn").style.display = "inline-block";
 
+  startTimer();
   load();
   updateUI();
 }
 
 /* =========================
-   QUESTION
+   LOAD
 ========================= */
 
 function load() {
+
   const q = questions[i];
 
   document.getElementById("question").innerHTML =
@@ -162,51 +204,73 @@ function load() {
 }
 
 /* =========================
-   REPONSE
+   SUBMIT (FIX STABLE)
 ========================= */
 
 function submit() {
 
-  if (!playing) return;
+  if (gameOver) return;
 
-  const val = Number(document.getElementById("answer").value);
+  const input = document.getElementById("answer").value;
+
+  if (input === "" || isNaN(input)) return;
+
+  const val = Number(input);
   const good = questions[i].a;
 
-  if (isNaN(val)) {
-    document.getElementById("feedback").textContent = "⚠ entre un nombre";
-    sound("heavy");
-    return;
-  }
-
   if (val === good) {
+
     score++;
     streak++;
-    sound("good");
-    document.getElementById("feedback").textContent = "✔ Correct";
-  } else {
-    streak = 0;
 
-    if (Math.abs(val - good) === 1) {
-      sound("light");
-    } else {
-      sound("heavy");
+    i++;
+
+    if (i >= questions.length) {
+      endGame();
+      return;
     }
 
-    document.getElementById("feedback").textContent =
-      "✘ Faux (réponse : " + good + ")";
-  }
+    load();
 
-  level = 1 + Math.floor(score / 5);
-  i++;
+  } else {
+
+    const fb = document.getElementById("feedback");
+
+    if (fb) {
+      fb.innerHTML =
+        "✘ Faux<br><br>✔ Bonne réponse : <b>" + good + "</b>";
+    }
+
+    setTimeout(() => {
+      endGame();
+    }, 1200); // 🔥 plus propre que 5000
+  }
 
   updateUI();
+}
 
-  if (i >= questions.length) {
-    playing = false;
-    return;
-  }
+/* =========================
+   END GAME FIXÉ
+========================= */
 
-  setTimeout(load, 400);
+function endGame() {
+
+  if (gameOver) return;
+
+  gameOver = true;
+  playing = false;
+
+  clearInterval(timer);
+
+  finalScore = score; // 🔥 capture propre
+
+  console.log("FINAL SCORE =", finalScore);
+
+  localStorage.setItem("finalScore", String(finalScore));
+
+  setTimeout(() => {
+    window.location.href = "gameover.html";
+  }, 200);
 }
 
 /* =========================
@@ -214,16 +278,29 @@ function submit() {
 ========================= */
 
 function updateUI() {
-  document.getElementById("score").textContent = score;
-  document.getElementById("streak").textContent = streak;
-  document.getElementById("level").textContent = level;
 
-  document.getElementById("progress").style.width =
-    (i / questions.length) * 100 + "%";
+  const s = document.getElementById("score");
+  const st = document.getElementById("streak");
+  const lv = document.getElementById("level");
+
+  if (s) s.textContent = score;
+  if (st) st.textContent = streak;
+  if (lv) lv.textContent = level;
 }
 
 /* =========================
    INIT
 ========================= */
 
-generate();
+document.addEventListener("DOMContentLoaded", () => {
+
+  generate();
+
+  const btn = document.getElementById("startBtn");
+
+  if (btn) {
+    btn.addEventListener("click", startGame);
+  }
+
+  console.log("INIT OK");
+});
