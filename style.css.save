@@ -288,6 +288,294 @@ button:hover {
 .exemple.science b {
   color: #ffd27a;
 }
+
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}1~
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}1~
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}1~
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}1~
+.conv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: rgba(0,0,0,0.5);
+}
+
+.conv-table th,
+.conv-table td {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  text-align: center;
+}
+
+.conv-table th {
+  background: rgba(255,255,255,0.1);
+  color: #ffd27a;
+}
+
+/* couleurs puissances */
+.neg {
+  color: #ff5252;
+  font-weight: bold;
+}
+
+.pos {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.neutral {
+  color: #ffd27a;
+  font-weight: bold;
+}
+
+/* version large fiche */
+.content.large {
+  width: 85%;
+  max-width: 900px;
+  text-align: left;
+}1~
 .conv-table {
   width: 100%;
   border-collapse: collapse;
