@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Duolingo PC - Chiffres significatifs</title>
 
-  <!-- CSS (ordre important !) -->
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="layout.css">
   <link rel="stylesheet" href="quiz.css">
@@ -36,35 +36,45 @@
   </div>
 
   <!-- CARTE CENTRALE -->
-  <main class="quiz-card" id="card">
+  <div class="quiz-card" id="card">
 
-    <h2>📊 Chiffres significatifs</h2>
+    <div id="screen">
 
-    <p id="question">Clique sur Démarrer</p>
+      <h2>📊 Chiffres significatifs</h2>
 
-    <input type="number" id="answer" placeholder="Réponse">
+      <p id="question">Clique sur Démarrer</p>
 
-    <p id="feedback"></p>
+      <input type="number" id="answer" placeholder="Réponse">
 
-    <div class="buttons">
-      <button id="startBtn" onclick="startGame()">Démarrer</button>
-      <button id="validateBtn" onclick="submit()" style="display:none;">Valider</button>
-      <button id="stopBtn" onclick="stopGame()" style="display:none;">Stop</button>
+      <p id="feedback"></p>
+
+      <div class="buttons">
+        <button id="startBtn" onclick="startGame()">Démarrer</button>
+        <button id="validateBtn" onclick="submit()" style="display:none;">Valider</button>
+        <button id="stopBtn" onclick="stopGame()" style="display:none;">Stop</button>
+      </div>
+
     </div>
 
-  </main>
+  </div>
 
-  <!-- CLASSEMENT -->
-  <section class="ranking">
+  <!-- CLASSEMENT LOCAL -->
+  <div class="ranking">
     <h3>🏆 Classement local</h3>
     <div id="rankingList"></div>
-  </section>
+  </div>
 
   <!-- SONS -->
-  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-  <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
-  <audio id="badHeavy" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+  <audio id="goodSound" preload="auto"
+    src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
+  <audio id="badLight" preload="auto"
+    src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+
+  <audio id="badHeavy" preload="auto"
+    src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+  <!-- JS -->
   <script src="significatifs.js"></script>
 
 </body>
