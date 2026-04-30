@@ -2,8 +2,13 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Chiffres significatifs</title>
+  <title>Duolingo PC - Chiffres significatifs</title>
+
+  <!-- CSS (ordre important !) -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="layout.css">
+  <link rel="stylesheet" href="quiz.css">
+  <link rel="stylesheet" href="significatifs.css">
 
   <script>
     sessionStorage.setItem("lastExercise", window.location.href);
@@ -12,30 +17,55 @@
 
 <body class="page significatifs-page">
 
+  <!-- TOP BAR -->
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <h2>Chiffres significatifs</h2>
-
-  <div class="content">
-    <p>Combien de chiffres significatifs dans 0,00450 ?</p>
-
-    <input type="number" id="rep1">
-    <button onclick="verif1()">Vérifier</button>
-
-    <p id="res1"></p>
+  <!-- HUD -->
+  <div class="hud">
+    <div>🔥 Streak : <span id="streak">0</span></div>
+    <div>⭐ Score : <span id="score">0</span></div>
+    <div>🏆 Niveau : <span id="level">1</span></div>
   </div>
 
-  <script>
-    function verif1() {
-      let r = Number(document.getElementById('rep1').value);
+  <!-- PROGRESSION -->
+  <div class="progress-bar">
+    <div id="progress"></div>
+  </div>
 
-      document.getElementById('res1').textContent =
-        (r === 3) ? "✔ Correct !" : "✘ Incorrect";
-    }
-  </script>
+  <!-- CARTE CENTRALE -->
+  <main class="quiz-card" id="card">
+
+    <h2>📊 Chiffres significatifs</h2>
+
+    <p id="question">Clique sur Démarrer</p>
+
+    <input type="number" id="answer" placeholder="Réponse">
+
+    <p id="feedback"></p>
+
+    <div class="buttons">
+      <button id="startBtn" onclick="startGame()">Démarrer</button>
+      <button id="validateBtn" onclick="submit()" style="display:none;">Valider</button>
+      <button id="stopBtn" onclick="stopGame()" style="display:none;">Stop</button>
+    </div>
+
+  </main>
+
+  <!-- CLASSEMENT -->
+  <section class="ranking">
+    <h3>🏆 Classement local</h3>
+    <div id="rankingList"></div>
+  </section>
+
+  <!-- SONS -->
+  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+  <audio id="badHeavy" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+  <script src="significatifs.js"></script>
 
 </body>
 </html>

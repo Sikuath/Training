@@ -1,0 +1,44 @@
+body.incertitudes-page {
+  background: url("./background4.png") center center / cover no-repeat fixed;
+  margin: 0;
+  color: white;
+}
+
+/* carte centrale */
+.content {
+  background: rgba(0,0,0,0.6);
+  margin: 30px auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 320px;
+}
+
+/* inputs */
+input {
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  width: 80%;
+  text-align: center;
+}
+
+/* boutons */
+button {
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #ff9800;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #e68900;
+}
+
+/* feedback */
+#res {
+  margin-top: 10px;
+  font-weight: bold;
+}

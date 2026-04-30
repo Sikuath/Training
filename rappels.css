@@ -1,0 +1,84 @@
+body.rappels-page {
+  background: url("background.png") center/cover no-repeat fixed;
+  margin: 0;
+  color: white;
+  min-height: 100vh;
+}
+
+/* titre */
+.rappels-page h2 {
+  text-align: center;
+  margin-top: 80px;
+}
+
+/* container global */
+.rappels-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+/* ========================= */
+/* GRILLE PROPRE FIXÉE */
+/* ========================= */
+
+.grid-rappels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+
+  /* 🔥 AJOUT IMPORTANT */
+  padding: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* cartes */
+.card-rappel {
+  background: rgba(0,0,0,0.65);
+  padding: 20px;
+  border-radius: 14px;
+
+  text-decoration: none;
+  color: white;
+  text-align: center;
+
+  transition: 0.25s ease;
+
+  /* 🔥 FIX IMPORTANT (évite débordement visuel) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-rappel:hover {
+  transform: translateY(-5px) scale(1.03);
+  background: rgba(0,0,0,0.8);
+}
+
+.card-rappel h3 {
+  color: #ffd27a;
+  margin-bottom: 10px;
+}
+
+.card-rappel p {
+  opacity: 0.85;
+  font-size: 14px;
+}
+
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+
+@media (max-width: 1000px) {
+  .grid-rappels {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-rappels {
+    grid-template-columns: 1fr;
+  }
+}

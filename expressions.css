@@ -1,0 +1,29 @@
+body.expressions-page {
+  background: url("./background3.png") center center / cover no-repeat fixed;
+  margin: 0;
+  color: white;
+}
+
+/* carte exercice */
+.content {
+  background: rgba(0,0,0,0.6);
+  margin: 30px auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 320px;
+}
+
+/* input propre */
+input {
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  width: 80%;
+  text-align: center;
+}
+
+/* feedback */
+#res3 {
+  margin-top: 10px;
+  font-weight: bold;
+}
