@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Conversions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page conversions-page">
+
+  <nav class="topbar">
+    <a class="home" href="index.html">🏠 Accueil</a>
+  </nav>
+
+  <h2>Conversions</h2>
+
+  <div class="content">
+    <p>Convertir 2,5 km en m :</p>
+    <input type="number" id="rep2">
+    <button onclick="verif2()">Vérifier</button>
+    <p id="res2"></p>
+  </div>
+
+  <script>
+    function verif2() {
+      let r = document.getElementById('rep2').value;
+      document.getElementById('res2').textContent =
+        (r == 2500) ? "Correct !" : "Incorrect";
+    }
+  </script>
+
+</body>
+</html>

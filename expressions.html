@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Expressions littérales</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page expressions-page">
+
+  <nav class="topbar">
+    <a class="home" href="index.html">🏠 Accueil</a>
+  </nav>
+
+  <h2>Expressions littérales</h2>
+
+  <div class="content">
+    <p>Simplifier : 2x + 3x = ?</p>
+    <input type="text" id="rep3">
+    <button onclick="verif3()">Vérifier</button>
+    <p id="res3"></p>
+  </div>
+
+  <script>
+    function verif3() {
+      let r = document.getElementById('rep3').value;
+      document.getElementById('res3').textContent =
+        (r == "5x") ? "Correct !" : "Incorrect";
+    }
+  </script>
+
+</body>
+</html>

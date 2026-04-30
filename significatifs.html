@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Chiffres significatifs</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="page significatifs-page">
+
+  <nav class="topbar">
+    <a class="home" href="index.html">🏠 Accueil</a>
+  </nav>
+
+  <h2>Chiffres significatifs</h2>
+
+  <div class="content">
+    <p>Combien de chiffres significatifs dans 0,00450 ?</p>
+    <input type="number" id="rep1">
+    <button onclick="verif1()">Vérifier</button>
+    <p id="res1"></p>
+  </div>
+
+  <script>
+    function verif1() {
+      let r = document.getElementById('rep1').value;
+      document.getElementById('res1').textContent =
+        (r == 3) ? "Correct !" : "Incorrect";
+    }
+  </script>
+
+</body>
+</html>
