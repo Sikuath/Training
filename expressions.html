@@ -4,28 +4,36 @@
   <meta charset="UTF-8">
   <title>Expressions littérales</title>
   <link rel="stylesheet" href="style.css">
+
+  <script>
+    sessionStorage.setItem("lastExercise", window.location.href);
+  </script>
 </head>
 
 <body class="page expressions-page">
 
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
+    <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
   <h2>Expressions littérales</h2>
 
   <div class="content">
     <p>Simplifier : 2x + 3x = ?</p>
+
     <input type="text" id="rep3">
     <button onclick="verif3()">Vérifier</button>
+
     <p id="res3"></p>
   </div>
 
   <script>
     function verif3() {
-      let r = document.getElementById('rep3').value;
+      let r = document.getElementById('rep3').value.trim();
+
       document.getElementById('res3').textContent =
-        (r == "5x") ? "Correct !" : "Incorrect";
+        (r === "5x") ? "✔ Correct !" : "✘ Incorrect";
     }
   </script>
 

@@ -12,7 +12,6 @@ body {
   background-size: cover;
 }
 
-/* MENU INDEX */
 .sidebar {
   width: 250px;
   background: rgba(0, 0, 0, 0.75);
@@ -26,21 +25,33 @@ body {
   margin-bottom: 20px;
 }
 
-.sidebar a {
+/* boutons navigation */
+.nav-btn {
   color: white;
   text-decoration: none;
   padding: 12px;
   border-radius: 8px;
-  transition: 0.3s;
   background: rgba(255,255,255,0.05);
+  transition: 0.3s;
+  display: block;
 }
 
-.sidebar a:hover {
+.nav-btn:hover {
   background: rgba(255,255,255,0.25);
   transform: translateX(5px);
 }
 
-/* CONTENU INDEX */
+/* bouton rappels */
+.nav-btn.rappels {
+  background: #122a52;
+  font-weight: bold;
+}
+
+.nav-btn.rappels:hover {
+  background: #1b3b70;
+}
+
+/* ================= CONTENU INDEX ================= */
 .main-content {
   flex: 1;
   display: flex;
@@ -51,14 +62,61 @@ body {
   text-align: center;
 }
 
-/* ================= PAGES ================= */
+/* ================= ANIMATION INDEX ================= */
+.animated-home h1 {
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin: 0;
+
+  color: white;
+
+  animation: titleIn 1.2s ease-out, float 4s ease-in-out infinite;
+
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.2),
+    0 0 25px rgba(80,150,255,0.3),
+    0 15px 40px rgba(0,0,0,0.6);
+}
+
+.animated-home p {
+  font-size: 30px;
+  margin-top: 15px;
+
+  opacity: 0;
+  animation: fadeInText 2s ease forwards;
+}
+
+@keyframes titleIn {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInText {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ================= PAGES EXERCICES ================= */
 .page {
   min-height: 100vh;
   text-align: center;
   padding-top: 70px;
 }
 
-/* BOÎTE EXERCICE */
 .content {
   background: rgba(0,0,0,0.6);
   margin: 30px auto;
@@ -67,7 +125,7 @@ body {
   width: 320px;
 }
 
-/* ================= BACKGROUNDS ================= */
+/* backgrounds exercices */
 .significatifs-page {
   background: url('background1.png') no-repeat center center;
   background-size: cover;
@@ -97,31 +155,49 @@ body {
 
   display: flex;
   justify-content: flex-start;
+  gap: 10px;
 
   padding: 12px 20px;
   background: rgba(11, 29, 58, 0.95);
   backdrop-filter: blur(6px);
-
   z-index: 2000;
 }
 
-.topbar .home {
-  font-weight: bold;
-  background: #122a52;
-  padding: 8px 14px;
-  border-radius: 8px;
-
+.topbar a {
   color: white;
   text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
   transition: 0.3s;
+}
+
+.topbar .home {
+  background: #122a52;
+  font-weight: bold;
 }
 
 .topbar .home:hover {
   background: #1b3b70;
-  transform: scale(1.05);
 }
 
-/* ================= BUTTON ================= */
+.topbar .rappel {
+  background: rgba(255,255,255,0.08);
+}
+
+.topbar .rappel:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.topbar .back {
+  background: rgba(255,255,255,0.08);
+}
+
+.topbar .back:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ================= BOUTONS ================= */
 button {
   margin-top: 10px;
   padding: 10px;
@@ -134,4 +210,43 @@ button {
 
 button:hover {
   background: #e68900;
+}
+
+/* ================= RAPPELS ================= */
+.rappels-page {
+  background: url('background.png') no-repeat center center;
+  background-size: cover;
+}
+
+/* grille vignettes */
+.grid-rappels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 30px;
+}
+
+/* vignettes */
+.card-rappel {
+  background: rgba(0,0,0,0.6);
+  padding: 20px;
+  border-radius: 12px;
+
+  text-decoration: none;
+  color: white;
+  text-align: center;
+
+  transition: 0.3s;
+  display: block;
+}
+
+.card-rappel:hover {
+  transform: scale(1.05);
+  background: rgba(0,0,0,0.75);
+}
+
+.card-rappel h3 {
+  margin: 0;
+  margin-bottom: 10px;
+  color: #ffd27a;
 }

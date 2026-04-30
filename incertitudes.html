@@ -4,28 +4,36 @@
   <meta charset="UTF-8">
   <title>Incertitudes</title>
   <link rel="stylesheet" href="style.css">
+
+  <script>
+    sessionStorage.setItem("lastExercise", window.location.href);
+  </script>
 </head>
 
 <body class="page incertitudes-page">
 
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
+    <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
   <h2>Incertitudes</h2>
 
   <div class="content">
-    <p>Donner l'incertitude de 10 ± 0,5 :</p>
+    <p>Quelle est l’incertitude de 10 ± 0,5 ?</p>
+
     <input type="number" id="rep4">
     <button onclick="verif4()">Vérifier</button>
+
     <p id="res4"></p>
   </div>
 
   <script>
     function verif4() {
-      let r = document.getElementById('rep4').value;
+      let r = Number(document.getElementById('rep4').value);
+
       document.getElementById('res4').textContent =
-        (r == 0.5) ? "Correct !" : "Incorrect";
+        (r === 0.5) ? "✔ Correct !" : "✘ Incorrect";
     }
   </script>
 
