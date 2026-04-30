@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Rappels - Incertitudes</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- MathJax -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body class="page rappels-page">
@@ -13,15 +16,135 @@
     <a class="home" href="rappels.html">↩ Retour</a>
   </nav>
 
-  <h2>Incertitudes</h2>
+  <h2>📊 Incertitudes et mesures</h2>
 
-  <div class="content">
-    <p>
-      ✔ Une mesure s’écrit : valeur ± incertitude<br>
-      ✔ L’incertitude représente la marge d’erreur<br>
-      ✔ Toujours garder les unités<br>
-      ✔ Arrondir correctement
-    </p>
+  <div class="content large">
+
+    <h3>🧠 1. Erreurs de mesure</h3>
+
+    <div class="exemple">
+      <p>Une mesure n’est jamais exacte.</p>
+      <ul>
+        <li>instrument</li>
+        <li>expérimentateur</li>
+        <li>conditions expérimentales</li>
+      </ul>
+    </div>
+
+    <div class="exemple">
+      <p>Exemple :</p>
+      <p>L = 10,2 cm</p>
+      <p>u(L) = 0,1 cm</p>
+      <p>$$L = (10,2 \pm 0,1)\, cm$$</p>
+    </div>
+
+    <h3>📊 2. Dispersion de mesures</h3>
+
+    <div class="exemple">
+      <p>$$9,8 \quad 10,1 \quad 10,0 \quad 9,9$$</p>
+      <p>$$\bar{x} = 9,95$$</p>
+    </div>
+
+    <div class="exemple">
+      <p>Écart-type :</p>
+      <p>
+        $$s = \sqrt{\frac{1}{n-1}\sum (x_i - \bar{x})^2}$$
+      </p>
+    </div>
+
+    <h3>📐 3. Incertitude type A</h3>
+
+    <div class="exemple">
+      <p>
+        $$u_A = \frac{s}{\sqrt{n}}$$
+      </p>
+    </div>
+
+    <h3>📏 4. Incertitude type B</h3>
+
+    <div class="exemple">
+      <p>
+        $$u_B = \frac{\text{graduation}}{\sqrt{6}}$$
+      </p>
+      <p>
+        $$u_B = \frac{1\,mm}{\sqrt{6}}$$
+      </p>
+    </div>
+
+    <h3>⚙️ 5. Incertitude composée</h3>
+
+    <div class="exemple">
+      <p>Masse volumique :</p>
+
+      <p>
+        $$\rho = \frac{m}{V}$$
+      </p>
+
+      <p>
+        m = 89,6 g ; u(m)=0,1 g  
+        V = 10,2 cm³ ; u(V)=0,2 cm³
+      </p>
+
+      <p>
+        $$\rho = 8,78\, g \cdot cm^{-3}$$
+      </p>
+
+      <p>
+        $$u(\rho) = \rho \cdot \sqrt{\left(\frac{u(m)}{m}\right)^2 + \left(\frac{u(V)}{V}\right)^2}$$
+      </p>
+
+      <p>
+        $$u(\rho) = 0,18\, g \cdot cm^{-3}$$
+      </p>
+    </div>
+
+    <h3>🧾 6. Écriture du résultat</h3>
+
+    <div class="exemple">
+      <p>
+        $$\rho = (8,78 \pm 0,18)\, g \cdot cm^{-3}$$
+      </p>
+
+      <p>
+        ✔ puissance de 10 unique si nécessaire
+      </p>
+
+      <p>
+        $$m = (2,50 \pm 0,05)\times 10^{-3}\, kg$$
+      </p>
+    </div>
+
+    <h3>📈 7. Z-score</h3>
+
+    <div class="exemple">
+      <p>
+        $$z = \frac{|x - x_{ref}|}{u}$$
+      </p>
+
+      <ul>
+        <li>z ≤ 2 → compatible ✔</li>
+        <li>z > 2 → incompatible ❌</li>
+      </ul>
+    </div>
+
+    <div class="exemple">
+      <h4>🔬 Exemple : laser par diffraction</h4>
+
+      <p>
+        $$\lambda = (652 \pm 10)\, nm$$
+      </p>
+
+      <p>
+        $$\lambda_{ref} = 650\, nm$$
+      </p>
+
+      <p>
+        $$z = \frac{|652 - 650|}{10} = 0,2$$
+      </p>
+
+      <p>✔ compatible</p>
+    </div>
+
   </div>
 
 </body>
