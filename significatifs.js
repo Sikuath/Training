@@ -6,81 +6,106 @@ let level = 1;
 let playing = false;
 
 /* =========================
-   GENERATION PROGRESSIVE
+   GENERATION
 ========================= */
 
 function generate() {
+  const set = new Set();
   questions = [];
 
-  for (let k = 0; k < 200; k++) {
-    const lvl = Math.floor(k / 50); // 4 niveaux
+  while (questions.length < 200) {
 
-    let q, a;
+    const cs = Math.floor(Math.random() * 5) + 1;
+    const type = Math.floor(Math.random() * 3);
 
-    /* ---------------- FACILE ---------------- */
-    if (lvl === 0) {
-      const pool = [
-        { q: "0,00450", a: 3 },
-        { q: "12,0", a: 3 },
-        { q: "100", a: 1 },
-        { q: "45,6", a: 3 },
-        { q: "0,120", a: 3 },
-        { q: "7,00", a: 3 },
-        { q: "500", a: 1 }
-      ];
+    let obj;
 
-      ({ q, a } = pool[Math.floor(Math.random() * pool.length)]);
+    if (type === 0) obj = genInteger(cs);
+    if (type === 1) obj = genDecimal(cs);
+    if (type === 2) obj = genScientific(cs);
+
+    if (obj && !set.has(obj.q)) {
+      set.add(obj.q);
+      questions.push(obj);
     }
-
-    /* ---------------- MOYEN ---------------- */
-    else if (lvl === 1) {
-      const pool = [
-        { q: "1,2300", a: 5 },
-        { q: "0,0100", a: 3 },
-        { q: "120,0", a: 4 },
-        { q: "78,900", a: 5 },
-        { q: "0,00320", a: 3 },
-        { q: "1000,0", a: 5 },
-        { q: "6,02 × 10^23", a: 3 },
-        { q: "9,81 × 10^0", a: 3 }
-      ];
-
-      ({ q, a } = pool[Math.floor(Math.random() * pool.length)]);
-    }
-
-    /* ---------------- DIFFICILE ---------------- */
-    else if (lvl === 2) {
-      const pool = [
-        { q: "3,00 × 10^8", a: 3 },
-        { q: "1,00 × 10^-6", a: 3 },
-        { q: "2,50 × 10^4", a: 3 },
-        { q: "5,000 × 10^2", a: 4 },
-        { q: "0,000450", a: 3 },
-        { q: "6,022 × 10^23", a: 4 }
-      ];
-
-      ({ q, a } = pool[Math.floor(Math.random() * pool.length)]);
-    }
-
-    /* ---------------- EXPERT ---------------- */
-    else {
-      const pool = [
-        { q: "0,000100", a: 3 },
-        { q: "100,00", a: 5 },
-        { q: "1,0000", a: 5 },
-        { q: "7,000 × 10^-3", a: 4 },
-        { q: "0,04000", a: 4 },
-        { q: "9,000 × 10^5", a: 4 }
-      ];
-
-      ({ q, a } = pool[Math.floor(Math.random() * pool.length)]);
-    }
-
-    questions.push({ q, a });
   }
 
-  // mélange global
   questions.sort(() => Math.random() - 0.5);
+}
+
+/* =========================
+   ENTIER
+========================= */
+
+function genInteger(cs) {
+
+  let s = "";
+
+  for (let i = 0; i < cs; i++) {
+    if (i === 0) {
+      s += Math.floor(Math.random() * 9 + 1);
+    } else {
+      s += Math.floor(Math.random() * 10);
+    }
+  }
+
+  return { q: s, a: cs };
+}
+
+/* =========================
+   DECIMAL CORRIGÉ
+========================= */
+
+function genDecimal(cs) {
+
+  // pas de décimal pour 1 CS
+  if (cs === 1) {
+    return genInteger(cs);
+  }
+
+  let digits = "";
+
+  for (let i = 0; i < cs; i++) {
+
+    if (i === 0) {
+      // 🔥 pas de zéro en tête
+      digits += Math.floor(Math.random() * 9 + 1);
+    } else {
+      digits += Math.floor(Math.random() * 10);
+    }
+
+  }
+
+  const pos = Math.floor(Math.random() * (cs - 1)) + 1;
+
+  let q = digits.slice(0, pos) + "," + digits.slice(pos);
+
+  return { q, a: cs };
+}
+
+/* =========================
+   SCIENTIFIQUE PROPRE
+========================= */
+
+function genScientific(cs) {
+
+  let first = Math.floor(Math.random() * 9 + 1);
+
+  let rest = "";
+  for (let i = 0; i < cs - 1; i++) {
+    rest += Math.floor(Math.random() * 10);
+  }
+
+  let mant = cs === 1 ? String(first) : first + "," + rest;
+
+  let exp = Math.floor(Math.random() * 10 - 5);
+
+  let sign = exp < 0 ? "⁻" : "";
+  let absExp = Math.abs(exp);
+
+  let q = mant + " × 10" + sign + "<sup>" + absExp + "</sup>";
+
+  return { q, a: cs };
 }
 
 /* =========================
@@ -98,11 +123,11 @@ function sound(type) {
   if (!audio) return;
 
   audio.currentTime = 0;
-  audio.play().catch(() => {});
+  audio.play().catch(()=>{});
 }
 
 /* =========================
-   START GAME (FIX STABLE)
+   GAME
 ========================= */
 
 function startGame() {
@@ -118,27 +143,18 @@ function startGame() {
   document.getElementById("validateBtn").style.display = "inline-block";
   document.getElementById("stopBtn").style.display = "inline-block";
 
-  document.getElementById("feedback").textContent = "";
-
-  screenIn();
-
-  requestAnimationFrame(() => {
-    load();
-    updateUI();
-  });
+  load();
+  updateUI();
 }
 
 /* =========================
-   LOAD QUESTION
+   QUESTION
 ========================= */
 
 function load() {
-  if (!questions || questions.length === 0) return;
-
   const q = questions[i];
-  if (!q) return;
 
-  document.getElementById("question").textContent =
+  document.getElementById("question").innerHTML =
     "Combien de chiffres significatifs dans : " + q.q;
 
   document.getElementById("answer").value = "";
@@ -146,36 +162,47 @@ function load() {
 }
 
 /* =========================
-   SUBMIT
+   REPONSE
 ========================= */
 
 function submit() {
+
   if (!playing) return;
 
-  const val = parseInt(document.getElementById("answer").value);
+  const val = Number(document.getElementById("answer").value);
   const good = questions[i].a;
+
+  if (isNaN(val)) {
+    document.getElementById("feedback").textContent = "⚠ entre un nombre";
+    sound("heavy");
+    return;
+  }
 
   if (val === good) {
     score++;
     streak++;
     sound("good");
-    flash("good");
-    document.getElementById("feedback").textContent = "✔ Correct !";
+    document.getElementById("feedback").textContent = "✔ Correct";
   } else {
     streak = 0;
-    sound(Math.abs(val - good) === 1 ? "light" : "heavy");
-    flash("bad");
-    document.getElementById("feedback").textContent = "✘ Incorrect";
+
+    if (Math.abs(val - good) === 1) {
+      sound("light");
+    } else {
+      sound("heavy");
+    }
+
+    document.getElementById("feedback").textContent =
+      "✘ Faux (réponse : " + good + ")";
   }
 
   level = 1 + Math.floor(score / 5);
   i++;
 
   updateUI();
-  save();
 
   if (i >= questions.length) {
-    end();
+    playing = false;
     return;
   }
 
@@ -196,59 +223,7 @@ function updateUI() {
 }
 
 /* =========================
-   VISUAL FEEDBACK
-========================= */
-
-function flash(type) {
-  const card = document.getElementById("card");
-
-  card.classList.remove("good", "bad");
-  void card.offsetWidth;
-  card.classList.add(type);
-}
-
-/* =========================
-   STOP / END
-========================= */
-
-function stopGame() {
-  playing = false;
-  screenOut();
-}
-
-function end() {
-  playing = false;
-  screenOut();
-}
-
-/* =========================
-   SCREEN
-========================= */
-
-function screenIn() {
-  document.getElementById("screen").style.opacity = 1;
-}
-
-function screenOut() {
-  document.getElementById("screen").style.opacity = 0.3;
-}
-
-/* =========================
-   STORAGE
-========================= */
-
-function save() {
-  localStorage.setItem("sig_score", score);
-  localStorage.setItem("sig_streak", streak);
-}
-
-function loadSave() {
-  score = parseInt(localStorage.getItem("sig_score") || 0);
-  streak = parseInt(localStorage.getItem("sig_streak") || 0);
-}
-
-/* =========================
    INIT
 ========================= */
 
-loadSave();
+generate();
