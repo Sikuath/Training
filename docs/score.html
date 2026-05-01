@@ -4,11 +4,48 @@
 <meta charset="UTF-8">
 <title>HIGH SCORES</title>
 <link rel="stylesheet" href="retro.css">
+
+<style>
+
+body {
+  background: black;
+  color: lime;
+  font-family: monospace;
+}
+
+/* bouton retour */
+.back-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 8px 12px;
+  background: #111;
+  border: 1px solid lime;
+  color: lime;
+  cursor: pointer;
+}
+
+table {
+  margin: 80px auto;
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid lime;
+  padding: 10px;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<h1>HIGH SCORES</h1>
+<button class="back-btn" onclick="window.location.href='index.html'">
+  ⬅ RETOUR
+</button>
+
+<h1 style="text-align:center;">HIGH SCORES</h1>
 
 <table>
   <thead>
@@ -24,11 +61,14 @@
 
 <script>
 
-const data = JSON.parse(localStorage.getItem("ranking") || "[]");
+let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+
+/* 🔥 sécurité TOP 10 (redondant mais safe) */
+ranking = ranking.sort((a,b) => b.score - a.score).slice(0,10);
 
 const tbody = document.getElementById("scores");
 
-data.forEach((e, i) => {
+ranking.forEach((e, i) => {
 
   const row = document.createElement("tr");
 
