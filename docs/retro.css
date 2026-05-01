@@ -1,12 +1,11 @@
-
 /* =========================
    BASE
 ========================= */
 
 body {
   margin: 0;
-  background: black;
   font-family: "Courier New", monospace;
+  background: black;
 }
 
 /* =========================
@@ -16,7 +15,6 @@ body {
 .game-page {
   color: lime;
 
-  /* 🔥 CENTRAGE GAME OVER */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -26,7 +24,7 @@ body {
   text-align: center;
 }
 
-/* scanlines animées uniquement game */
+/* scanlines uniquement game */
 .game-page::before {
   content: "";
   position: fixed;
@@ -52,19 +50,14 @@ body {
 }
 
 /* =========================
-   GAME OVER GLITCH TITLE
+   GAME OVER TITLE
 ========================= */
 
 .glitch {
   font-size: 70px;
   color: red;
-  text-shadow:
-    2px 0 blue,
-    -2px 0 lime,
-    0 0 20px red;
-
+  text-shadow: 2px 0 blue, -2px 0 lime, 0 0 20px red;
   animation: blink 0.6s infinite;
-  margin: 0;
 }
 
 @keyframes blink {
@@ -74,16 +67,7 @@ body {
 }
 
 /* =========================
-   GAME UI CONTAINER
-========================= */
-
-.container {
-  margin-top: 20px;
-  text-align: center;
-}
-
-/* =========================
-   INPUT / BUTTONS
+   INPUT / BUTTON
 ========================= */
 
 input {
@@ -93,7 +77,6 @@ input {
   font-size: 40px;
   text-align: center;
   width: 120px;
-  text-transform: uppercase;
   margin-top: 10px;
 }
 
@@ -103,8 +86,8 @@ button {
   color: red;
   padding: 10px 20px;
   cursor: pointer;
-  font-family: "Courier New", monospace;
   margin-top: 10px;
+  font-family: "Courier New", monospace;
 }
 
 button:hover {
@@ -113,12 +96,11 @@ button:hover {
 }
 
 /* =========================
-   SCORE PAGE (STATIC / CLEAN)
+   SCORE PAGE
 ========================= */
 
 .score-page {
-  background: url("background1.png") no-repeat center center fixed;
-  background-size: cover;
+  background: url("background1.png") center/cover fixed no-repeat;
   color: #00ffcc;
 }
 
@@ -127,56 +109,14 @@ button:hover {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.5);
   pointer-events: none;
 }
 
-/* ❌ SUPPRESSION TOTALE ANIMATIONS SCORE */
+/* désactive animations */
 .score-page * {
   animation: none !important;
   transition: none !important;
-}
-
-/* =========================
-   SCORE PANEL
-========================= */
-
-.score-panel {
-  width: 420px;
-  margin: 100px auto;
-  padding: 20px;
-
-  background: rgba(0, 0, 0, 0.75);
-  border: 2px solid #00ffcc;
-
-  box-shadow: 0 0 18px rgba(0, 255, 204, 0.25);
-
-  position: relative;
-  z-index: 10;
-}
-
-.score-panel h1 {
-  text-align: center;
-  color: #00ffcc;
-}
-
-.score-panel table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.score-panel th,
-.score-panel td {
-  border: 1px solid rgba(0,255,204,0.4);
-  padding: 8px;
-  color: #00ffcc;
-}
-
-/* top 1 highlight */
-.score-panel tr:first-child {
-  color: yellow;
-  font-weight: bold;
-  text-shadow: 0 0 8px yellow;
 }
 
 /* =========================
@@ -201,8 +141,9 @@ button:hover {
   background: lime;
   color: black;
 }
+
 /* =========================
-   2 COLONNES SCORES
+   SCORE LAYOUT (2 COLONNES)
 ========================= */
 
 .scores-container {
@@ -213,31 +154,62 @@ button:hover {
 }
 
 .score-block {
+  width: 320px;
   text-align: center;
 }
 
 .score-block h2 {
   color: yellow;
-  margin-bottom: 10px;
 }
 
+/* header colonnes */
+.scoreboard-header {
+  display: flex;
+  justify-content: space-between;
+
+  font-weight: bold;
+  color: #00ff66;
+
+  padding: 6px 10px;
+  border: 1px solid lime;
+  background: rgba(0,0,0,0.6);
+}
+
+/* tableau */
 .scoreboard {
-  width: 260px;
-  background: rgba(0,0,0,0.8);
   border: 2px solid lime;
-  padding: 10px;
+  background: rgba(0,0,0,0.75);
 }
 
-/* lignes */
+/* ligne */
 .row {
   display: flex;
   justify-content: space-between;
-  padding: 5px;
-  border-bottom: 1px solid rgba(0,255,0,0.4);
+
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(0,255,0,0.2);
 }
 
 /* top 1 */
 .row:first-child {
   color: yellow;
   font-weight: bold;
+}
+
+/* vide */
+.row.empty {
+  justify-content: center;
+  color: gray;
+}
+
+/* légende */
+.legend {
+  text-align: center;
+  margin-top: 10px;
+  color: #00ffcc;
+  font-size: 14px;
+}
+
+.legend span {
+  margin: 0 10px;
 }

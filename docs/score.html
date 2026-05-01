@@ -8,24 +8,46 @@
 
 <body class="score-page">
 
+<!-- RETOUR -->
 <button class="back-btn" onclick="window.location.href='index.html'">
 ⬅ RETOUR
 </button>
 
-<h1 class="arcade-title">HIGH SCORES</h1>
+<h1 class="arcade-title">🏆 HIGH SCORES</h1>
 
-<!-- 🔥 CONTENEUR 2 COLONNES -->
+<!-- EXPLICATION -->
+<div class="legend">
+  <span>📊 # Classement</span>
+  <span>👤 Nom</span>
+  <span>⭐ Score</span>
+</div>
+
+<!-- CONTENEUR 2 COLONNES -->
 <div class="scores-container">
 
   <!-- SIGNIFICATIFS -->
   <div class="score-block">
     <h2>📐 Significatifs</h2>
+
+    <div class="scoreboard-header">
+      <span>#</span>
+      <span>Nom</span>
+      <span>Score</span>
+    </div>
+
     <div class="scoreboard" id="sig"></div>
   </div>
 
   <!-- CONVERSIONS -->
   <div class="score-block">
     <h2>🔢 Conversions</h2>
+
+    <div class="scoreboard-header">
+      <span>#</span>
+      <span>Nom</span>
+      <span>Score</span>
+    </div>
+
     <div class="scoreboard" id="conv"></div>
   </div>
 
@@ -33,16 +55,15 @@
 
 <script>
 
-function display(key, elementId) {
+function display(key, id) {
 
   let data = JSON.parse(localStorage.getItem(key) || "[]");
 
-  const container = document.getElementById(elementId);
-
+  const container = document.getElementById(id);
   container.innerHTML = "";
 
-  if (data.length === 0) {
-    container.innerHTML = "<div class='row'>Aucun score</div>";
+  if (!data.length) {
+    container.innerHTML = "<div class='row empty'>Aucun score</div>";
     return;
   }
 
