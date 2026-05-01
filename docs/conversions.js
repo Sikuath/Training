@@ -33,7 +33,7 @@ function playBadSound() {
 }
 
 /* =========================
-   PREFIXES SI (BASE DU MOTEUR)
+   PREFIXES
 ========================= */
 
 const PREFIXES = {
@@ -42,65 +42,65 @@ const PREFIXES = {
   "µ": 1e-6,
   "m": 1e-3,
   "c": 1e-2,
-  "d": 1e-1,
-  "da": 1e1,
-  "h": 1e2,
   "k": 1e3,
   "M": 1e6,
   "G": 1e9
 };
 
 /* =========================
-   UNITES DE BASE (physique)
+   UNITES SIMPLES
 ========================= */
 
 const UNITS = {
-  m: ["", "m", "c", "k"],           // m, cm, mm, km
-  g: ["", "m", "k"],                // g, mg, kg
-  s: ["", "m", "µ"],                // s, ms, µs
-  A: ["", "m", "k"],                // A, mA, kA
-  V: ["", "m", "k"],                // V, mV, kV
-  W: ["", "m", "k"],                // W, mW, kW
-  J: ["", "m", "k"],                // J, mJ, kJ
-  Pa: ["", "k"],                    // Pa, kPa
-  Hz: ["", "k", "M"],               // Hz, kHz, MHz
-  bit: ["", "k", "M", "G"],         // bit, kbit, Mbit, Gbit
-  N: ["", "k"]                      // N, kN
+  m: ["", "m", "c", "k"],
+  g: ["", "m", "k"],
+  s: ["", "m", "µ"],
+  A: ["", "m", "k"],
+  V: ["", "m", "k"],
+  W: ["", "m", "k"],
+  J: ["", "m", "k"],
+  Pa: ["", "k"],
+  Hz: ["", "k", "M"],
+  N: ["", "k"]
 };
 
 /* =========================
-   MODE DIFFICULTE
+   UNITES COMPOSEES
+========================= */
+
+const COMPOUND = [
+  ["g", "L"],
+  ["kg", "m³"],
+  ["m", "s"],
+  ["W", "m²"]
+];
+
+/* =========================
+   MODE
 ========================= */
 
 function getMode() {
-  if (score >= 10) return "hard";
-  if (score >= 5) return "medium";
+  if (score >= 3) return "hard";
+  if (score >= 2) return "medium";
   return "easy";
 }
 
 /* =========================
-   GENERATION UNITE SIMPLE
+   UNITE SIMPLE
 ========================= */
 
 function randomSIUnit() {
 
   const bases = Object.keys(UNITS);
   const base = bases[Math.floor(Math.random() * bases.length)];
-
   const allowed = UNITS[base];
 
   let p1, p2;
 
-  // 🔥 éviter même unité → même unité (inutile)
   do {
     p1 = allowed[Math.floor(Math.random() * allowed.length)];
     p2 = allowed[Math.floor(Math.random() * allowed.length)];
   } while (p1 === p2);
-
-  // 🔥 sécurité : si prefixe inconnu
-  if (!(p1 in PREFIXES) || !(p2 in PREFIXES)) {
-    return randomSIUnit(); // retry propre
-  }
 
   return {
     from: p1 + base,
@@ -110,32 +110,27 @@ function randomSIUnit() {
 }
 
 /* =========================
-   GENERATION QUESTION
+   UNITE COMPOSEE
 ========================= */
 
-function generateQuestion() {
+function randomCompoundUnit() {
 
-  const mode = getMode();
+  const pair = COMPOUND[Math.floor(Math.random() * COMPOUND.length)];
 
-  let value;
+  const numBase = pair[0];
+  const denBase = pair[1];
 
-  if (mode === "easy") {
-    value = Math.floor(Math.random() * 10 + 1);
+  const num = randomSIUnit();
+  const den = randomSIUnit();
+
+  if (!num.from.endsWith(numBase) || !den.from.endsWith(denBase)) {
+    return randomCompoundUnit();
   }
 
-  else if (mode === "medium") {
-    value = +(Math.random() * 100).toFixed(2);
-  }
-
-  else {
-    value = +(Math.random() * 50).toFixed(2);
-  }
-
-  const item = randomSIUnit();
-
-  currentQuestion = {
-    q: `${formatFR(value)} ${item.from} → ${item.to}`,
-    a: value * item.factor
+  return {
+    from: `${num.from}/${den.from}`,
+    to: `${num.to}/${den.to}`,
+    factor: num.factor / den.factor
   };
 }
 
@@ -145,6 +140,56 @@ function generateQuestion() {
 
 function formatFR(x) {
   return String(x).replace(".", ",");
+}
+
+/* =========================
+   SCIENTIFIQUE
+========================= */
+
+function formatScientific(x) {
+
+  if (x === 0) return "0";
+
+  const abs = Math.abs(x);
+
+  if (abs >= 1000 || abs < 0.01) {
+
+    const exp = Math.floor(Math.log10(abs));
+    const mant = x / Math.pow(10, exp);
+
+    const m = mant
+      .toFixed(3)
+      .replace(/\.?0+$/, "")
+      .replace(".", ",");
+
+    return `${m} × 10<sup>${exp}</sup>`;
+  }
+
+  return String(x).replace(".", ",");
+}
+
+/* =========================
+   GENERATION
+========================= */
+
+function generateQuestion() {
+
+  const mode = getMode();
+
+  let value;
+
+  if (mode === "easy") value = Math.floor(Math.random() * 10 + 1);
+  else if (mode === "medium") value = +(Math.random() * 100).toFixed(2);
+  else value = +(Math.random() * 50).toFixed(2);
+
+  const item = (mode === "hard")
+    ? randomCompoundUnit()
+    : randomSIUnit();
+
+  currentQuestion = {
+    q: `${formatFR(value)} ${item.from} → ${item.to}`,
+    a: value * item.factor
+  };
 }
 
 /* =========================
@@ -198,7 +243,7 @@ function startTimer() {
 
 function load() {
 
-  document.getElementById("question").textContent =
+  document.getElementById("question").innerHTML =
     currentQuestion.q;
 
   document.getElementById("answer").value = "";
@@ -225,7 +270,7 @@ function submitAnswer() {
   const input = parseInput(document.getElementById("answer").value);
   const good = currentQuestion.a;
 
-  const epsilon = 0.001;
+  const epsilon = Math.abs(good) * 1e-4 + 1e-6;
 
   if (!isNaN(input) && Math.abs(input - good) < epsilon) {
 
@@ -245,10 +290,10 @@ function submitAnswer() {
 
     fb.innerHTML =
       "✘ Faux<br>✔ Réponse : <b>" +
-      formatFR(good) +
+      formatScientific(good) +
       "</b>";
 
-    setTimeout(() => endGame(), 700);
+    setTimeout(() => endGame(), 1200);
   }
 
   updateUI();
@@ -272,7 +317,7 @@ function endGame() {
 
     fb.innerHTML =
       "✔ Fin du jeu<br>✔ Réponse : <b>" +
-      formatFR(currentQuestion.a) +
+      formatScientific(currentQuestion.a) +
       "</b>";
   }
 
@@ -281,14 +326,27 @@ function endGame() {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
 
-  }, 2000);
+  }, 8000);
 }
 
 /* =========================
-   UI
+   UI (FIX ICI)
 ========================= */
 
 function updateUI() {
+
   const s = document.getElementById("score");
   if (s) s.textContent = score;
+
+  const m = document.getElementById("mode");
+  if (m) {
+    const mode = getMode();
+    m.textContent = mode;
+
+    // option visuelle propre
+    m.style.color =
+      mode === "easy" ? "#00ff00" :
+      mode === "medium" ? "#ffff00" :
+      "#ff4444";
+  }
 }
