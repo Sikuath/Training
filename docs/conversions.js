@@ -9,7 +9,7 @@ let gameOver = false;
 let currentQuestion = null;
 
 /* =========================
-   SON (ROBUSTE)
+   SON
 ========================= */
 
 function playSound(id) {
@@ -20,18 +20,11 @@ function playSound(id) {
     s.pause();
     s.currentTime = 0;
 
-    const playPromise = s.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(err => {
-        console.warn("Audio bloqué :", id, err);
-      });
-    }
-  } catch (e) {
-    console.warn("Audio error :", id, e);
-  }
+    const p = s.play();
+    if (p !== undefined) p.catch(() => {});
+  } catch (e) {}
 }
 
-/* alias simples */
 function playGoodSound() {
   playSound("goodSound");
 }
@@ -90,10 +83,6 @@ function getMode() {
   return "easy";
 }
 
-/* =========================
-   POOL
-========================= */
-
 function getPool() {
   const mode = getMode();
   if (mode === "easy") return EASY;
@@ -102,7 +91,23 @@ function getPool() {
 }
 
 /* =========================
-   FORMAT
+   FORMAT FR
+========================= */
+
+function formatFR(x) {
+  return String(x).replace(".", ",");
+}
+
+/* =========================
+   SCIENTIFIQUE HTML
+========================= */
+
+function formatScientificHTML(str) {
+  return str.replace(/\^(-?\d+)/g, "<sup>$1</sup>");
+}
+
+/* =========================
+   NUMBER FORMAT SMART
 ========================= */
 
 function formatSmartNumber(x) {
@@ -124,18 +129,8 @@ function formatSmartNumber(x) {
     return `${m} × 10^${exp}`;
   }
 
-  return Number(x.toFixed(6))
-    .toString()
-    .replace(".", ",")
-    .replace(/,0+$/, "");
-}
-
-/* =========================
-   MATH DISPLAY
-========================= */
-
-function formatMathDisplay(str) {
-  return str.replace(/\^(-?\d+)/g, "<sup>$1</sup>");
+  return String(x)
+    .replace(".", ",");
 }
 
 /* =========================
@@ -155,17 +150,19 @@ function generateQuestion() {
   else if (mode === "medium") value = +(Math.random() * 100).toFixed(2);
   else value = +(Math.random() * 50).toFixed(2);
 
+  value = Number(value);
+
   if (mode === "hard") {
 
     currentQuestion = {
-      q: `${value} ${item.q}`,
+      q: `${formatFR(value)} ${item.q}`,
       a: item.compute(value)
     };
 
   } else {
 
     currentQuestion = {
-      q: `${value} ${item.from} en ${item.to} ?`,
+      q: `${formatFR(value)} ${item.from} en ${item.to} ?`,
       a: value * item.factor
     };
   }
@@ -224,10 +221,8 @@ function startTimer() {
 
 function load() {
 
-  let q = currentQuestion.q;
-  q = q.replace(/\./g, ",");
-
-  document.getElementById("question").textContent = q;
+  document.getElementById("question").innerHTML =
+    formatScientificHTML(currentQuestion.q);
 
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
@@ -273,12 +268,10 @@ function submitAnswer() {
 
     fb.innerHTML =
       "✘ Faux<br>✔ Réponse : <b>" +
-      formatMathDisplay(formatSmartNumber(good)) +
+      formatScientificHTML(formatSmartNumber(good)) +
       "</b>";
 
-    setTimeout(() => {
-      endGame();
-    }, 600);
+    setTimeout(() => endGame(), 700);
   }
 
   updateUI();
@@ -302,7 +295,7 @@ function endGame() {
 
     fb.innerHTML =
       "✔ Fin du jeu<br>✔ Réponse : <b>" +
-      formatMathDisplay(formatSmartNumber(currentQuestion.a)) +
+      formatScientificHTML(formatSmartNumber(currentQuestion.a)) +
       "</b>";
   }
 
