@@ -230,3 +230,34 @@ button:hover {
 .score-page {
   text-align: center;
 }
+/* =========================
+   GAME OVER LAYOUT CENTRÉ
+========================= */
+
+body {
+  color: lime;
+}
+
+/* centrage global game over */
+body:not(.score-page) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  height: 100vh;
+  text-align: center;
+}
+
+/* container centré propre */
+.container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* input + button centrés proprement */
+.container input,
+.container button {
+  display: block;
+  margin: 10px auto;
+}
