@@ -4,41 +4,60 @@
 <meta charset="UTF-8">
 <title>SCORES</title>
 <link rel="stylesheet" href="retro.css">
+
+<script src="scoreService.js"></script>
 </head>
 
 <body>
 
-<h1>HIGH SCORES</h1>
+<div class="score-screen">
 
-<div id="board"></div>
+  <h1>HIGH SCORES</h1>
 
-<button onclick="location.href='significatifs.html'">
-REPLAY
-</button>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>NAME</th>
+        <th>SCORE</th>
+      </tr>
+    </thead>
+
+    <tbody id="scores"></tbody>
+  </table>
+
+  <button onclick="restart()">RESTART</button>
+
+</div>
 
 <script>
 
-function load() {
+document.addEventListener("DOMContentLoaded", () => {
 
-  let data = JSON.parse(localStorage.getItem("ranking") || "[]");
+  const data = getRanking();
 
-  data.sort((a,b) => b.score - a.score);
+  const tbody = document.getElementById("scores");
 
-  const board = document.getElementById("board");
+  tbody.innerHTML = "";
 
-  if (data.length === 0) {
-    board.innerHTML = "Aucun score";
-    return;
-  }
+  data.forEach((e, i) => {
 
-  board.innerHTML = data.map((d,i) => `
-    <div>
-      ${i+1}. ${d.name} - ${d.score}
-    </div>
-  `).join("");
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${e.name}</td>
+      <td>${e.score}</td>
+    `;
+
+    tbody.appendChild(row);
+  });
+
+});
+
+function restart() {
+  window.location.href = "index.html";
 }
-
-load();
 
 </script>
 

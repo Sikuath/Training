@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <title>GAME OVER</title>
 <link rel="stylesheet" href="retro.css">
+
+<!-- 🔥 service -->
+<script src="scoreService.js"></script>
 </head>
 
 <body>
@@ -14,66 +17,46 @@
 
   <p>SCORE : <span id="score">0</span></p>
 
-  <input id="pseudo" maxlength="3" autofocus />
+  <input id="pseudo" maxlength="3" placeholder="AAA" autofocus />
 
-  <button onclick="saveScore()">OK</button>
+  <button id="okBtn">OK</button>
 
 </div>
 
 <script>
 
-/* =========================
-   AFFICHAGE SCORE (SAFE)
-========================= */
+const params = new URLSearchParams(window.location.search);
+const score = Number(params.get("score") || 0);
+
+document.getElementById("score").textContent = score;
+
+console.log("SCORE =", score);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const raw = localStorage.getItem("finalScore");
+  document.getElementById("okBtn").addEventListener("click", () => {
 
-  const score = (raw !== null && !isNaN(raw)) ? raw : 0;
+    const input = document.getElementById("pseudo").value;
 
-  document.getElementById("score").textContent = score;
-});
+    const name = (input || "")
+      .toUpperCase()
+      .trim()
+      .slice(0, 3);
 
-/* =========================
-   SAUVEGARDE SCORE
-========================= */
+    if (!name) {
+      alert("Pseudo requis !");
+      return;
+    }
 
-function saveScore() {
+    console.log("SAVE", name, score);
 
-  let input = document.getElementById("pseudo").value;
+    // 🔥 UTILISATION DU SERVICE
+    addScore(name, score);
 
-  let name = (input || "")
-    .toUpperCase()
-    .trim()
-    .slice(0, 3);
-
-  if (!name) return;
-
-  const finalScore = Number(localStorage.getItem("finalScore") || 0);
-
-  let data = [];
-
-  try {
-    data = JSON.parse(localStorage.getItem("ranking") || "[]");
-  } catch (e) {
-    data = [];
-  }
-
-  if (!Array.isArray(data)) data = [];
-
-  data.push({
-    name: name,
-    score: finalScore
+    window.location.href = "score.html";
   });
 
-  data.sort((a, b) => b.score - a.score);
-  data = data.slice(0, 10);
-
-  localStorage.setItem("ranking", JSON.stringify(data));
-
-  window.location.href = "score.html";
-}
+});
 
 </script>
 

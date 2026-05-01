@@ -1,4 +1,3 @@
-
 let questions = [];
 let i = 0;
 
@@ -12,10 +11,8 @@ let gameOver = false;
 let timeLeft = 180;
 let timer = null;
 
-let finalScore = 0; // 🔥 FIX CRITIQUE (tu l'utilisais sans le déclarer)
-
 /* =========================
-   DIGIT BIAISÉ
+   DIGIT
 ========================= */
 
 function digit() {
@@ -166,8 +163,6 @@ function startTimer() {
 
 function startGame() {
 
-  console.log("START OK");
-
   generate();
 
   playing = true;
@@ -204,12 +199,17 @@ function load() {
 }
 
 /* =========================
-   SUBMIT (FIX STABLE)
+   SUBMIT
 ========================= */
 
 function submit() {
 
   if (gameOver) return;
+
+  if (!questions[i]) {
+    endGame();
+    return;
+  }
 
   const input = document.getElementById("answer").value;
 
@@ -222,7 +222,6 @@ function submit() {
 
     score++;
     streak++;
-
     i++;
 
     if (i >= questions.length) {
@@ -241,16 +240,25 @@ function submit() {
         "✘ Faux<br><br>✔ Bonne réponse : <b>" + good + "</b>";
     }
 
+    const snapshot = streak;
+
+    gameOver = true;
+    clearInterval(timer);
+
     setTimeout(() => {
-      endGame();
-    }, 1200); // 🔥 plus propre que 5000
+
+      console.log("SCORE ENVOYÉ =", snapshot);
+
+      window.location.href = "gameover.html?score=" + snapshot;
+
+    }, 1200);
   }
 
   updateUI();
 }
 
 /* =========================
-   END GAME FIXÉ
+   END GAME
 ========================= */
 
 function endGame() {
@@ -258,19 +266,11 @@ function endGame() {
   if (gameOver) return;
 
   gameOver = true;
-  playing = false;
-
   clearInterval(timer);
 
-  finalScore = score; // 🔥 capture propre
+  const snapshot = streak;
 
-  console.log("FINAL SCORE =", finalScore);
-
-  localStorage.setItem("finalScore", String(finalScore));
-
-  setTimeout(() => {
-    window.location.href = "gameover.html";
-  }, 200);
+  window.location.href = "gameover.html?score=" + snapshot;
 }
 
 /* =========================
@@ -281,11 +281,9 @@ function updateUI() {
 
   const s = document.getElementById("score");
   const st = document.getElementById("streak");
-  const lv = document.getElementById("level");
 
   if (s) s.textContent = score;
   if (st) st.textContent = streak;
-  if (lv) lv.textContent = level;
 }
 
 /* =========================
@@ -301,6 +299,4 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn) {
     btn.addEventListener("click", startGame);
   }
-
-  console.log("INIT OK");
 });
