@@ -213,3 +213,20 @@ button:hover {
 .legend span {
   margin: 0 10px;
 }
+/* =========================
+   HEADER TABLE SCORE
+========================= */
+
+.row.header {
+  font-weight: bold;
+  color: #00ffcc;
+  border-bottom: 2px solid lime;
+  background: rgba(0,0,0,0.8);
+}
+
+.row span {
+  width: 33%;
+}
+.score-page {
+  text-align: center;
+}
