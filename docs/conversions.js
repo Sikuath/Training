@@ -80,8 +80,8 @@ const COMPOUND = [
 ========================= */
 
 const PHYSICS = [
-  { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
-  { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1 / 3.6 },
+  { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1000 / 3600 },
+  { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3600 / 1000 },
   { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
   { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
   { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
