@@ -9,7 +9,7 @@ let gameOver = false;
 let currentQuestion = null;
 
 /* =========================
-   SON
+   SON (inchangé)
 ========================= */
 
 function playSound(id) {
@@ -19,7 +19,6 @@ function playSound(id) {
   try {
     s.pause();
     s.currentTime = 0;
-
     const p = s.play();
     if (p !== undefined) p.catch(() => {});
   } catch (e) {}
@@ -34,47 +33,43 @@ function playBadSound() {
 }
 
 /* =========================
-   POOLS
+   PREFIXES SI (BASE DU MOTEUR)
 ========================= */
 
-const EASY = [
-  { from: "km", to: "m", factor: 1000 },
-  { from: "m", to: "km", factor: 0.001 },
-  { from: "g", to: "kg", factor: 0.001 },
-  { from: "kg", to: "g", factor: 1000 },
-  { from: "L", to: "mL", factor: 1000 },
-  { from: "mL", to: "L", factor: 0.001 }
-];
-
-const MEDIUM = [
-  { from: "cm", to: "m", factor: 0.01 },
-  { from: "mm", to: "m", factor: 0.001 },
-  { from: "dm", to: "m", factor: 0.1 },
-
-  { from: "g", to: "mg", factor: 1000 },
-  { from: "mg", to: "g", factor: 0.001 },
-
-  { from: "V", to: "mV", factor: 1000 },
-  { from: "A", to: "mA", factor: 1000 },
-
-  { from: "W", to: "kW", factor: 0.001 },
-  { from: "J", to: "kJ", factor: 0.001 },
-  { from: "Pa", to: "kPa", factor: 0.001 }
-];
-
-const HARD = [
-  { q: "g/mL → g/L", compute: v => v * 1000 },
-  { q: "g/L → kg/m³", compute: v => v },
-  { q: "kg/m³ → g/cm³", compute: v => v / 1000 },
-  { q: "m/s → km/h", compute: v => v * 3.6 },
-  { q: "km/h → m/s", compute: v => v / 3.6 },
-  { q: "W/m² → W/cm²", compute: v => v / 10000 },
-  { q: "Pa → N/m²", compute: v => v },
-  { q: "J → W·s", compute: v => v }
-];
+const PREFIXES = {
+  "": 1,
+  "n": 1e-9,
+  "µ": 1e-6,
+  "m": 1e-3,
+  "c": 1e-2,
+  "d": 1e-1,
+  "da": 1e1,
+  "h": 1e2,
+  "k": 1e3,
+  "M": 1e6,
+  "G": 1e9
+};
 
 /* =========================
-   MODE
+   UNITES DE BASE (physique)
+========================= */
+
+const UNITS = {
+  m: ["", "m", "c", "k"],           // m, cm, mm, km
+  g: ["", "m", "k"],                // g, mg, kg
+  s: ["", "m", "µ"],                // s, ms, µs
+  A: ["", "m", "k"],                // A, mA, kA
+  V: ["", "m", "k"],                // V, mV, kV
+  W: ["", "m", "k"],                // W, mW, kW
+  J: ["", "m", "k"],                // J, mJ, kJ
+  Pa: ["", "k"],                    // Pa, kPa
+  Hz: ["", "k", "M"],               // Hz, kHz, MHz
+  bit: ["", "k", "M", "G"],         // bit, kbit, Mbit, Gbit
+  N: ["", "k"]                      // N, kN
+};
+
+/* =========================
+   MODE DIFFICULTE
 ========================= */
 
 function getMode() {
@@ -83,11 +78,65 @@ function getMode() {
   return "easy";
 }
 
-function getPool() {
+/* =========================
+   GENERATION UNITE SIMPLE
+========================= */
+
+function randomSIUnit() {
+
+  const bases = Object.keys(UNITS);
+  const base = bases[Math.floor(Math.random() * bases.length)];
+
+  const allowed = UNITS[base];
+
+  let p1, p2;
+
+  // 🔥 éviter même unité → même unité (inutile)
+  do {
+    p1 = allowed[Math.floor(Math.random() * allowed.length)];
+    p2 = allowed[Math.floor(Math.random() * allowed.length)];
+  } while (p1 === p2);
+
+  // 🔥 sécurité : si prefixe inconnu
+  if (!(p1 in PREFIXES) || !(p2 in PREFIXES)) {
+    return randomSIUnit(); // retry propre
+  }
+
+  return {
+    from: p1 + base,
+    to: p2 + base,
+    factor: PREFIXES[p1] / PREFIXES[p2]
+  };
+}
+
+/* =========================
+   GENERATION QUESTION
+========================= */
+
+function generateQuestion() {
+
   const mode = getMode();
-  if (mode === "easy") return EASY;
-  if (mode === "medium") return MEDIUM;
-  return HARD;
+
+  let value;
+
+  if (mode === "easy") {
+    value = Math.floor(Math.random() * 10 + 1);
+  }
+
+  else if (mode === "medium") {
+    value = +(Math.random() * 100).toFixed(2);
+  }
+
+  else {
+    value = +(Math.random() * 50).toFixed(2);
+  }
+
+  const item = randomSIUnit();
+
+  currentQuestion = {
+    q: `${formatFR(value)} ${item.from} → ${item.to}`,
+    a: value * item.factor
+  };
 }
 
 /* =========================
@@ -96,76 +145,6 @@ function getPool() {
 
 function formatFR(x) {
   return String(x).replace(".", ",");
-}
-
-/* =========================
-   SCIENTIFIQUE HTML
-========================= */
-
-function formatScientificHTML(str) {
-  return str.replace(/\^(-?\d+)/g, "<sup>$1</sup>");
-}
-
-/* =========================
-   NUMBER FORMAT SMART
-========================= */
-
-function formatSmartNumber(x) {
-
-  if (x === 0) return "0";
-
-  const abs = Math.abs(x);
-
-  if (abs >= 1000 || abs < 0.01) {
-
-    const exp = Math.floor(Math.log10(abs));
-    const mantissa = x / Math.pow(10, exp);
-
-    const m = mantissa
-      .toFixed(3)
-      .replace(/\.?0+$/, "")
-      .replace(".", ",");
-
-    return `${m} × 10^${exp}`;
-  }
-
-  return String(x)
-    .replace(".", ",");
-}
-
-/* =========================
-   GENERATION
-========================= */
-
-function generateQuestion() {
-
-  const pool = getPool();
-  const mode = getMode();
-
-  const item = pool[Math.floor(Math.random() * pool.length)];
-
-  let value;
-
-  if (mode === "easy") value = Math.floor(Math.random() * 10 + 1);
-  else if (mode === "medium") value = +(Math.random() * 100).toFixed(2);
-  else value = +(Math.random() * 50).toFixed(2);
-
-  value = Number(value);
-
-  if (mode === "hard") {
-
-    currentQuestion = {
-      q: `${formatFR(value)} ${item.q}`,
-      a: item.compute(value)
-    };
-
-  } else {
-
-    currentQuestion = {
-      q: `${formatFR(value)} ${item.from} en ${item.to} ?`,
-      a: value * item.factor
-    };
-  }
 }
 
 /* =========================
@@ -219,15 +198,15 @@ function startTimer() {
 
 function load() {
 
-  document.getElementById("question").innerHTML =
-    formatScientificHTML(currentQuestion.q);
+  document.getElementById("question").textContent =
+    currentQuestion.q;
 
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
 }
 
 /* =========================
-   PARSE
+   INPUT
 ========================= */
 
 function parseInput(v) {
@@ -266,7 +245,7 @@ function submitAnswer() {
 
     fb.innerHTML =
       "✘ Faux<br>✔ Réponse : <b>" +
-      formatScientificHTML(formatSmartNumber(good)) +
+      formatFR(good) +
       "</b>";
 
     setTimeout(() => endGame(), 700);
@@ -293,7 +272,7 @@ function endGame() {
 
     fb.innerHTML =
       "✔ Fin du jeu<br>✔ Réponse : <b>" +
-      formatScientificHTML(formatSmartNumber(currentQuestion.a)) +
+      formatFR(currentQuestion.a) +
       "</b>";
   }
 
@@ -302,7 +281,7 @@ function endGame() {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
 
-  }, 5000);
+  }, 2000);
 }
 
 /* =========================
