@@ -44,26 +44,29 @@ td, th {
 
 </head>
 
-<!-- ✅ ICI le body correct -->
 <body class="score-page">
 
 <button class="back-btn" onclick="window.location.href='index.html'">
   ⬅ RETOUR
 </button>
 
-<h1 style="text-align:center;">HIGH SCORES</h1>
+<div class="score-panel">
 
-<table>
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>NAME</th>
-      <th>SCORE</th>
-    </tr>
-  </thead>
+  <h1>HIGH SCORES</h1>
 
-  <tbody id="scores"></tbody>
-</table>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>NAME</th>
+        <th>SCORE</th>
+      </tr>
+    </thead>
+
+    <tbody id="scores"></tbody>
+  </table>
+
+</div>
 
 <script>
 
