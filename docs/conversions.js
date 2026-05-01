@@ -9,7 +9,7 @@ let gameOver = false;
 let currentQuestion = null;
 
 /* =========================
-   SON (inchangé)
+   SON
 ========================= */
 
 function playSound(id) {
@@ -33,7 +33,7 @@ function playBadSound() {
 }
 
 /* =========================
-   PREFIXES
+   PREFIXES SI
 ========================= */
 
 const PREFIXES = {
@@ -65,7 +65,7 @@ const UNITS = {
 };
 
 /* =========================
-   UNITES COMPOSEES
+   COMPOSEES
 ========================= */
 
 const COMPOUND = [
@@ -76,17 +76,29 @@ const COMPOUND = [
 ];
 
 /* =========================
-   MODE
+   PHYSIQUE REEL
+========================= */
+
+const PHYSICS = [
+  { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
+  { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1 / 3.6 },
+  { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
+  { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
+  { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
+];
+
+/* =========================
+   MODE (IMPORTANT)
 ========================= */
 
 function getMode() {
-  if (score >= 3) return "hard";
-  if (score >= 2) return "medium";
+  if (score >= 10) return "hard";
+  if (score >= 5) return "medium";
   return "easy";
 }
 
 /* =========================
-   UNITE SIMPLE
+   UNIT SIMPLE
 ========================= */
 
 function randomSIUnit() {
@@ -110,20 +122,17 @@ function randomSIUnit() {
 }
 
 /* =========================
-   UNITE COMPOSEE
+   COMPOSEE
 ========================= */
 
 function randomCompoundUnit() {
 
   const pair = COMPOUND[Math.floor(Math.random() * COMPOUND.length)];
 
-  const numBase = pair[0];
-  const denBase = pair[1];
-
   const num = randomSIUnit();
   const den = randomSIUnit();
 
-  if (!num.from.endsWith(numBase) || !den.from.endsWith(denBase)) {
+  if (!num.from.endsWith(pair[0]) || !den.from.endsWith(pair[1])) {
     return randomCompoundUnit();
   }
 
@@ -182,9 +191,19 @@ function generateQuestion() {
   else if (mode === "medium") value = +(Math.random() * 100).toFixed(2);
   else value = +(Math.random() * 50).toFixed(2);
 
-  const item = (mode === "hard")
-    ? randomCompoundUnit()
-    : randomSIUnit();
+  let item;
+
+  if (mode === "hard") {
+
+    const usePhysics = Math.random() < 0.5;
+
+    item = usePhysics
+      ? PHYSICS[Math.floor(Math.random() * PHYSICS.length)]
+      : randomCompoundUnit();
+
+  } else {
+    item = randomSIUnit();
+  }
 
   currentQuestion = {
     q: `${formatFR(value)} ${item.from} → ${item.to}`,
@@ -279,6 +298,8 @@ function submitAnswer() {
     score++;
     current++;
 
+    updateUI(); // ⭐ IMPORTANT (progression visible)
+
     generateQuestion();
     load();
 
@@ -295,8 +316,6 @@ function submitAnswer() {
 
     setTimeout(() => endGame(), 1200);
   }
-
-  updateUI();
 }
 
 /* =========================
@@ -326,11 +345,11 @@ function endGame() {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
 
-  }, 8000);
+  }, 2000);
 }
 
 /* =========================
-   UI (FIX ICI)
+   UI (FIX IMPORTANT)
 ========================= */
 
 function updateUI() {
@@ -338,15 +357,15 @@ function updateUI() {
   const s = document.getElementById("score");
   if (s) s.textContent = score;
 
-  const m = document.getElementById("mode");
-  if (m) {
-    const mode = getMode();
-    m.textContent = mode;
+  const modeEl = document.getElementById("mode");
 
-    // option visuelle propre
-    m.style.color =
-      mode === "easy" ? "#00ff00" :
-      mode === "medium" ? "#ffff00" :
-      "#ff4444";
+  if (modeEl) {
+    const mode = getMode();
+    modeEl.textContent = mode;
+
+    modeEl.style.color =
+      mode === "easy" ? "#7CFC00" :
+      mode === "medium" ? "#FFD700" :
+      "#FF4500";
   }
 }
