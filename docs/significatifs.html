@@ -43,13 +43,14 @@
 
     <div class="buttons">
 
-      <button id="startBtn">Démarrer</button>
+      <!-- 🔥 FIX IMPORTANT : onclick direct -->
+      <button id="startBtn" onclick="startGame()">Démarrer</button>
 
-      <button id="validateBtn" style="display:none;">
+      <button id="validateBtn" onclick="submit()" style="display:none;">
         Valider
       </button>
 
-      <button id="stopBtn" style="display:none;">
+      <button id="stopBtn" onclick="endGame(true)" style="display:none;">
         Fin
       </button>
 

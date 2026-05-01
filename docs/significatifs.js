@@ -1,3 +1,4 @@
+
 let questions = [];
 let i = 0;
 
@@ -10,31 +11,24 @@ let playing = false;
 let timeLeft = 180;
 let timer = null;
 
+let lastGoodAnswer = null;
+
 /* =========================
-   INIT DOM
+   GLOBAL EXPORT (IMPORTANT)
 ========================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+console.log("JS CHARGÉ OK");
 
-  const startBtn = document.getElementById("startBtn");
-  const validateBtn = document.getElementById("validateBtn");
-  const stopBtn = document.getElementById("stopBtn");
-
-  startBtn.addEventListener("click", startGame);
-  validateBtn.addEventListener("click", submit);
-  stopBtn.addEventListener("click", endGame);
-
-  console.log("UI OK - boutons branchés");
-});
+window.startGame = startGame;
+window.submit = submit;
+window.endGame = endGame;
 
 /* =========================
    DIGIT
 ========================= */
 
 function digit() {
-  return Math.random() < 0.3
-    ? 0
-    : Math.floor(Math.random() * 9) + 1;
+  return Math.random() < 0.3 ? 0 : Math.floor(Math.random() * 9) + 1;
 }
 
 /* =========================
@@ -72,7 +66,7 @@ function generate() {
 }
 
 /* =========================
-   QUESTION TYPES
+   TYPES
 ========================= */
 
 function genInteger(cs) {
@@ -135,10 +129,12 @@ function genHardcore() {
 }
 
 /* =========================
-   START GAME
+   START GAME (FIX OK)
 ========================= */
 
 function startGame() {
+
+  console.log("START GAME");
 
   generate();
 
@@ -168,6 +164,8 @@ function load() {
 
   const q = questions[i];
 
+  lastGoodAnswer = q.a;
+
   document.getElementById("question").innerHTML =
     "Combien de chiffres significatifs dans : " + q.q;
 
@@ -196,7 +194,7 @@ function submit() {
     i++;
 
     if (i >= questions.length) {
-      endGame();
+      endGame(false);
       return;
     }
 
@@ -205,9 +203,9 @@ function submit() {
   } else {
 
     document.getElementById("feedback").innerHTML =
-      "✘ Faux<br>✔ Réponse : " + good;
+      "✘ Faux<br>✔ Réponse : <b>" + good + "</b>";
 
-    endGame();
+    endGame(true);
   }
 
   updateUI();
@@ -228,7 +226,7 @@ function startTimer() {
     const t = document.getElementById("timer");
     if (t) t.textContent = timeLeft + "s";
 
-    if (timeLeft <= 0) endGame();
+    if (timeLeft <= 0) endGame(true);
 
   }, 1000);
 }
@@ -246,7 +244,16 @@ function endGame() {
 
   clearInterval(timer);
 
-  window.location.href = "gameover.html?score=" + score;
+  const fb = document.getElementById("feedback");
+
+  if (fb && lastGoodAnswer !== null) {
+    fb.innerHTML =
+      "✔ Bonne réponse : <b>" + lastGoodAnswer + "</b>";
+  }
+
+  setTimeout(() => {
+    window.location.href = "gameover.html?score=" + score;
+  }, 1500);
 }
 
 /* =========================
@@ -255,7 +262,8 @@ function endGame() {
 
 function updateUI() {
 
-  document.getElementById("score").textContent = score;
+  const s = document.getElementById("score");
+  if (s) s.textContent = score;
 
   const ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
 
