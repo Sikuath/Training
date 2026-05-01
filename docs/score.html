@@ -14,13 +14,22 @@
 
 <h1 class="arcade-title">HIGH SCORES</h1>
 
-<!-- SIGNIFICATIFS -->
-<h2>📐 Significatifs</h2>
-<div class="scoreboard" id="sig"></div>
+<!-- 🔥 CONTENEUR 2 COLONNES -->
+<div class="scores-container">
 
-<!-- CONVERSIONS -->
-<h2>🔢 Conversions</h2>
-<div class="scoreboard" id="conv"></div>
+  <!-- SIGNIFICATIFS -->
+  <div class="score-block">
+    <h2>📐 Significatifs</h2>
+    <div class="scoreboard" id="sig"></div>
+  </div>
+
+  <!-- CONVERSIONS -->
+  <div class="score-block">
+    <h2>🔢 Conversions</h2>
+    <div class="scoreboard" id="conv"></div>
+  </div>
+
+</div>
 
 <script>
 
@@ -31,6 +40,11 @@ function display(key, elementId) {
   const container = document.getElementById(elementId);
 
   container.innerHTML = "";
+
+  if (data.length === 0) {
+    container.innerHTML = "<div class='row'>Aucun score</div>";
+    return;
+  }
 
   data.forEach((e, i) => {
 

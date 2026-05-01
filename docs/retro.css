@@ -201,3 +201,43 @@ button:hover {
   background: lime;
   color: black;
 }
+/* =========================
+   2 COLONNES SCORES
+========================= */
+
+.scores-container {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin-top: 40px;
+}
+
+.score-block {
+  text-align: center;
+}
+
+.score-block h2 {
+  color: yellow;
+  margin-bottom: 10px;
+}
+
+.scoreboard {
+  width: 260px;
+  background: rgba(0,0,0,0.8);
+  border: 2px solid lime;
+  padding: 10px;
+}
+
+/* lignes */
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  border-bottom: 1px solid rgba(0,255,0,0.4);
+}
+
+/* top 1 */
+.row:first-child {
+  color: yellow;
+  font-weight: bold;
+}
