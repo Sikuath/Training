@@ -12,14 +12,17 @@ function addScore(name, score) {
 
   if (!Array.isArray(ranking)) ranking = [];
 
-  ranking.push({
-    name: name,
-    score: score
-  });
+  ranking.push({ name, score });
 
   ranking.sort((a, b) => b.score - a.score);
 
   ranking = ranking.slice(0, 10);
 
   saveRanking(ranking);
+}
+
+function getBestScore() {
+  const ranking = getRanking();
+  if (!ranking.length) return 0;
+  return Math.max(...ranking.map(e => e.score));
 }

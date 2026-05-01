@@ -2,62 +2,44 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>SCORES</title>
+<title>HIGH SCORES</title>
 <link rel="stylesheet" href="retro.css">
-
-<script src="scoreService.js"></script>
 </head>
 
 <body>
 
-<div class="score-screen">
+<h1>HIGH SCORES</h1>
 
-  <h1>HIGH SCORES</h1>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>NAME</th>
+      <th>SCORE</th>
+    </tr>
+  </thead>
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>NAME</th>
-        <th>SCORE</th>
-      </tr>
-    </thead>
-
-    <tbody id="scores"></tbody>
-  </table>
-
-  <button onclick="restart()">RESTART</button>
-
-</div>
+  <tbody id="scores"></tbody>
+</table>
 
 <script>
 
-document.addEventListener("DOMContentLoaded", () => {
+const data = JSON.parse(localStorage.getItem("ranking") || "[]");
 
-  const data = getRanking();
+const tbody = document.getElementById("scores");
 
-  const tbody = document.getElementById("scores");
+data.forEach((e, i) => {
 
-  tbody.innerHTML = "";
+  const row = document.createElement("tr");
 
-  data.forEach((e, i) => {
+  row.innerHTML = `
+    <td>${i + 1}</td>
+    <td>${e.name}</td>
+    <td>${e.score}</td>
+  `;
 
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${e.name}</td>
-      <td>${e.score}</td>
-    `;
-
-    tbody.appendChild(row);
-  });
-
+  tbody.appendChild(row);
 });
-
-function restart() {
-  window.location.href = "index.html";
-}
 
 </script>
 

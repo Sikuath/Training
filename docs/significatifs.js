@@ -2,14 +2,30 @@ let questions = [];
 let i = 0;
 
 let score = 0;
-let streak = 0;
 let level = 1;
 
-let playing = false;
 let gameOver = false;
+let playing = false;
 
 let timeLeft = 180;
 let timer = null;
+
+/* =========================
+   INIT DOM
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const startBtn = document.getElementById("startBtn");
+  const validateBtn = document.getElementById("validateBtn");
+  const stopBtn = document.getElementById("stopBtn");
+
+  startBtn.addEventListener("click", startGame);
+  validateBtn.addEventListener("click", submit);
+  stopBtn.addEventListener("click", endGame);
+
+  console.log("UI OK - boutons branchés");
+});
 
 /* =========================
    DIGIT
@@ -22,7 +38,7 @@ function digit() {
 }
 
 /* =========================
-   GENERATION
+   GENERATE
 ========================= */
 
 function generate() {
@@ -56,29 +72,20 @@ function generate() {
 }
 
 /* =========================
-   INTEGER
+   QUESTION TYPES
 ========================= */
 
 function genInteger(cs) {
-
   let s = "";
-
   for (let k = 0; k < cs; k++) {
     s += (k === 0)
       ? Math.floor(Math.random() * 9 + 1)
       : digit();
   }
-
   return { q: s, a: cs };
 }
 
-/* =========================
-   DECIMAL
-========================= */
-
 function genDecimal(cs) {
-
-  if (cs === 1) return genInteger(cs);
 
   let digits = "";
 
@@ -95,10 +102,6 @@ function genDecimal(cs) {
     a: cs
   };
 }
-
-/* =========================
-   SCIENTIFIQUE
-========================= */
 
 function genScientific(cs) {
 
@@ -118,10 +121,6 @@ function genScientific(cs) {
   };
 }
 
-/* =========================
-   HARDCORE
-========================= */
-
 function genHardcore() {
 
   const list = [
@@ -136,28 +135,6 @@ function genHardcore() {
 }
 
 /* =========================
-   TIMER
-========================= */
-
-function startTimer() {
-
-  timer = setInterval(() => {
-
-    if (gameOver) return;
-
-    timeLeft--;
-
-    const t = document.getElementById("timer");
-    if (t) t.textContent = timeLeft + "s";
-
-    if (timeLeft <= 0) {
-      endGame();
-    }
-
-  }, 1000);
-}
-
-/* =========================
    START GAME
 ========================= */
 
@@ -165,18 +142,18 @@ function startGame() {
 
   generate();
 
-  playing = true;
-  gameOver = false;
-
   i = 0;
   score = 0;
-  streak = 0;
   level = 1;
+
+  gameOver = false;
+  playing = true;
 
   timeLeft = 180;
 
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("validateBtn").style.display = "inline-block";
+  document.getElementById("stopBtn").style.display = "inline-block";
 
   startTimer();
   load();
@@ -206,11 +183,6 @@ function submit() {
 
   if (gameOver) return;
 
-  if (!questions[i]) {
-    endGame();
-    return;
-  }
-
   const input = document.getElementById("answer").value;
 
   if (input === "" || isNaN(input)) return;
@@ -221,7 +193,6 @@ function submit() {
   if (val === good) {
 
     score++;
-    streak++;
     i++;
 
     if (i >= questions.length) {
@@ -233,28 +204,33 @@ function submit() {
 
   } else {
 
-    const fb = document.getElementById("feedback");
+    document.getElementById("feedback").innerHTML =
+      "✘ Faux<br>✔ Réponse : " + good;
 
-    if (fb) {
-      fb.innerHTML =
-        "✘ Faux<br><br>✔ Bonne réponse : <b>" + good + "</b>";
-    }
-
-    const snapshot = streak;
-
-    gameOver = true;
-    clearInterval(timer);
-
-    setTimeout(() => {
-
-      console.log("SCORE ENVOYÉ =", snapshot);
-
-      window.location.href = "gameover.html?score=" + snapshot;
-
-    }, 1200);
+    endGame();
   }
 
   updateUI();
+}
+
+/* =========================
+   TIMER
+========================= */
+
+function startTimer() {
+
+  timer = setInterval(() => {
+
+    if (gameOver) return;
+
+    timeLeft--;
+
+    const t = document.getElementById("timer");
+    if (t) t.textContent = timeLeft + "s";
+
+    if (timeLeft <= 0) endGame();
+
+  }, 1000);
 }
 
 /* =========================
@@ -266,11 +242,11 @@ function endGame() {
   if (gameOver) return;
 
   gameOver = true;
+  playing = false;
+
   clearInterval(timer);
 
-  const snapshot = streak;
-
-  window.location.href = "gameover.html?score=" + snapshot;
+  window.location.href = "gameover.html?score=" + score;
 }
 
 /* =========================
@@ -279,24 +255,14 @@ function endGame() {
 
 function updateUI() {
 
-  const s = document.getElementById("score");
-  const st = document.getElementById("streak");
+  document.getElementById("score").textContent = score;
 
-  if (s) s.textContent = score;
-  if (st) st.textContent = streak;
+  const ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+
+  const best = ranking.length
+    ? Math.max(...ranking.map(x => x.score))
+    : 0;
+
+  const bestEl = document.getElementById("best");
+  if (bestEl) bestEl.textContent = best;
 }
-
-/* =========================
-   INIT
-========================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  generate();
-
-  const btn = document.getElementById("startBtn");
-
-  if (btn) {
-    btn.addEventListener("click", startGame);
-  }
-});

@@ -4,16 +4,13 @@
 <meta charset="UTF-8">
 <title>GAME OVER</title>
 <link rel="stylesheet" href="retro.css">
-
-<!-- 🔥 service -->
-<script src="scoreService.js"></script>
 </head>
 
 <body>
 
 <div class="gameover-screen">
 
-  <h1 class="glitch">GAME OVER</h1>
+  <h1>GAME OVER</h1>
 
   <p>SCORE : <span id="score">0</span></p>
 
@@ -30,32 +27,25 @@ const score = Number(params.get("score") || 0);
 
 document.getElementById("score").textContent = score;
 
-console.log("SCORE =", score);
+document.getElementById("okBtn").addEventListener("click", () => {
 
-document.addEventListener("DOMContentLoaded", () => {
+  const name = document.getElementById("pseudo").value
+    .toUpperCase()
+    .trim()
+    .slice(0, 3);
 
-  document.getElementById("okBtn").addEventListener("click", () => {
+  if (!name) return;
 
-    const input = document.getElementById("pseudo").value;
+  let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
 
-    const name = (input || "")
-      .toUpperCase()
-      .trim()
-      .slice(0, 3);
+  ranking.push({ name, score });
 
-    if (!name) {
-      alert("Pseudo requis !");
-      return;
-    }
+  ranking.sort((a, b) => b.score - a.score);
+  ranking = ranking.slice(0, 10);
 
-    console.log("SAVE", name, score);
+  localStorage.setItem("ranking", JSON.stringify(ranking));
 
-    // 🔥 UTILISATION DU SERVICE
-    addScore(name, score);
-
-    window.location.href = "score.html";
-  });
-
+  window.location.href = "score.html";
 });
 
 </script>

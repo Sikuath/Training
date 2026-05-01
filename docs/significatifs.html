@@ -23,8 +23,8 @@
   <div class="hud">
     <div>⏱ Temps : <span id="timer">180s</span></div>
     <div>⭐ Score : <span id="score">0</span></div>
-    <div>🔥 Streak : <span id="streak">0</span></div>
     <div>🏆 Niveau : <span id="level">1</span></div>
+    <div>🥇 Best : <span id="best">0</span></div>
   </div>
 
   <div class="progress-bar">
@@ -42,9 +42,17 @@
     <p id="feedback"></p>
 
     <div class="buttons">
-      <button id="startBtn" onclick="startGame()">Démarrer</button>
-      <button id="validateBtn" onclick="submit()" style="display:none;">Valider</button>
-      <button id="stopBtn" onclick="endGame()" style="display:none;">Fin</button>
+
+      <button id="startBtn">Démarrer</button>
+
+      <button id="validateBtn" style="display:none;">
+        Valider
+      </button>
+
+      <button id="stopBtn" style="display:none;">
+        Fin
+      </button>
+
     </div>
 
   </div>
@@ -53,6 +61,7 @@
   <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
   <audio id="badHeavy" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
+  <script src="scoreService.js"></script>
   <script src="significatifs.js"></script>
 
 </body>
