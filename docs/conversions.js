@@ -304,7 +304,7 @@ function endGame() {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
 
-  }, 1200);
+  }, 5000);
 }
 
 /* =========================
