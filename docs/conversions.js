@@ -174,8 +174,6 @@ function generateQuestion() {
 
 function startGame() {
 
-  playSound("goodSound");
-
   score = 0;
   current = 0;
   gameOver = false;
