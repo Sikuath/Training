@@ -14,56 +14,37 @@
 
 <body class="page conversions-page">
 
-  <!-- NAV -->
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <!-- HUD -->
-  <div class="hud">
-    <div>⏱ Temps : <span id="timer">60s</span></div>
-    <div>⭐ Score : <span id="score">0</span></div>
-  </div>
+  <h2>Conversions</h2>
 
-  <!-- BARRE PROGRESSION (optionnelle mais prête) -->
-  <div class="progress-bar">
-    <div id="progress"></div>
-  </div>
+  <div class="game-card">
 
-  <!-- CARD JEU -->
-  <div class="quiz-card">
-
-    <h2>Conversions</h2>
+    <div class="hud">
+      <div>⏱ Temps : <span id="timer">180s</span></div>
+      <div>⭐ Score : <span id="score">0</span></div>
+      <div>🎯 Mode : <span id="mode">easy</span></div>
+    </div>
 
     <p id="question">Clique sur Démarrer</p>
 
     <input type="text" id="answer" placeholder="Réponse">
-
     <p id="feedback"></p>
 
     <div class="buttons">
-
       <button id="startBtn" onclick="startGame()">Démarrer</button>
-
-      <button id="validateBtn" onclick="submitAnswer()" style="display:none;">
-        Valider
-      </button>
-
-      <button id="stopBtn" onclick="endGame()" style="display:none;">
-        Stop
-      </button>
-
+      <button id="validateBtn" onclick="submitAnswer()" style="display:none;">Valider</button>
+      <button id="stopBtn" onclick="endGame()" style="display:none;">Fin</button>
     </div>
 
   </div>
 
-  <!-- SONS (optionnel mais prêt) -->
-  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-  <audio id="badSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
-
-  <!-- SCRIPT -->
-  <script src="conversions.js"></script>
-
+  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+  <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg" preload="auto"></audio>
+  
+<script src="conversions.js"></script>
 </body>
 </html>

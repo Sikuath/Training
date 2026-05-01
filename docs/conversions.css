@@ -4,25 +4,49 @@ body.conversions-page {
   color: white;
 }
 
-/* carte exercice */
-.content {
-  background: rgba(0,0,0,0.6);
-  margin: 30px auto;
+/* 🔥 overlay sombre global */
+body.conversions-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  pointer-events: none;
+}
+
+/* carte de jeu */
+.game-card {
+  width: 360px;
+  margin: 60px auto;
   padding: 20px;
+
+  background: rgba(0,0,0,0.75);
+  border: 2px solid #00ffcc;
   border-radius: 10px;
-  width: 320px;
+
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 15px;
+  color: #00ffcc;
 }
 
 /* input */
 input {
-  padding: 8px;
+  padding: 10px;
   border-radius: 6px;
   border: none;
   width: 80%;
   text-align: center;
 }
 
-/* bouton (cohérence globale) */
+/* buttons */
 button {
   margin-top: 10px;
   padding: 10px;
@@ -38,7 +62,8 @@ button:hover {
 }
 
 /* feedback */
-#res {
+#feedback {
   margin-top: 10px;
   font-weight: bold;
+  color: #ff4444;
 }

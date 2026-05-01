@@ -1,21 +1,47 @@
 let score = 0;
 let current = 0;
 
-let questions = [];
-
 let timeLeft = 180;
 let timer = null;
 
 let gameOver = false;
 
+let currentQuestion = null;
+
 /* =========================
-   MODE (niveau courant)
+   SON (ROBUSTE)
 ========================= */
 
-let mode = "easy";
+function playSound(id) {
+  const s = document.getElementById(id);
+  if (!s) return;
+
+  try {
+    s.pause();
+    s.currentTime = 0;
+
+    const playPromise = s.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        console.warn("Audio bloqué :", id, err);
+      });
+    }
+  } catch (e) {
+    console.warn("Audio error :", id, e);
+  }
+}
+
+/* alias simples */
+function playGoodSound() {
+  playSound("goodSound");
+}
+
+function playBadSound() {
+  playSound("badLight");
+}
 
 /* =========================
-   TABLES DE CONVERSION
+   POOLS
 ========================= */
 
 const EASY = [
@@ -30,11 +56,14 @@ const EASY = [
 const MEDIUM = [
   { from: "cm", to: "m", factor: 0.01 },
   { from: "mm", to: "m", factor: 0.001 },
+  { from: "dm", to: "m", factor: 0.1 },
+
   { from: "g", to: "mg", factor: 1000 },
   { from: "mg", to: "g", factor: 0.001 },
 
   { from: "V", to: "mV", factor: 1000 },
   { from: "A", to: "mA", factor: 1000 },
+
   { from: "W", to: "kW", factor: 0.001 },
   { from: "J", to: "kJ", factor: 0.001 },
   { from: "Pa", to: "kPa", factor: 0.001 }
@@ -43,81 +72,118 @@ const MEDIUM = [
 const HARD = [
   { q: "g/mL → g/L", compute: v => v * 1000 },
   { q: "g/L → kg/m³", compute: v => v },
+  { q: "kg/m³ → g/cm³", compute: v => v / 1000 },
+  { q: "m/s → km/h", compute: v => v * 3.6 },
+  { q: "km/h → m/s", compute: v => v / 3.6 },
   { q: "W/m² → W/cm²", compute: v => v / 10000 },
   { q: "Pa → N/m²", compute: v => v },
   { q: "J → W·s", compute: v => v }
 ];
 
 /* =========================
-   NIVEAU SELON SCORE
+   MODE
 ========================= */
 
-function computeMode(score) {
-  if (score >= 13) return "hard";
+function getMode() {
+  if (score >= 10) return "hard";
   if (score >= 5) return "medium";
   return "easy";
 }
 
 /* =========================
-   POOL ACTIF
+   POOL
 ========================= */
 
 function getPool() {
+  const mode = getMode();
   if (mode === "easy") return EASY;
   if (mode === "medium") return MEDIUM;
   return HARD;
 }
 
 /* =========================
-   GENERATION QUESTIONS
+   FORMAT
 ========================= */
 
-function generateQuestions() {
+function formatSmartNumber(x) {
 
-  questions = [];
+  if (x === 0) return "0";
 
-  const pool = getPool();
+  const abs = Math.abs(x);
 
-  for (let i = 0; i < 200; i++) {
+  if (abs >= 1000 || abs < 0.01) {
 
-    let item = pool[Math.floor(Math.random() * pool.length)];
+    const exp = Math.floor(Math.log10(abs));
+    const mantissa = x / Math.pow(10, exp);
 
-    if (mode === "hard") {
+    const m = mantissa
+      .toFixed(3)
+      .replace(/\.?0+$/, "")
+      .replace(".", ",");
 
-      let value = +(Math.random() * 10).toFixed(2);
-
-      questions.push({
-        q: `${value} ${item.q}`,
-        a: item.compute(value)
-      });
-
-    } else {
-
-      let value = +(Math.random() * 100).toFixed(2);
-
-      questions.push({
-        q: `${value} ${item.from} en ${item.to} ?`,
-        a: +(value * item.factor).toFixed(6)
-      });
-    }
+    return `${m} × 10^${exp}`;
   }
 
-  questions = questions.sort(() => Math.random() - 0.5);
+  return Number(x.toFixed(6))
+    .toString()
+    .replace(".", ",")
+    .replace(/,0+$/, "");
 }
 
 /* =========================
-   START GAME
+   MATH DISPLAY
+========================= */
+
+function formatMathDisplay(str) {
+  return str.replace(/\^(-?\d+)/g, "<sup>$1</sup>");
+}
+
+/* =========================
+   GENERATION
+========================= */
+
+function generateQuestion() {
+
+  const pool = getPool();
+  const mode = getMode();
+
+  const item = pool[Math.floor(Math.random() * pool.length)];
+
+  let value;
+
+  if (mode === "easy") value = Math.floor(Math.random() * 10 + 1);
+  else if (mode === "medium") value = +(Math.random() * 100).toFixed(2);
+  else value = +(Math.random() * 50).toFixed(2);
+
+  if (mode === "hard") {
+
+    currentQuestion = {
+      q: `${value} ${item.q}`,
+      a: item.compute(value)
+    };
+
+  } else {
+
+    currentQuestion = {
+      q: `${value} ${item.from} en ${item.to} ?`,
+      a: value * item.factor
+    };
+  }
+}
+
+/* =========================
+   START
 ========================= */
 
 function startGame() {
+
+  playSound("goodSound");
 
   score = 0;
   current = 0;
   gameOver = false;
 
-  mode = "easy"; // reset niveau
-
-  generateQuestions();
+  generateQuestion();
 
   timeLeft = 180;
 
@@ -147,71 +213,72 @@ function startTimer() {
     const t = document.getElementById("timer");
     if (t) t.textContent = timeLeft + "s";
 
-    if (timeLeft <= 0) {
-      endGame();
-    }
+    if (timeLeft <= 0) endGame();
 
   }, 1000);
 }
 
 /* =========================
-   LOAD QUESTION
+   LOAD
 ========================= */
 
 function load() {
 
-  const q = questions[current];
+  let q = currentQuestion.q;
+  q = q.replace(/\./g, ",");
 
-  document.getElementById("question").textContent = q.q;
+  document.getElementById("question").textContent = q;
+
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
 }
 
 /* =========================
-   PARSE INPUT
+   PARSE
 ========================= */
 
-function parseInput(value) {
-  if (!value) return NaN;
-  return Number(value.replace(",", "."));
+function parseInput(v) {
+  if (!v) return NaN;
+  return Number(v.replace(",", ".").replace(/\s/g, ""));
 }
 
 /* =========================
-   SUBMIT (ERREUR = GAME OVER)
+   SUBMIT
 ========================= */
 
 function submitAnswer() {
 
   if (gameOver) return;
 
-  const raw = document.getElementById("answer").value;
-  const input = parseInput(raw);
-
-  const good = questions[current].a;
+  const input = parseInput(document.getElementById("answer").value);
+  const good = currentQuestion.a;
 
   const epsilon = 0.001;
 
   if (!isNaN(input) && Math.abs(input - good) < epsilon) {
 
+    playGoodSound();
+
     score++;
     current++;
 
-    // 🔥 mise à jour du mode APRÈS bonne réponse
-    mode = computeMode(score);
-
-    if (current >= questions.length) {
-      endGame();
-      return;
-    }
-
+    generateQuestion();
     load();
 
   } else {
 
-    document.getElementById("feedback").innerHTML =
-      "✘ Faux<br>✔ Réponse : <b>" + good + "</b>";
+    playBadSound();
 
-    endGame();
+    const fb = document.getElementById("feedback");
+
+    fb.innerHTML =
+      "✘ Faux<br>✔ Réponse : <b>" +
+      formatMathDisplay(formatSmartNumber(good)) +
+      "</b>";
+
+    setTimeout(() => {
+      endGame();
+    }, 600);
   }
 
   updateUI();
@@ -229,10 +296,22 @@ function endGame() {
 
   clearInterval(timer);
 
+  const fb = document.getElementById("feedback");
+
+  if (fb && currentQuestion) {
+
+    fb.innerHTML =
+      "✔ Fin du jeu<br>✔ Réponse : <b>" +
+      formatMathDisplay(formatSmartNumber(currentQuestion.a)) +
+      "</b>";
+  }
+
   setTimeout(() => {
+
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
-  }, 500);
+
+  }, 1200);
 }
 
 /* =========================
@@ -240,10 +319,6 @@ function endGame() {
 ========================= */
 
 function updateUI() {
-
   const s = document.getElementById("score");
   if (s) s.textContent = score;
-
-  const m = document.getElementById("mode");
-  if (m) m.textContent = mode;
 }

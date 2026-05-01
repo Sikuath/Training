@@ -1,4 +1,3 @@
-
 let questions = [];
 let i = 0;
 
@@ -14,7 +13,7 @@ let timer = null;
 let lastGoodAnswer = null;
 
 /* =========================
-   GLOBAL EXPORT (IMPORTANT)
+   GLOBAL EXPORT
 ========================= */
 
 console.log("JS CHARGÉ OK");
@@ -22,6 +21,26 @@ console.log("JS CHARGÉ OK");
 window.startGame = startGame;
 window.submit = submit;
 window.endGame = endGame;
+
+/* =========================
+   SON (AJOUT)
+========================= */
+
+function playGoodSound() {
+  const s = document.getElementById("goodSound");
+  if (s) {
+    s.currentTime = 0;
+    s.play();
+  }
+}
+
+function playBadSound() {
+  const s = document.getElementById("badLight");
+  if (s) {
+    s.currentTime = 0;
+    s.play();
+  }
+}
 
 /* =========================
    DIGIT
@@ -129,7 +148,7 @@ function genHardcore() {
 }
 
 /* =========================
-   START GAME (FIX OK)
+   START GAME
 ========================= */
 
 function startGame() {
@@ -190,6 +209,8 @@ function submit() {
 
   if (val === good) {
 
+    playGoodSound(); // 🔥 SON BONNE REPONSE
+
     score++;
     i++;
 
@@ -201,6 +222,8 @@ function submit() {
     load();
 
   } else {
+
+    playBadSound(); // 🔥 SON ERREUR
 
     document.getElementById("feedback").innerHTML =
       "✘ Faux<br>✔ Réponse : <b>" + good + "</b>";
@@ -252,7 +275,8 @@ function endGame() {
   }
 
   setTimeout(() => {
-    window.location.href = "gameover.html?game=significatifs&score=" + score;
+    window.location.href =
+      "gameover.html?game=significatifs&score=" + score;
   }, 1500);
 }
 
