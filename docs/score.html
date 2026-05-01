@@ -5,43 +5,6 @@
 <title>HIGH SCORES</title>
 
 <link rel="stylesheet" href="retro.css">
-
-<style>
-
-/* bouton retour */
-.back-btn {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  padding: 8px 12px;
-  background: #111;
-  border: 1px solid lime;
-  color: lime;
-  cursor: pointer;
-}
-
-/* table */
-table {
-  margin: 80px auto;
-  border-collapse: collapse;
-}
-
-td, th {
-  border: 1px solid lime;
-  padding: 10px;
-}
-
-/* optionnel overlay lisibilité */
-.score-page::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  pointer-events: none;
-}
-
-</style>
-
 </head>
 
 <body class="score-page">
@@ -72,10 +35,7 @@ td, th {
 
 let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
 
-/* TOP 10 */
-ranking = ranking
-  .sort((a,b) => b.score - a.score)
-  .slice(0,10);
+ranking = ranking.sort((a,b) => b.score - a.score).slice(0,10);
 
 const tbody = document.getElementById("scores");
 
