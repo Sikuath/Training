@@ -11,7 +11,7 @@ body {
 }
 
 /* =========================
-   CRT / SCANLINES EFFECT
+   CRT / SCANLINES GLOBAL
 ========================= */
 
 body::before {
@@ -39,7 +39,7 @@ body::before {
 }
 
 /* =========================
-   GAME OVER SCREEN
+   GAME OVER
 ========================= */
 
 .gameover-screen {
@@ -65,7 +65,7 @@ body::before {
 }
 
 /* =========================
-   INPUT + BUTTONS GLOBAL
+   INPUTS
 ========================= */
 
 input {
@@ -80,7 +80,10 @@ input {
   margin: 10px;
 }
 
-/* bouton global arcade */
+/* =========================
+   BUTTONS GLOBAL
+========================= */
+
 button {
   background: black;
   border: 2px solid red;
@@ -99,7 +102,7 @@ button:hover {
 }
 
 /* =========================
-   BACK BUTTON (IMPORTANT FIX)
+   BACK BUTTON SCORE PAGE
 ========================= */
 
 .back-btn {
@@ -125,7 +128,87 @@ button:hover {
 }
 
 /* =========================
-   SCORE DISPLAY
+   SCORE PAGE BACKGROUND
+========================= */
+
+.score-page {
+  background: url("background1.png") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* overlay lisibilité globale */
+.score-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+
+/* désactivation glitch inutile */
+.score-page * {
+  animation: none !important;
+}
+
+/* =========================
+   SCORE PANEL (IMPORTANT UX FIX)
+========================= */
+
+.score-panel {
+  width: 420px;
+  margin: 100px auto;
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.75);
+
+  border: 2px solid #00ffcc;
+  box-shadow: 0 0 18px rgba(0, 255, 204, 0.25);
+
+  border-radius: 6px;
+
+  position: relative;
+  z-index: 10;
+}
+
+/* =========================
+   TEXT SCORE PAGE (plus lisible)
+========================= */
+
+.score-panel,
+.score-panel td,
+.score-panel th {
+  color: #00ffcc;
+  text-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
+}
+
+/* titre */
+.score-panel h1 {
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0,255,204,0.8);
+  margin-bottom: 20px;
+}
+
+/* table */
+.score-panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.score-panel th,
+.score-panel td {
+  border: 1px solid rgba(0,255,204,0.35);
+  padding: 8px;
+}
+
+/* top 1 highlight */
+.score-panel tr:first-child {
+  color: #ffff66;
+  text-shadow: 0 0 8px yellow;
+  font-weight: bold;
+}
+
+/* =========================
+   SCORE DISPLAY GAME
 ========================= */
 
 .score-display {
@@ -134,144 +217,54 @@ button:hover {
 }
 
 /* =========================
-   SCORE PAGE
+   HUD GAME (optionnel propre)
 ========================= */
 
-.score-page {
-  text-align: center;
-}
-
-.arcade-title {
-  font-size: 50px;
-  color: yellow;
-  text-shadow: 3px 3px red;
-  margin-top: 40px;
-}
-
-/* TABLE SCOREBOARD */
-.scoreboard {
-  width: 320px;
-  margin: 40px auto;
-  font-size: 20px;
-  border: 2px solid lime;
-  padding: 10px;
-  animation: glow 2s infinite;
-}
-
-.row {
+.hud {
   display: flex;
-  justify-content: space-between;
-  padding: 5px;
-  border-bottom: 1px solid rgba(0,255,0,0.4);
-}
-
-/* TOP 1 */
-.row:first-child {
-  color: yellow;
-  font-weight: bold;
-}
-
-/* =========================
-   GLOW EFFECT
-========================= */
-
-@keyframes glow {
-  0% { text-shadow: 0 0 5px lime; }
-  50% { text-shadow: 0 0 15px lime; }
-  100% { text-shadow: 0 0 5px lime; }
-}
-
-/* =========================
-   GAME OVER LAYOUT FIX
-========================= */
-
-.gameover-screen p {
-  font-size: 22px;
+  justify-content: space-around;
+  padding: 10px;
   color: lime;
 }
 
 /* =========================
-   SAFETY: BUTTON LAYOUT FIX
+   PROGRESS BAR
 ========================= */
 
-.buttons {
-  margin-top: 20px;
-}
-.score-page {
-  background: url("background1.png") no-repeat center center fixed;
-  background-size: cover;
-}
-
-/* petit voile pour garder la lisibilité arcade */
-.score-page::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  pointer-events: none;
-}
-
-/* =========================
-   SCORE PANEL (lisibilité arcade)
-========================= */
-
-.score-panel {
-  width: 420px;
-  margin: 100px auto;
-  padding: 20px;
-
-  background: rgba(0, 0, 0, 0.85);
-  border: 2px solid lime;
-
-  box-shadow: 0 0 25px rgba(0, 255, 0, 0.4);
-  border-radius: 6px;
-
-  position: relative;
-  z-index: 10;
-}
-
-/* texte plus lisible */
-.score-panel h1 {
-  color: #00ff66;
-  text-shadow: 0 0 8px #00ff66;
-}
-
-/* table lisible */
-.score-panel table {
+.progress-bar {
   width: 100%;
-  border-collapse: collapse;
-  color: #00ff66;
+  height: 5px;
+  background: rgba(0,255,0,0.2);
 }
 
-.score-panel th,
-.score-panel td {
-  border: 1px solid rgba(0,255,0,0.5);
-  padding: 8px;
-}
-
-/* top 1 plus visible */
-.score-panel tr:first-child {
-  color: #ffff00;
-  font-weight: bold;
-  text-shadow: 0 0 6px yellow;
-}
-
-/* bouton retour amélioré */
-.back-btn {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-
-  padding: 8px 12px;
-  border: 2px solid lime;
-  background: black;
-  color: lime;
-
-  cursor: pointer;
-  z-index: 1000;
-}
-
-.back-btn:hover {
+#progress {
+  height: 5px;
+  width: 0%;
   background: lime;
-  color: black;
+  transition: width 0.2s;
+}
+
+/* =========================
+   SCORE PAGE - NO ANIMATION ZONE
+========================= */
+
+.score-page,
+.score-page * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* STOP CRT flicker */
+.score-page::before {
+  animation: none !important;
+}
+
+/* optionnel : garder overlay mais stable */
+.score-page::before {
+  opacity: 0.4;
+}
+
+/* sécurité si pseudo-éléments glitch ailleurs */
+.score-page::after {
+  animation: none !important;
 }
