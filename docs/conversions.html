@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Conversions</title>
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="conversions.css">
+
   <script>
     sessionStorage.setItem("lastExercise", window.location.href);
   </script>
@@ -12,30 +14,56 @@
 
 <body class="page conversions-page">
 
+  <!-- NAV -->
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <h2>Conversions</h2>
-
-  <div class="content">
-    <p>Convertir 2,5 km en m :</p>
-
-    <input type="number" id="rep2">
-    <button onclick="verif2()">Vérifier</button>
-
-    <p id="res2"></p>
+  <!-- HUD -->
+  <div class="hud">
+    <div>⏱ Temps : <span id="timer">60s</span></div>
+    <div>⭐ Score : <span id="score">0</span></div>
   </div>
 
-  <script>
-    function verif2() {
-      let r = Number(document.getElementById('rep2').value);
+  <!-- BARRE PROGRESSION (optionnelle mais prête) -->
+  <div class="progress-bar">
+    <div id="progress"></div>
+  </div>
 
-      document.getElementById('res2').textContent =
-        (r === 2500) ? "✔ Correct !" : "✘ Incorrect";
-    }
-  </script>
+  <!-- CARD JEU -->
+  <div class="quiz-card">
+
+    <h2>Conversions</h2>
+
+    <p id="question">Clique sur Démarrer</p>
+
+    <input type="text" id="answer" placeholder="Réponse">
+
+    <p id="feedback"></p>
+
+    <div class="buttons">
+
+      <button id="startBtn" onclick="startGame()">Démarrer</button>
+
+      <button id="validateBtn" onclick="submitAnswer()" style="display:none;">
+        Valider
+      </button>
+
+      <button id="stopBtn" onclick="endGame()" style="display:none;">
+        Stop
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- SONS (optionnel mais prêt) -->
+  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="badSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+
+  <!-- SCRIPT -->
+  <script src="conversions.js"></script>
 
 </body>
 </html>

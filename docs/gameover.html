@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>GAME OVER</title>
-
 <link rel="stylesheet" href="retro.css">
 </head>
 
-<body class="game-page">
+<body>
 
-<h1 class="glitch">GAME OVER</h1>
+<h1 class="glitch" id="title">GAME OVER</h1>
 
 <div class="container">
 
@@ -26,27 +25,42 @@
 <script>
 
 const params = new URLSearchParams(window.location.search);
+
+const game = params.get("game"); // 🔥 important
 const score = Number(params.get("score") || 0);
 
 document.getElementById("score").textContent = score;
+
+/* titre dynamique */
+document.getElementById("title").textContent =
+  game === "conversions"
+    ? "CONVERSIONS - GAME OVER"
+    : "SIGNIFICATIFS - GAME OVER";
+
+/* =========================
+   SAVE SCORE
+========================= */
 
 document.getElementById("okBtn").addEventListener("click", () => {
 
   const name = document.getElementById("pseudo").value
     .toUpperCase()
     .trim()
-    .slice(0,3);
+    .slice(0, 3);
 
   if (!name) return;
 
-  let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+  const key = "ranking_" + game;
+
+  let ranking = JSON.parse(localStorage.getItem(key) || "[]");
 
   ranking.push({ name, score });
 
-  ranking.sort((a,b) => b.score - a.score);
-  ranking = ranking.slice(0,10);
+  ranking.sort((a, b) => b.score - a.score);
 
-  localStorage.setItem("ranking", JSON.stringify(ranking));
+  ranking = ranking.slice(0, 10);
+
+  localStorage.setItem(key, JSON.stringify(ranking));
 
   window.location.href = "score.html";
 });

@@ -252,7 +252,7 @@ function endGame() {
   }
 
   setTimeout(() => {
-    window.location.href = "gameover.html?score=" + score;
+    window.location.href = "gameover.html?game=significatifs&score=" + score;
   }, 1500);
 }
 

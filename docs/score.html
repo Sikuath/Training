@@ -3,54 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <title>HIGH SCORES</title>
-
 <link rel="stylesheet" href="retro.css">
 </head>
 
 <body class="score-page">
 
 <button class="back-btn" onclick="window.location.href='index.html'">
-  ⬅ RETOUR
+⬅ RETOUR
 </button>
 
-<div class="score-panel">
+<h1 class="arcade-title">HIGH SCORES</h1>
 
-  <h1>HIGH SCORES</h1>
+<!-- SIGNIFICATIFS -->
+<h2>📐 Significatifs</h2>
+<div class="scoreboard" id="sig"></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>NAME</th>
-        <th>SCORE</th>
-      </tr>
-    </thead>
-
-    <tbody id="scores"></tbody>
-  </table>
-
-</div>
+<!-- CONVERSIONS -->
+<h2>🔢 Conversions</h2>
+<div class="scoreboard" id="conv"></div>
 
 <script>
 
-let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+function display(key, elementId) {
 
-ranking = ranking.sort((a,b) => b.score - a.score).slice(0,10);
+  let data = JSON.parse(localStorage.getItem(key) || "[]");
 
-const tbody = document.getElementById("scores");
+  const container = document.getElementById(elementId);
 
-ranking.forEach((e, i) => {
+  container.innerHTML = "";
 
-  const row = document.createElement("tr");
+  data.forEach((e, i) => {
 
-  row.innerHTML = `
-    <td>${i + 1}</td>
-    <td>${e.name}</td>
-    <td>${e.score}</td>
-  `;
+    const row = document.createElement("div");
+    row.className = "row";
 
-  tbody.appendChild(row);
-});
+    row.innerHTML = `
+      <span>${i + 1}</span>
+      <span>${e.name}</span>
+      <span>${e.score}</span>
+    `;
+
+    container.appendChild(row);
+  });
+}
+
+display("ranking_significatifs", "sig");
+display("ranking_conversions", "conv");
 
 </script>
 
