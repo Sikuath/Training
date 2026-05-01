@@ -265,7 +265,9 @@ function updateUI() {
   const s = document.getElementById("score");
   if (s) s.textContent = score;
 
-  const ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+  const ranking = JSON.parse(
+    localStorage.getItem("ranking_significatifs") || "[]"
+  );
 
   const best = ranking.length
     ? Math.max(...ranking.map(x => x.score))
