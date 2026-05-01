@@ -3,15 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>HIGH SCORES</title>
+
 <link rel="stylesheet" href="retro.css">
 
 <style>
-
-body {
-  background: black;
-  color: lime;
-  font-family: monospace;
-}
 
 /* bouton retour */
 .back-btn {
@@ -25,6 +20,7 @@ body {
   cursor: pointer;
 }
 
+/* table */
 table {
   margin: 80px auto;
   border-collapse: collapse;
@@ -35,11 +31,21 @@ td, th {
   padding: 10px;
 }
 
+/* optionnel overlay lisibilité */
+.score-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  pointer-events: none;
+}
+
 </style>
 
 </head>
 
-<body>
+<!-- ✅ ICI le body correct -->
+<body class="score-page">
 
 <button class="back-btn" onclick="window.location.href='index.html'">
   ⬅ RETOUR
@@ -63,8 +69,10 @@ td, th {
 
 let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
 
-/* 🔥 sécurité TOP 10 (redondant mais safe) */
-ranking = ranking.sort((a,b) => b.score - a.score).slice(0,10);
+/* TOP 10 */
+ranking = ranking
+  .sort((a,b) => b.score - a.score)
+  .slice(0,10);
 
 const tbody = document.getElementById("scores");
 
