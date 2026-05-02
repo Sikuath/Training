@@ -132,8 +132,8 @@ const PHYSICS = [
 ========================= */
 
 function getMode() {
-  if (score >= 2) return "hard";
-  if (score >= 1) return "medium";
+  if (score >= 6) return "hard";
+  if (score >= 3) return "medium";
   return "easy";
 }
 
@@ -246,9 +246,9 @@ function generateQuestion() {
 
     const r = Math.random();
 
-    if (r < 0.5) {
+    if (r < 0.4) {
       item = PHYSICS[Math.floor(Math.random() * PHYSICS.length)];
-    } else if (r < 0.8) {
+    } else if (r < 0.7) {
       item = SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)];
     } else {
       item = randomSIUnit();
