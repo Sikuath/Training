@@ -238,7 +238,7 @@ function generateQuestion() {
 }
 
 /* =========================
-   TABLEAU (VISUEL UNIQUEMENT)
+   TABLEAU
 ========================= */
 
 function buildTable(from, to) {
@@ -256,7 +256,7 @@ function buildTable(from, to) {
   const f = getPrefix(from);
   const t = getPrefix(to);
 
-  const step = exp[t] - exp[f]; // 🔥 on passe directement en puissance
+  const step = exp[t] - exp[f];
 
   const cells = scale.map(p => {
 
@@ -276,7 +276,7 @@ function buildTable(from, to) {
 }
 
 /* =========================
-   FEEDBACK (RAISONNEMENT 10^n)
+   FEEDBACK CORRIGÉ
 ========================= */
 
 function showFeedback(isCorrect) {
@@ -323,13 +323,14 @@ function showFeedback(isCorrect) {
     `;
   }
 
- else {
+  else {
 
-    const exp = Math.log10(currentQuestion.a / currentQuestion.value);
-    const expFix = exp.toFixed(0);
+    const exp = Math.round(Math.log10(currentQuestion.a / currentQuestion.value));
 
     const from = currentQuestion.from;
     const to = currentQuestion.to;
+
+    const valueText = formatFR(value);
 
     content = `
       <div class="feedback-box">
@@ -339,22 +340,19 @@ function showFeedback(isCorrect) {
         <div>
           🧠 <b>Raisonnement pas à pas :</b><br><br>
 
-          1️⃣ Je connais la relation entre les unités :<br>
-          <b>1 ${from} = 10<sup>${expFix}</sup> ${to}</b><br><br>
+          Je connais (ou je sais retrouver) les relations :<br>
+          <b>1 ${to} = 10<sup>${-exp}</sup> ${from}</b><br>
+          <b>1 ${from} = 10<sup>${exp}</sup> ${to}</b><br><br>
 
-          2️⃣ Donc pour convertir, je multiplie par ce facteur :<br>
-          <b>facteur = 10<sup>${expFix}</sup></b><br><br>
+          Donc :<br>
+          ${valueText} ${from} = ${valueText} × 10<sup>${exp}</sup> ${to}<br><br>
 
-          3️⃣ Application numérique :<br>
-          ${value} × 10<sup>${expFix}</sup><br><br>
-
-          4️⃣ Résultat :<br>
-          ${result}
         </div>
 
       </div>
     `;
-}
+  }
+
   fb.innerHTML = content;
 }
 
