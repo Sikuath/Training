@@ -61,18 +61,46 @@ const UNITS = {
   J: ["", "m", "k"],
   Pa: ["", "k"],
   Hz: ["", "k", "M"],
-  N: ["", "k"]
+  N: ["", "k"],
+  mol: ["", "m"],
+  bit: ["", "k", "M", "G"]
 };
 
 /* =========================
-   COMPOSEES
+   SURFACES / VOLUMES
 ========================= */
 
-const COMPOUND = [
-  ["g", "L"],
-  ["kg", "m³"],
-  ["m", "s"],
-  ["W", "m²"]
+const SURFACES_VOLUMES = [
+
+  // surfaces
+  { from: "m²", to: "dm²", factor: 1e2 },
+  { from: "dm²", to: "m²", factor: 1e-2 },
+
+  { from: "m²", to: "cm²", factor: 1e4 },
+  { from: "cm²", to: "m²", factor: 1e-4 },
+
+  { from: "m²", to: "mm²", factor: 1e6 },
+  { from: "mm²", to: "m²", factor: 1e-6 },
+
+  // volumes
+  { from: "m³", to: "dm³", factor: 1e3 },
+  { from: "dm³", to: "m³", factor: 1e-3 },
+
+  { from: "m³", to: "cm³", factor: 1e6 },
+  { from: "cm³", to: "m³", factor: 1e-6 },
+
+  { from: "m³", to: "mm³", factor: 1e9 },
+  { from: "mm³", to: "m³", factor: 1e-9 },
+
+  // litres
+  { from: "dm³", to: "L", factor: 1 },
+  { from: "L", to: "dm³", factor: 1 },
+
+  { from: "cm³", to: "mL", factor: 1 },
+  { from: "mL", to: "cm³", factor: 1 },
+
+  { from: "m³", to: "L", factor: 1e3 },
+  { from: "L", to: "m³", factor: 1e-3 }
 ];
 
 /* =========================
@@ -80,21 +108,54 @@ const COMPOUND = [
 ========================= */
 
 const PHYSICS = [
+  { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
   { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1000 / 3600 },
-  { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3600 / 1000 },
+
   { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
+  { from: "W·cm⁻²", to: "W·m⁻²", factor: 1e4 },
+
+  { from: "kg·L⁻¹", to: "g·L⁻¹", factor: 1e3 },
+  { from: "g·L⁻¹", to: "kg·L⁻¹", factor: 1e-3 },
+
+  { from: "g·mL⁻¹", to: "kg·L⁻¹", factor: 1 },
+  { from: "kg·L⁻¹", to: "g·mL⁻¹", factor: 1 },
+
+  { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 },
   { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
-  { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
+
+  { from: "mol·L⁻¹", to: "mmol·L⁻¹", factor: 1e3 },
+  { from: "mmol·L⁻¹", to: "mol·L⁻¹", factor: 1e-3 }
 ];
 
 /* =========================
-   MODE (IMPORTANT)
+   MODE
 ========================= */
 
 function getMode() {
-  if (score >= 10) return "hard";
-  if (score >= 5) return "medium";
+  if (score >= 2) return "hard";
+  if (score >= 1) return "medium";
   return "easy";
+}
+
+/* =========================
+   GENERATEUR VALEURS
+========================= */
+
+function randomValue(max) {
+  const r = Math.random();
+  let decimals;
+
+  if (r < 0.3) decimals = 0;
+  else if (r < 0.5) decimals = 1;
+  else if (r < 0.7) decimals = 2;
+  else if (r < 0.85) decimals = 3;
+  else decimals = 4;
+
+  const value = Math.random() * max;
+
+  if (decimals === 0) return Math.floor(value) + 1;
+
+  return +value.toFixed(decimals);
 }
 
 /* =========================
@@ -122,28 +183,6 @@ function randomSIUnit() {
 }
 
 /* =========================
-   COMPOSEE
-========================= */
-
-function randomCompoundUnit() {
-
-  const pair = COMPOUND[Math.floor(Math.random() * COMPOUND.length)];
-
-  const num = randomSIUnit();
-  const den = randomSIUnit();
-
-  if (!num.from.endsWith(pair[0]) || !den.from.endsWith(pair[1])) {
-    return randomCompoundUnit();
-  }
-
-  return {
-    from: `${num.from}/${den.from}`,
-    to: `${num.to}/${den.to}`,
-    factor: num.factor / den.factor
-  };
-}
-
-/* =========================
    FORMAT FR
 ========================= */
 
@@ -156,13 +195,11 @@ function formatFR(x) {
 ========================= */
 
 function formatScientific(x) {
-
   if (x === 0) return "0";
 
   const abs = Math.abs(x);
 
   if (abs >= 1000 || abs < 0.01) {
-
     const exp = Math.floor(Math.log10(abs));
     const mant = x / Math.pow(10, exp);
 
@@ -184,25 +221,38 @@ function formatScientific(x) {
 function generateQuestion() {
 
   const mode = getMode();
-
   let value;
 
-  if (mode === "easy") value = Math.floor(Math.random() * 10 + 1);
-  else if (mode === "medium") value = +(Math.random() * 100).toFixed(2);
+  if (mode === "easy") value = randomValue(10);
+  else if (mode === "medium") value = randomValue(100);
   else value = +(Math.random() * 50).toFixed(2);
 
   let item;
 
-  if (mode === "hard") {
+  if (mode === "easy") {
+    item = randomSIUnit();
 
-    const usePhysics = Math.random() < 0.5;
+  } else if (mode === "medium") {
 
-    item = usePhysics
-      ? PHYSICS[Math.floor(Math.random() * PHYSICS.length)]
-      : randomCompoundUnit();
+    const r = Math.random();
+
+    if (r < 0.3) {
+      item = SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)];
+    } else {
+      item = randomSIUnit();
+    }
 
   } else {
-    item = randomSIUnit();
+
+    const r = Math.random();
+
+    if (r < 0.5) {
+      item = PHYSICS[Math.floor(Math.random() * PHYSICS.length)];
+    } else if (r < 0.8) {
+      item = SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)];
+    } else {
+      item = randomSIUnit();
+    }
   }
 
   currentQuestion = {
@@ -298,7 +348,7 @@ function submitAnswer() {
     score++;
     current++;
 
-    updateUI(); // ⭐ IMPORTANT (progression visible)
+    updateUI();
 
     generateQuestion();
     load();
@@ -349,7 +399,7 @@ function endGame() {
 }
 
 /* =========================
-   UI (FIX IMPORTANT)
+   UI
 ========================= */
 
 function updateUI() {
