@@ -345,58 +345,57 @@ function showFeedback(isCorrect) {
 
   else if (type === 1 || type === 2) {
 
-    const table = buildTable(currentQuestion.from, currentQuestion.to);
+  const table = buildTable(currentQuestion.from, currentQuestion.to);
 
-    const expFrom = table.exp[table.f];
-    const expTo = table.exp[table.t];
-    const delta = expTo - expFrom;
+  const expFrom = table.exp[table.f];
+  const expTo = table.exp[table.t];
+  const delta = expFrom - expTo;
 
-    const dir = delta > 0 ? "droite" : "gauche";
+  const dir = delta > 0 ? "droite" : "gauche";
 
-    // 🟡 valeur de départ
-    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+  const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+  const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
+  const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
 
-    // 🟢 départ unité
-    const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
+  const numerator = `<span style="color:#7CFC00">10<sup>${expFrom}</sup></span>`;
+  const denominator = `<span style="color:violet">10<sup>${expTo}</sup></span>`;
 
-    // 🟣 arrivée unité
-    const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
+  const powerResult = `10<sup>${delta}</sup>`;
 
-    content = `
-      <div class="feedback-box">
+  content = `
+    <div class="feedback-box">
 
-        <div>📌 <b>Question :</b><br>
-          ${yellowValue} ${startUnit} → ${endUnit}
+      <div>📌 <b>Question :</b><br>
+        ${yellowValue} ${startUnit} → ${endUnit}
+      </div>
+
+      <div class="table-row">${table.cells}</div>
+
+      <div>
+        🧠 <b>Recette magique :</b><br><br>
+
+        📦 Fraction complète :<br><br>
+
+        <div style="font-size:20px; text-align:center;">
+          <div>${numerator}</div>
+          <div style="border-top:2px solid #fff; width:120px; margin:5px auto;"></div>
+          <div>${denominator}</div>
         </div>
 
-        <div class="table-row">${table.cells}</div>
+        <br>
 
-        <div>
-          🧠 <b>Recette magique :</b><br><br>
+        🔎 Ce rapport donne : ${powerResult} <br><br>
 
-          📦 Fraction des puissances :<br><br>
 
-          <div style="font-size:18px">
-            <span style="color:#7CFC00">10<sup>${expFrom}</sup></span>
-            /
-            <span style="color:violet">10<sup>${expTo}</sup></span>
-          </div>
+        🧮 Résultat final :<br><br>
+        ${yellowValue} × ${powerResult} ${endUnit}
 
-          <br>
-
-          🔎 Différence des exposants :<br>
-          ${expTo} - ${expFrom} = ${delta}<br><br>
-
-          👉 déplacement vers la <b>${dir}</b><br><br>
-
-          🧮 Application :<br>
-          ${yellowValue} × 10<sup>${delta}</sup> = ${result}
-
-        </div>
 
       </div>
-    `;
-  }
+
+    </div>
+  `;
+}
 
   /* =========================
      TYPE 3 (PHYSIQUE)
