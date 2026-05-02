@@ -186,7 +186,6 @@ function getExerciseType(item) {
   const base = item.from || item;
   const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
-  // TYPE 4 : à apprendre par cœur
   if (DERIVED_UNITS.some(u => u.from === item.from && u.to === item.to)) {
     return 4;
   }
@@ -282,25 +281,19 @@ function buildTable(from, to) {
     const isEnd = p === t;
 
     let color = "white";
-
-    if (isStart) color = "#7CFC00";   // vert
-    else if (isEnd) color = "violet"; // violet
+    if (isStart) color = "#7CFC00";
+    else if (isEnd) color = "violet";
 
     return `
       <div class="cell"
-        style="
-          color:${color};
-          font-weight:${isStart || isEnd ? 'bold' : 'normal'};
-        ">
+        style="color:${color};font-weight:${isStart || isEnd ? 'bold' : 'normal'};">
         ${p}<br>
-        <span style="white-space:nowrap;">10<sup>${exp[p]}</sup></span>
+        <span>10<sup>${exp[p]}</sup></span>
       </div>
     `;
   }).join("");
 
-  const step = exp[t] - exp[f];
-
-  return { cells, step, f, t, exp };
+  return { cells, step: exp[t] - exp[f], exp, f, t };
 }
 
 /* =========================
@@ -324,7 +317,7 @@ function showFeedback(isCorrect) {
   let content = "";
 
   /* =========================
-     TYPE 4 (à connaître par cœur)
+     TYPE 4 (PAR CŒUR)
   ========================= */
 
   if (type === 4) {
@@ -347,41 +340,41 @@ function showFeedback(isCorrect) {
   }
 
   /* =========================
-     TYPE 1 & 2 (table + recette)
+     TYPE 1 & 2 (TABLE + RECETTE MAGIQUE)
   ========================= */
 
   else if (type === 1 || type === 2) {
 
     const table = buildTable(currentQuestion.from, currentQuestion.to);
 
-    const exp = table.exp;
-
-    const expFrom = exp[table.f];
-    const expTo = exp[table.t];
-
+    const expFrom = table.exp[table.f];
+    const expTo = table.exp[table.t];
     const delta = expTo - expFrom;
 
-    const direction = delta > 0
-      ? "je me déplace vers la droite (puissances plus petites)"
-      : "je me déplace vers la gauche (puissances plus grandes)";
+    const dir = delta > 0 ? "droite" : "gauche";
 
-    const power = Math.abs(delta);
+    // 🟡 valeur de départ
+    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+
+    // 🟢 départ unité
+    const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
+
+    // 🟣 arrivée unité
+    const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
 
     content = `
       <div class="feedback-box">
 
         <div>📌 <b>Question :</b><br>
-          <span style="color:#7CFC00">${formatFR(value)} ${currentQuestion.from}</span>
-          →
-          <span style="color:violet">${currentQuestion.to}</span>
+          ${yellowValue} ${startUnit} → ${endUnit}
         </div>
 
         <div class="table-row">${table.cells}</div>
 
         <div>
-          🧠 Recette de cuisine (conversion) :<br><br>
+          🧠 <b>Recette magique :</b><br><br>
 
-          📦 J’écris la fraction avec les puissances :<br><br>
+          📦 Fraction des puissances :<br><br>
 
           <div style="font-size:18px">
             <span style="color:#7CFC00">10<sup>${expFrom}</sup></span>
@@ -391,14 +384,13 @@ function showFeedback(isCorrect) {
 
           <br>
 
-          🔎 Je compare les exposants :<br>
+          🔎 Différence des exposants :<br>
           ${expTo} - ${expFrom} = ${delta}<br><br>
 
-          👉 ${direction}<br>
-          👉 donc ${power} puissance(s) de 10<br><br>
+          👉 déplacement vers la <b>${dir}</b><br><br>
 
-          🧮 Calcul :<br>
-          ${formatFR(value)} × 10<sup>${delta}</sup> = ${result}
+          🧮 Application :<br>
+          ${yellowValue} × 10<sup>${delta}</sup> = ${result}
 
         </div>
 
@@ -407,12 +399,16 @@ function showFeedback(isCorrect) {
   }
 
   /* =========================
-     TYPE 3 (inchangé)
+     TYPE 3 (PHYSIQUE)
   ========================= */
 
   else {
 
-    const exp = Math.round(Math.log10(currentQuestion.a / currentQuestion.value));
+    const exp = Math.round(
+      Math.log10(currentQuestion.a / currentQuestion.value)
+    );
+
+    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
 
     content = `
       <div class="feedback-box">
@@ -420,9 +416,9 @@ function showFeedback(isCorrect) {
         <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
         <div>
-          🧠 Facteur : 10<sup>${exp}</sup><br><br>
+          🧠 Facteur scientifique :<br><br>
 
-          ${formatFR(value)} × 10<sup>${exp}</sup> = ${result}
+          ${yellowValue} × 10<sup>${exp}</sup> = ${result}
         </div>
 
       </div>
@@ -433,7 +429,7 @@ function showFeedback(isCorrect) {
 }
 
 /* =========================
-   RESTE
+   RESTE INCHANGÉ
 ========================= */
 
 function submitAnswer() {
@@ -530,7 +526,6 @@ function updateUI() {
 
   if (modeEl) {
     const mode = getMode();
-
     modeEl.textContent = mode;
 
     modeEl.style.color =
