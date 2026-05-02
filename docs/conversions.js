@@ -73,25 +73,18 @@ const UNITS = {
 const SURFACES_VOLUMES = [
   { from: "m²", to: "dm²", factor: 1e2 },
   { from: "dm²", to: "m²", factor: 1e-2 },
-
   { from: "m²", to: "cm²", factor: 1e4 },
   { from: "cm²", to: "m²", factor: 1e-4 },
-
   { from: "m²", to: "mm²", factor: 1e6 },
   { from: "mm²", to: "m²", factor: 1e-6 },
-
   { from: "m³", to: "dm³", factor: 1e3 },
   { from: "dm³", to: "m³", factor: 1e-3 },
-
   { from: "m³", to: "cm³", factor: 1e6 },
   { from: "cm³", to: "m³", factor: 1e-6 },
-
   { from: "m³", to: "mm³", factor: 1e9 },
   { from: "mm³", to: "m³", factor: 1e-9 },
-
   { from: "dm³", to: "L", factor: 1 },
   { from: "L", to: "dm³", factor: 1 },
-
   { from: "cm³", to: "mL", factor: 1 },
   { from: "mL", to: "cm³", factor: 1 }
 ];
@@ -103,10 +96,8 @@ const SURFACES_VOLUMES = [
 const PHYSICS = [
   { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
   { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1 / 3.6 },
-
   { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
   { from: "W·cm⁻²", to: "W·m⁻²", factor: 1e4 },
-
   { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
   { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
 ];
@@ -181,7 +172,6 @@ function formatFR(x) {
 function getExerciseType(item) {
 
   const base = item.from || item;
-
   const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
   if (["mol", "Hz", "Pa", "N", "W", "J"].includes(clean)) {
@@ -248,7 +238,7 @@ function generateQuestion() {
 }
 
 /* =========================
-   TABLEAU
+   TABLEAU (VISUEL UNIQUEMENT)
 ========================= */
 
 function buildTable(from, to) {
@@ -266,10 +256,7 @@ function buildTable(from, to) {
   const f = getPrefix(from);
   const t = getPrefix(to);
 
-  const i1 = scale.indexOf(f);
-  const i2 = scale.indexOf(t);
-
-  const step = i2 - i1;
+  const step = exp[t] - exp[f]; // 🔥 on passe directement en puissance
 
   const cells = scale.map(p => {
 
@@ -289,7 +276,7 @@ function buildTable(from, to) {
 }
 
 /* =========================
-   FEEDBACK
+   FEEDBACK (RAISONNEMENT 10^n)
 ========================= */
 
 function showFeedback(isCorrect) {
@@ -298,14 +285,13 @@ function showFeedback(isCorrect) {
   fb.classList.add("active");
 
   const type = getExerciseType(currentQuestion.item);
-  const value = currentQuestion.value;
-  const result = currentQuestion.a;
 
   if (isCorrect) return;
 
   playBadSound();
 
-  let good = toScientific(result);
+  const value = currentQuestion.value;
+  const result = toScientific(currentQuestion.a);
 
   let content = "";
 
@@ -313,40 +299,62 @@ function showFeedback(isCorrect) {
 
     const t = buildTable(currentQuestion.from, currentQuestion.to);
 
+    const expStep = t.step;
+
     content = `
       <div class="feedback-box">
+
         <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
         <div class="table-row">${t.cells}</div>
 
         <div>
-          🧠 Déplacement : <b>${t.step > 0 ? "droite" : "gauche"} (${Math.abs(t.step)} cases)</b><br><br>
-          🧮 Calcul :<br>
-          ${value} × 10<sup>${t.step}</sup> = ${good}
+          🧠 Raisonnement en puissances de 10 :<br><br>
+
+          Je compare les préfixes → différence d’exposants = ${expStep}<br><br>
+
+          Donc :<br>
+          1 unité source = 10<sup>${expStep}</sup> unité cible<br><br>
+
+          ${value} × 10<sup>${expStep}</sup> = ${result}
         </div>
+
       </div>
     `;
   }
 
-  else {
+ else {
 
-    const factor = currentQuestion.a / currentQuestion.value;
-    const exp = Math.log10(factor).toFixed(2);
+    const exp = Math.log10(currentQuestion.a / currentQuestion.value);
+    const expFix = exp.toFixed(0);
 
-    good = toScientific(currentQuestion.a);
+    const from = currentQuestion.from;
+    const to = currentQuestion.to;
 
     content = `
       <div class="feedback-box">
+
         <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
         <div>
-          🧠 Méthode directe :<br><br>
-          ${value} × 10<sup>${exp}</sup> = ${good}
+          🧠 <b>Raisonnement pas à pas :</b><br><br>
+
+          1️⃣ Je connais la relation entre les unités :<br>
+          <b>1 ${from} = 10<sup>${expFix}</sup> ${to}</b><br><br>
+
+          2️⃣ Donc pour convertir, je multiplie par ce facteur :<br>
+          <b>facteur = 10<sup>${expFix}</sup></b><br><br>
+
+          3️⃣ Application numérique :<br>
+          ${value} × 10<sup>${expFix}</sup><br><br>
+
+          4️⃣ Résultat :<br>
+          ${result}
         </div>
+
       </div>
     `;
-  }
-
+}
   fb.innerHTML = content;
 }
 
