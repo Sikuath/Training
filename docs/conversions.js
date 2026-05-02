@@ -103,10 +103,8 @@ const SURFACES_VOLUMES = [
 const PHYSICS = [
   { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
   { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1 / 3.6 },
-
   { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
   { from: "W·cm⁻²", to: "W·m⁻²", factor: 1e4 },
-
   { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
   { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
 ];
@@ -143,11 +141,18 @@ function randomValue(max) {
 }
 
 /* =========================
-   UNITÉ SIMPLE
+   FORMAT FR
+========================= */
+
+function formatFR(x) {
+  return String(x).replace(".", ",");
+}
+
+/* =========================
+   SAFE SI UNIT
 ========================= */
 
 function randomSIUnit() {
-
   const bases = Object.keys(UNITS);
   const base = bases[Math.floor(Math.random() * bases.length)];
   const allowed = UNITS[base];
@@ -167,15 +172,7 @@ function randomSIUnit() {
 }
 
 /* =========================
-   FORMAT
-========================= */
-
-function formatFR(x) {
-  return String(x).replace(".", ",");
-}
-
-/* =========================
-   ANIMATION (SAFE)
+   ANIMATION SAFE
 ========================= */
 
 function animateJump(step) {
@@ -186,19 +183,13 @@ function animateJump(step) {
   const total = Math.abs(step);
 
   const interval = setInterval(() => {
-
-    if (i >= total) {
-      clearInterval(interval);
-      return;
-    }
+    if (i >= total) return clearInterval(interval);
 
     const index = step > 0 ? cells.length - 1 - i : i;
 
     if (cells[index]) {
       cells[index].classList.add("jump");
-      setTimeout(() => {
-        cells[index].classList.remove("jump");
-      }, 400);
+      setTimeout(() => cells[index].classList.remove("jump"), 400);
     }
 
     i++;
@@ -206,7 +197,7 @@ function animateJump(step) {
 }
 
 /* =========================
-   TABLEAU PÉDAGOGIQUE
+   TABLEAU + FEEDBACK FIX
 ========================= */
 
 function buildTable(from, to) {
@@ -229,12 +220,16 @@ function buildTable(from, to) {
 
   const step = i1 - i2;
 
+  const direction =
+    step > 0
+      ? `${Math.abs(step)} cases vers la gauche`
+      : `${Math.abs(step)} cases vers la droite`;
+
   setTimeout(() => animateJump(step), 200);
 
   const baseUnit = from.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
   const cells = scale.map(p => {
-
     const unit = p + baseUnit;
     const isStart = p === f;
     const isEnd = p === t;
@@ -256,30 +251,27 @@ function buildTable(from, to) {
 
 <h3>📊 Conversion</h3>
 
-<p><b>Question :</b> ${currentQuestion ? currentQuestion.q : ""}</p>
+<p><b>Question :</b> ${currentQuestion?.q || ""}</p>
 
 <div class="table-row">
   ${cells}
 </div>
 
-<p>🔁 Déplacement : <b>${step}</b></p>
+<p>🔁 Déplacement : <b>${direction}</b></p>
 
-<p>
-📌 Facteur :
-\\(10^{${step}}\\)
-</p>
+<p>📌 Facteur : \\(10^{${step}}\\)</p>
 
 <p>
 🧮 Calcul :
 \\[
-${value} \\times 10^{${step}} = ${result}
+${value} \\times 10^{${step}} = ${result.toString().replace(".", ",")}
 \\]
 </p>
 
 <p>
 ✔ Résultat :
 \\[
-${result} \\; ${to}
+${result.toString().replace(".", ",")} \\; ${to}
 \\]
 </p>
 
@@ -288,36 +280,32 @@ ${result} \\; ${to}
 }
 
 /* =========================
-   GENERATION (IMPORTANT FIX)
+   GENERATION SAFE
 ========================= */
 
 function generateQuestion() {
 
   const mode = getMode();
 
-  let value;
-
-  if (mode === "easy") value = randomValue(10);
-  else if (mode === "medium") value = randomValue(100);
-  else value = +(Math.random() * 50).toFixed(2);
+  let value =
+    mode === "easy"
+      ? randomValue(10)
+      : mode === "medium"
+        ? randomValue(100)
+        : +(Math.random() * 50).toFixed(2);
 
   let item;
 
   if (mode === "easy") item = randomSIUnit();
-
-  else if (mode === "medium") {
+  else if (mode === "medium")
     item = Math.random() < 0.3
       ? SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)]
       : randomSIUnit();
-  }
-
-  else {
+  else
     item = Math.random() < 0.4
       ? PHYSICS[Math.floor(Math.random() * PHYSICS.length)]
       : randomSIUnit();
-  }
 
-  // 🔥 STOCKAGE SIMPLE (IMPORTANT)
   currentQuestion = {
     q: `${formatFR(value)} ${item.from} → ${item.to}`,
     a: value * item.factor,
@@ -328,30 +316,12 @@ function generateQuestion() {
 }
 
 /* =========================
-   LOAD (SAFE + MATHJAX)
-========================= */
-
-function load() {
-  const q = document.getElementById("question");
-  const a = document.getElementById("answer");
-  const f = document.getElementById("feedback");
-
-  if (q) q.innerHTML = currentQuestion?.q || "";
-  if (a) a.value = "";
-  if (f) f.textContent = "";
-
-  try {
-    if (window.MathJax && MathJax.typesetPromise) {
-      MathJax.typesetPromise();
-    }
-  } catch (e) {}
-}
-
-/* =========================
-   GAME FLOW
+   START FIX (CAUSE PRINCIPALE DU BUG)
 ========================= */
 
 function startGame() {
+
+  if (gameOver) return;
 
   score = 0;
   current = 0;
@@ -361,20 +331,27 @@ function startGame() {
 
   timeLeft = 180;
 
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("validateBtn").style.display = "inline-block";
-  document.getElementById("stopBtn").style.display = "inline-block";
+  const startBtn = document.getElementById("startBtn");
+  const valBtn = document.getElementById("validateBtn");
+  const stopBtn = document.getElementById("stopBtn");
+
+  if (startBtn) startBtn.style.display = "none";
+  if (valBtn) valBtn.style.display = "inline-block";
+  if (stopBtn) stopBtn.style.display = "inline-block";
 
   startTimer();
   load();
   updateUI();
 }
 
+/* =========================
+   TIMER
+========================= */
+
 function startTimer() {
   clearInterval(timer);
 
   timer = setInterval(() => {
-
     if (gameOver) return;
 
     timeLeft--;
@@ -383,9 +360,31 @@ function startTimer() {
     if (t) t.textContent = timeLeft + "s";
 
     if (timeLeft <= 0) endGame();
-
   }, 1000);
 }
+
+/* =========================
+   LOAD + MATHJAX FIX
+========================= */
+
+function load() {
+
+  const q = document.getElementById("question");
+  const a = document.getElementById("answer");
+  const f = document.getElementById("feedback");
+
+  if (q) q.innerHTML = currentQuestion?.q || "";
+  if (a) a.value = "";
+  if (f) f.textContent = "";
+
+  if (window.MathJax?.typesetPromise) {
+    MathJax.typesetPromise();
+  }
+}
+
+/* =========================
+   SUBMIT
+========================= */
 
 function submitAnswer() {
 
@@ -406,7 +405,6 @@ function submitAnswer() {
     current++;
 
     updateUI();
-
     generateQuestion();
     load();
 
@@ -414,26 +412,24 @@ function submitAnswer() {
 
     playBadSound();
 
-    fb.innerHTML =
-      "❌ Faux<br><br>" +
-      buildTable(currentQuestion.from, currentQuestion.to);
+    fb.innerHTML = "❌ Faux<br><br>" + buildTable(currentQuestion.from, currentQuestion.to);
 
-    try {
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([fb]);
-      }
-    } catch (e) {}
+    if (window.MathJax?.typesetPromise) {
+      MathJax.typesetPromise([fb]);
+    }
 
     setTimeout(() => endGame(), 20000);
   }
 }
 
-function endGame() {
+/* =========================
+   END
+========================= */
 
+function endGame() {
   if (gameOver) return;
 
   gameOver = true;
-
   clearInterval(timer);
 
   setTimeout(() => {
