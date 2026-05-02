@@ -51,7 +51,7 @@ const PREFIXES = {
    UNITES SIMPLES
 ========================= */
 
-const UNITS = {
+const SI_UNITS = {
   m: ["", "m", "c", "k"],
   g: ["", "m", "k"],
   s: ["", "m", "µ"],
@@ -62,9 +62,21 @@ const UNITS = {
   Pa: ["", "k"],
   Hz: ["", "k", "M"],
   N: ["", "k"],
-  mol: ["", "m"],
   bit: ["", "k", "M", "G"]
 };
+
+/* =========================
+   DERIVED (type 4)
+========================= */
+
+const DERIVED_UNITS = [
+  { from: "dm³", to: "L", factor: 1 },
+  { from: "L", to: "dm³", factor: 1 },
+  { from: "cm³", to: "mL", factor: 1 },
+  { from: "mL", to: "cm³", factor: 1 },
+  { from: "m³", to: "L", factor: 1e3 },
+  { from: "L", to: "m³", factor: 1e-3 }
+];
 
 /* =========================
    SURFACES / VOLUMES
@@ -107,8 +119,8 @@ const PHYSICS = [
 ========================= */
 
 function getMode() {
-  if (score >= 6) return "hard";
-  if (score >= 3) return "medium";
+  if (score >= 3) return "hard";
+  if (score >= 2) return "medium";
   return "easy";
 }
 
@@ -139,9 +151,9 @@ function randomValue(max) {
 
 function randomSIUnit() {
 
-  const bases = Object.keys(UNITS);
+  const bases = Object.keys(SI_UNITS);
   const base = bases[Math.floor(Math.random() * bases.length)];
-  const allowed = UNITS[base];
+  const allowed = SI_UNITS[base];
 
   let p1, p2;
 
@@ -174,12 +186,18 @@ function getExerciseType(item) {
   const base = item.from || item;
   const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
+  // TYPE 4 : à apprendre par cœur
+  if (DERIVED_UNITS.some(u => u.from === item.from && u.to === item.to)) {
+    return 4;
+  }
+
   if (["mol", "Hz", "Pa", "N", "W", "J"].includes(clean)) {
     return 3;
   }
 
   if (PHYSICS.includes(item)) return 3;
   if (SURFACES_VOLUMES.includes(item)) return 2;
+
   return 1;
 }
 
@@ -233,7 +251,7 @@ function generateQuestion() {
     value,
     from: item.from,
     to: item.to,
-    item: item
+    item
   };
 }
 
@@ -250,33 +268,43 @@ function buildTable(from, to) {
     "": 0, "d": -1, "c": -2, "m": -3, "µ": -6, "n": -9
   };
 
-  const getPrefix = (u) =>
-    (u.match(/(G|M|k|h|da|d|c|m|µ|n)/) || [""])[0];
+  const getPrefix = (u) => {
+    const match = u.match(/^(G|M|k|h|da|d|c|m|µ|n)/);
+    return match ? match[0] : "";
+  };
 
   const f = getPrefix(from);
   const t = getPrefix(to);
-
-  const step = exp[t] - exp[f];
 
   const cells = scale.map(p => {
 
     const isStart = p === f;
     const isEnd = p === t;
 
+    let color = "white";
+
+    if (isStart) color = "#7CFC00";   // vert
+    else if (isEnd) color = "violet"; // violet
+
     return `
       <div class="cell"
-        style="color:${isStart || isEnd ? '#7CFC00' : 'white'};font-weight:${isStart || isEnd ? 'bold' : 'normal'};">
+        style="
+          color:${color};
+          font-weight:${isStart || isEnd ? 'bold' : 'normal'};
+        ">
         ${p}<br>
-        10<sup>${exp[p]}</sup>
+        <span style="white-space:nowrap;">10<sup>${exp[p]}</sup></span>
       </div>
     `;
   }).join("");
 
-  return { cells, step };
+  const step = exp[t] - exp[f];
+
+  return { cells, step, f, t, exp };
 }
 
 /* =========================
-   FEEDBACK CORRIGÉ
+   FEEDBACK
 ========================= */
 
 function showFeedback(isCorrect) {
@@ -295,42 +323,96 @@ function showFeedback(isCorrect) {
 
   let content = "";
 
-  if (type === 1 || type === 2) {
+  /* =========================
+     TYPE 4 (à connaître par cœur)
+  ========================= */
 
-    const t = buildTable(currentQuestion.from, currentQuestion.to);
-
-    const expStep = t.step;
+  if (type === 4) {
 
     content = `
       <div class="feedback-box">
 
         <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
-        <div class="table-row">${t.cells}</div>
+        <div style="margin-top:10px;color:#ff4d4d;font-weight:bold;">
+          😏 Désolé très cher mais ça, c’est à connaître par cœur !!!
+        </div>
 
-        <div>
-          🧠 Raisonnement en puissances de 10 :<br><br>
-
-          Je compare les préfixes → différence d’exposants = ${expStep}<br><br>
-
-          Donc :<br>
-          1 unité source = 10<sup>${expStep}</sup> unité cible<br><br>
-
-          ${value} × 10<sup>${expStep}</sup> = ${result}
+        <div style="margin-top:10px">
+          👉 ${currentQuestion.from} = ${currentQuestion.to}
         </div>
 
       </div>
     `;
   }
 
+  /* =========================
+     TYPE 1 & 2 (table + recette)
+  ========================= */
+
+  else if (type === 1 || type === 2) {
+
+    const table = buildTable(currentQuestion.from, currentQuestion.to);
+
+    const exp = table.exp;
+
+    const expFrom = exp[table.f];
+    const expTo = exp[table.t];
+
+    const delta = expTo - expFrom;
+
+    const direction = delta > 0
+      ? "je me déplace vers la droite (puissances plus petites)"
+      : "je me déplace vers la gauche (puissances plus grandes)";
+
+    const power = Math.abs(delta);
+
+    content = `
+      <div class="feedback-box">
+
+        <div>📌 <b>Question :</b><br>
+          <span style="color:#7CFC00">${formatFR(value)} ${currentQuestion.from}</span>
+          →
+          <span style="color:violet">${currentQuestion.to}</span>
+        </div>
+
+        <div class="table-row">${table.cells}</div>
+
+        <div>
+          🧠 Recette de cuisine (conversion) :<br><br>
+
+          📦 J’écris la fraction avec les puissances :<br><br>
+
+          <div style="font-size:18px">
+            <span style="color:#7CFC00">10<sup>${expFrom}</sup></span>
+            /
+            <span style="color:violet">10<sup>${expTo}</sup></span>
+          </div>
+
+          <br>
+
+          🔎 Je compare les exposants :<br>
+          ${expTo} - ${expFrom} = ${delta}<br><br>
+
+          👉 ${direction}<br>
+          👉 donc ${power} puissance(s) de 10<br><br>
+
+          🧮 Calcul :<br>
+          ${formatFR(value)} × 10<sup>${delta}</sup> = ${result}
+
+        </div>
+
+      </div>
+    `;
+  }
+
+  /* =========================
+     TYPE 3 (inchangé)
+  ========================= */
+
   else {
 
     const exp = Math.round(Math.log10(currentQuestion.a / currentQuestion.value));
-
-    const from = currentQuestion.from;
-    const to = currentQuestion.to;
-
-    const valueText = formatFR(value);
 
     content = `
       <div class="feedback-box">
@@ -338,15 +420,9 @@ function showFeedback(isCorrect) {
         <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
         <div>
-          🧠 <b>Raisonnement pas à pas :</b><br><br>
+          🧠 Facteur : 10<sup>${exp}</sup><br><br>
 
-          Je connais (ou je sais retrouver) les relations :<br>
-          <b>1 ${to} = 10<sup>${-exp}</sup> ${from}</b><br>
-          <b>1 ${from} = 10<sup>${exp}</sup> ${to}</b><br><br>
-
-          Donc :<br>
-          ${valueText} ${from} = ${valueText} × 10<sup>${exp}</sup> ${to}<br><br>
-
+          ${formatFR(value)} × 10<sup>${exp}</sup> = ${result}
         </div>
 
       </div>
@@ -357,7 +433,7 @@ function showFeedback(isCorrect) {
 }
 
 /* =========================
-   RESTE INCHANGÉ
+   RESTE
 ========================= */
 
 function submitAnswer() {
@@ -454,6 +530,7 @@ function updateUI() {
 
   if (modeEl) {
     const mode = getMode();
+
     modeEl.textContent = mode;
 
     modeEl.style.color =
