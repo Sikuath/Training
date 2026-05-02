@@ -175,7 +175,7 @@ function formatFR(x) {
 }
 
 /* =========================
-   TYPE EXO (CORRIGÉ)
+   TYPE EXO
 ========================= */
 
 function getExerciseType(item) {
@@ -184,7 +184,6 @@ function getExerciseType(item) {
 
   const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
-  // 🔥 CAS EXO 3 DIRECT (pas de tableau)
   if (["mol", "Hz", "Pa", "N", "W", "J"].includes(clean)) {
     return 3;
   }
@@ -192,6 +191,19 @@ function getExerciseType(item) {
   if (PHYSICS.includes(item)) return 3;
   if (SURFACES_VOLUMES.includes(item)) return 2;
   return 1;
+}
+
+/* =========================
+   SCIENTIFIC FORMAT
+========================= */
+
+function toScientific(x) {
+  if (x === 0) return "0";
+
+  const exp = Math.floor(Math.log10(Math.abs(x)));
+  const mantissa = x / Math.pow(10, exp);
+
+  return `${mantissa.toFixed(3)} × 10<sup>${exp}</sup>`;
 }
 
 /* =========================
@@ -236,7 +248,7 @@ function generateQuestion() {
 }
 
 /* =========================
-   TABLEAU (INCHANGÉ)
+   TABLEAU
 ========================= */
 
 function buildTable(from, to) {
@@ -257,7 +269,7 @@ function buildTable(from, to) {
   const i1 = scale.indexOf(f);
   const i2 = scale.indexOf(t);
 
-  const step = i1 - i2;
+  const step = i2 - i1;
 
   const cells = scale.map(p => {
 
@@ -266,24 +278,18 @@ function buildTable(from, to) {
 
     return `
       <div class="cell"
-        style="
-          color:${isStart || isEnd ? '#7CFC00' : 'white'};
-          font-weight:${isStart || isEnd ? 'bold' : 'normal'};
-        ">
+        style="color:${isStart || isEnd ? '#7CFC00' : 'white'};font-weight:${isStart || isEnd ? 'bold' : 'normal'};">
         ${p}<br>
         10<sup>${exp[p]}</sup>
       </div>
     `;
   }).join("");
 
-  return {
-    cells,
-    step
-  };
+  return { cells, step };
 }
 
 /* =========================
-   FEEDBACK (INCHANGÉ)
+   FEEDBACK
 ========================= */
 
 function showFeedback(isCorrect) {
@@ -295,11 +301,11 @@ function showFeedback(isCorrect) {
   const value = currentQuestion.value;
   const result = currentQuestion.a;
 
-  const good = result.toFixed(6).replace(".", ",");
-
   if (isCorrect) return;
 
   playBadSound();
+
+  let good = toScientific(result);
 
   let content = "";
 
@@ -325,7 +331,9 @@ function showFeedback(isCorrect) {
   else {
 
     const factor = currentQuestion.a / currentQuestion.value;
-    const exp = Math.log10(factor).toFixed(2).replace(".", ",");
+    const exp = Math.log10(factor).toFixed(2);
+
+    good = toScientific(currentQuestion.a);
 
     content = `
       <div class="feedback-box">
@@ -343,7 +351,7 @@ function showFeedback(isCorrect) {
 }
 
 /* =========================
-   SUBMIT / LOAD / GAME
+   RESTE INCHANGÉ
 ========================= */
 
 function submitAnswer() {
@@ -428,7 +436,7 @@ function endGame() {
   setTimeout(() => {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
-  }, 2000);
+  }, 20000);
 }
 
 function updateUI() {
