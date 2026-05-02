@@ -71,8 +71,6 @@ const UNITS = {
 ========================= */
 
 const SURFACES_VOLUMES = [
-
-  // surfaces
   { from: "m²", to: "dm²", factor: 1e2 },
   { from: "dm²", to: "m²", factor: 1e-2 },
 
@@ -82,7 +80,6 @@ const SURFACES_VOLUMES = [
   { from: "m²", to: "mm²", factor: 1e6 },
   { from: "mm²", to: "m²", factor: 1e-6 },
 
-  // volumes
   { from: "m³", to: "dm³", factor: 1e3 },
   { from: "dm³", to: "m³", factor: 1e-3 },
 
@@ -92,39 +89,26 @@ const SURFACES_VOLUMES = [
   { from: "m³", to: "mm³", factor: 1e9 },
   { from: "mm³", to: "m³", factor: 1e-9 },
 
-  // litres
   { from: "dm³", to: "L", factor: 1 },
   { from: "L", to: "dm³", factor: 1 },
 
   { from: "cm³", to: "mL", factor: 1 },
-  { from: "mL", to: "cm³", factor: 1 },
-
-  { from: "m³", to: "L", factor: 1e3 },
-  { from: "L", to: "m³", factor: 1e-3 }
+  { from: "mL", to: "cm³", factor: 1 }
 ];
 
 /* =========================
-   PHYSIQUE REEL
+   PHYSIQUE
 ========================= */
 
 const PHYSICS = [
   { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
-  { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1000 / 3600 },
+  { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1 / 3.6 },
 
   { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
   { from: "W·cm⁻²", to: "W·m⁻²", factor: 1e4 },
 
-  { from: "kg·L⁻¹", to: "g·L⁻¹", factor: 1e3 },
-  { from: "g·L⁻¹", to: "kg·L⁻¹", factor: 1e-3 },
-
-  { from: "g·mL⁻¹", to: "kg·L⁻¹", factor: 1 },
-  { from: "kg·L⁻¹", to: "g·mL⁻¹", factor: 1 },
-
-  { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 },
   { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
-
-  { from: "mol·L⁻¹", to: "mmol·L⁻¹", factor: 1e3 },
-  { from: "mmol·L⁻¹", to: "mol·L⁻¹", factor: 1e-3 }
+  { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
 ];
 
 /* =========================
@@ -138,7 +122,7 @@ function getMode() {
 }
 
 /* =========================
-   GENERATEUR VALEURS
+   VALEURS
 ========================= */
 
 function randomValue(max) {
@@ -153,13 +137,13 @@ function randomValue(max) {
 
   const value = Math.random() * max;
 
-  if (decimals === 0) return Math.floor(value) + 1;
-
-  return +value.toFixed(decimals);
+  return decimals === 0
+    ? Math.floor(value) + 1
+    : +value.toFixed(decimals);
 }
 
 /* =========================
-   UNIT SIMPLE
+   UNITÉ SIMPLE
 ========================= */
 
 function randomSIUnit() {
@@ -183,7 +167,7 @@ function randomSIUnit() {
 }
 
 /* =========================
-   FORMAT FR
+   FORMAT
 ========================= */
 
 function formatFR(x) {
@@ -191,27 +175,75 @@ function formatFR(x) {
 }
 
 /* =========================
-   SCIENTIFIQUE
+   TABLEAU PÉDAGOGIQUE (VERSION CASES HORIZONTALES + COULEURS)
 ========================= */
 
-function formatScientific(x) {
-  if (x === 0) return "0";
+function buildTable(from, to) {
 
-  const abs = Math.abs(x);
+  const exp = {
+    "G": 9,
+    "M": 6,
+    "k": 3,
+    "": 0,
+    "c": -2,
+    "m": -3,
+    "µ": -6,
+    "n": -9
+  };
 
-  if (abs >= 1000 || abs < 0.01) {
-    const exp = Math.floor(Math.log10(abs));
-    const mant = x / Math.pow(10, exp);
+  const f = (from.match(/(n|µ|m|c|k|M|G)/) || [""])[0];
+  const t = (to.match(/(n|µ|m|c|k|M|G)/) || [""])[0];
 
-    const m = mant
-      .toFixed(3)
-      .replace(/\.?0+$/, "")
-      .replace(".", ",");
+  const e1 = exp[f] ?? 0;
+  const e2 = exp[t] ?? 0;
 
-    return `${m} × 10<sup>${exp}</sup>`;
-  }
+  const diff = e1 - e2;
 
-  return String(x).replace(".", ",");
+  const formatExp = (e, color = "white") =>
+    `<span style="color:${color};">10<sup>${e}</sup></span>`;
+
+  return `
+<div class="explication">
+
+<h3>📊 Tableau de conversion</h3>
+
+<div class="table-row">
+
+  <div class="cell start" style="background:transparent;color:#7CFC00;">
+    ${from}<br>
+    ${formatExp(e1, "#7CFC00")}
+  </div>
+
+  <div class="cell" style="background:transparent;color:white;">
+    →
+  </div>
+
+  <div class="cell end" style="background:transparent;color:#7CFC00;">
+    ${to}<br>
+    ${formatExp(e2, "#7CFC00")}
+  </div>
+
+</div>
+
+<p>
+🔁 Écart d’exposants : <b>${diff}</b>
+</p>
+
+<p>
+📌 Donc on multiplie par :
+<b>10<sup>${diff}</sup></b>
+</p>
+
+<p>
+💡 Déplacement dans le tableau :
+<br>
+- vers la droite → on descend les puissances (division)
+<br>
+- vers la gauche → on monte les puissances (multiplication)
+</p>
+
+</div>
+`;
 }
 
 /* =========================
@@ -221,6 +253,7 @@ function formatScientific(x) {
 function generateQuestion() {
 
   const mode = getMode();
+
   let value;
 
   if (mode === "easy") value = randomValue(10);
@@ -229,35 +262,26 @@ function generateQuestion() {
 
   let item;
 
-  if (mode === "easy") {
-    item = randomSIUnit();
+  if (mode === "easy") item = randomSIUnit();
 
-  } else if (mode === "medium") {
+  else if (mode === "medium") {
+    item = Math.random() < 0.3
+      ? SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)]
+      : randomSIUnit();
+  }
 
-    const r = Math.random();
-
-    if (r < 0.3) {
-      item = SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)];
-    } else {
-      item = randomSIUnit();
-    }
-
-  } else {
-
-    const r = Math.random();
-
-    if (r < 0.4) {
-      item = PHYSICS[Math.floor(Math.random() * PHYSICS.length)];
-    } else if (r < 0.7) {
-      item = SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)];
-    } else {
-      item = randomSIUnit();
-    }
+  else {
+    item = Math.random() < 0.4
+      ? PHYSICS[Math.floor(Math.random() * PHYSICS.length)]
+      : randomSIUnit();
   }
 
   currentQuestion = {
     q: `${formatFR(value)} ${item.from} → ${item.to}`,
-    a: value * item.factor
+    a: value * item.factor,
+    value,
+    from: item.from,
+    to: item.to
   };
 }
 
@@ -311,21 +335,9 @@ function startTimer() {
 ========================= */
 
 function load() {
-
-  document.getElementById("question").innerHTML =
-    currentQuestion.q;
-
+  document.getElementById("question").innerHTML = currentQuestion.q;
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
-}
-
-/* =========================
-   INPUT
-========================= */
-
-function parseInput(v) {
-  if (!v) return NaN;
-  return Number(v.replace(",", ".").replace(/\s/g, ""));
 }
 
 /* =========================
@@ -336,8 +348,10 @@ function submitAnswer() {
 
   if (gameOver) return;
 
-  const input = parseInput(document.getElementById("answer").value);
+  const input = Number(document.getElementById("answer").value.replace(",", "."));
   const good = currentQuestion.a;
+
+  const fb = document.getElementById("feedback");
 
   const epsilon = Math.abs(good) * 1e-4 + 1e-6;
 
@@ -357,14 +371,11 @@ function submitAnswer() {
 
     playBadSound();
 
-    const fb = document.getElementById("feedback");
-
     fb.innerHTML =
-      "✘ Faux<br>✔ Réponse : <b>" +
-      formatScientific(good) +
-      "</b>";
+      "❌ Faux<br><br>" +
+      buildTable(currentQuestion.from, currentQuestion.to);
 
-    setTimeout(() => endGame(), 1200);
+    setTimeout(() => endGame(), 2000);
   }
 }
 
@@ -380,22 +391,10 @@ function endGame() {
 
   clearInterval(timer);
 
-  const fb = document.getElementById("feedback");
-
-  if (fb && currentQuestion) {
-
-    fb.innerHTML =
-      "✔ Fin du jeu<br>✔ Réponse : <b>" +
-      formatScientific(currentQuestion.a) +
-      "</b>";
-  }
-
   setTimeout(() => {
-
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
-
-  }, 2000);
+  }, 1500);
 }
 
 /* =========================
