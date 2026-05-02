@@ -94,11 +94,7 @@ const SURFACES_VOLUMES = [
   { from: "m³", to: "cm³", factor: 1e6 },
   { from: "cm³", to: "m³", factor: 1e-6 },
   { from: "m³", to: "mm³", factor: 1e9 },
-  { from: "mm³", to: "m³", factor: 1e-9 },
-  { from: "dm³", to: "L", factor: 1 },
-  { from: "L", to: "dm³", factor: 1 },
-  { from: "cm³", to: "mL", factor: 1 },
-  { from: "mL", to: "cm³", factor: 1 }
+  { from: "mm³", to: "m³", factor: 1e-9 }
 ];
 
 /* =========================
@@ -201,6 +197,28 @@ function getExerciseType(item) {
 }
 
 /* =========================
+   SOUS-TYPES TYPE 3
+========================= */
+
+function getType3Subtype(item) {
+
+  const base = item.from || item;
+  const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
+
+  if (clean === "Hz") return "freq";
+
+  if (["Pa", "N", "W", "J", "mol"].includes(clean)) {
+    return "physics";
+  }
+
+  if (SURFACES_VOLUMES.includes(item)) {
+    return "geom";
+  }
+
+  return "physics";
+}
+
+/* =========================
    SCIENTIFIC FORMAT
 ========================= */
 
@@ -297,12 +315,14 @@ function buildTable(from, to) {
 }
 
 /* =========================
-   FEEDBACK
+   FEEDBACK (CORRIGÉ)
 ========================= */
 
 function showFeedback(isCorrect) {
 
   const fb = document.getElementById("feedback");
+  if (!fb) return;
+
   fb.classList.add("active");
 
   const type = getExerciseType(currentQuestion.item);
@@ -319,12 +339,10 @@ function showFeedback(isCorrect) {
   /* =========================
      TYPE 4 (PAR CŒUR)
   ========================= */
-
   if (type === 4) {
 
     content = `
       <div class="feedback-box">
-
         <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
         <div style="margin-top:10px;color:#ff4d4d;font-weight:bold;">
@@ -334,94 +352,171 @@ function showFeedback(isCorrect) {
         <div style="margin-top:10px">
           👉 ${currentQuestion.from} = ${currentQuestion.to}
         </div>
+      </div>
+    `;
+  }
+
+  /* =========================
+     TYPE 1 / 2 (TABLE + RECETTE)
+  ========================= */
+  else if (type === 1 || type === 2) {
+
+    const table = buildTable(currentQuestion.from, currentQuestion.to);
+
+    const expFrom = table.exp[table.f];
+    const expTo = table.exp[table.t];
+
+    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+    const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
+    const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
+
+    const numerator = `<span style="color:#7CFC00">10<sup>${expFrom}</sup></span>`;
+    const denominator = `<span style="color:violet">10<sup>${expTo}</sup></span>`;
+    const powerResult = `10<sup>${expFrom - expTo}</sup>`;
+
+    content = `
+      <div class="feedback-box">
+
+        <div>📌 <b>Question :</b><br>
+          ${yellowValue} ${startUnit} → ${endUnit}
+        </div>
+
+        <div class="table-row">${table.cells}</div>
+
+        <div>
+          🧠 <b>Recette magique :</b><br><br>
+
+          <div style="font-size:20px;text-align:center;">
+            <div>${numerator}</div>
+            <div style="border-top:2px solid #fff;width:120px;margin:5px auto;"></div>
+            <div>${denominator}</div>
+          </div>
+
+          <br>
+
+          🔎 ${powerResult} <br><br>
+
+          🧮 Résultat : ${yellowValue} ${startUnit} = ${yellowValue} × ${powerResult} ${endUnit}
+        </div>
 
       </div>
     `;
   }
 
   /* =========================
-     TYPE 1 & 2 (TABLE + RECETTE MAGIQUE)
+     TYPE 3 + SURFACES/VOLUMES
   ========================= */
-
-  else if (type === 1 || type === 2) {
-
-  const table = buildTable(currentQuestion.from, currentQuestion.to);
-
-  const expFrom = table.exp[table.f];
-  const expTo = table.exp[table.t];
-  const delta = expFrom - expTo;
-
-  const dir = delta > 0 ? "droite" : "gauche";
-
-  const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
-  const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
-  const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
-
-  const numerator = `<span style="color:#7CFC00">10<sup>${expFrom}</sup></span>`;
-  const denominator = `<span style="color:violet">10<sup>${expTo}</sup></span>`;
-
-  const powerResult = `10<sup>${delta}</sup>`;
-
-  content = `
-    <div class="feedback-box">
-
-      <div>📌 <b>Question :</b><br>
-        ${yellowValue} ${startUnit} → ${endUnit}
-      </div>
-
-      <div class="table-row">${table.cells}</div>
-
-      <div>
-        🧠 <b>Recette magique :</b><br><br>
-
-        📦 Fraction complète :<br><br>
-
-        <div style="font-size:20px; text-align:center;">
-          <div>${numerator}</div>
-          <div style="border-top:2px solid #fff; width:120px; margin:5px auto;"></div>
-          <div>${denominator}</div>
-        </div>
-
-        <br>
-
-        🔎 Ce rapport donne : ${powerResult} <br><br>
-
-
-        🧮 Résultat final :<br><br>
-        ${yellowValue} × ${powerResult} ${endUnit}
-
-
-      </div>
-
-    </div>
-  `;
-}
-
-  /* =========================
-     TYPE 3 (PHYSIQUE)
-  ========================= */
-
   else {
 
-    const exp = Math.round(
-      Math.log10(currentQuestion.a / currentQuestion.value)
-    );
-
+    const subtype = getType3Subtype(currentQuestion.item);
     const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
 
-    content = `
-      <div class="feedback-box">
+    /* =========================
+       SURFACES / VOLUMES (À PART)
+    ========================= */
+    if (subtype === "geom") {
 
-        <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
+      content = `
+        <div class="feedback-box">
 
-        <div>
-          🧠 Facteur scientifique :<br><br>
+          <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
-          ${yellowValue} × 10<sup>${exp}</sup> = ${result}
+          <div>
+            📐 <b>Conversion géométrique</b><br><br>
+
+            ${yellowValue} × facteur = <b>${result}</b> ${currentQuestion.to}
+
+            <br><br>
+
+            🤔 Réfléchis : pourquoi le facteur est-il au carré ou au cube ?
+          </div>
+
         </div>
+      `;
+    }
 
-      </div>
-    `;
+    /* =========================
+       TYPE 3 UNIFIÉ (CORRIGÉ)
+    ========================= */
+    else {
+
+      const isComposite =
+        currentQuestion.from.includes("·") ||
+        currentQuestion.from.includes("⁻") ||
+        currentQuestion.to.includes("·") ||
+        currentQuestion.to.includes("⁻");
+
+      const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
+      const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
+
+      /* ===== CAS COMPOSÉ ===== */
+      if (isComposite) {
+
+        content = `
+          <div class="feedback-box">
+
+            <div>📌 <b>Question :</b><br>
+              ${yellowValue} ${startUnit} → ${endUnit}
+            </div>
+
+            <div style="margin-top:10px">
+              🔥 Là, on est sur une vraie réflexion scientifique !<br>
+
+            <div style="margin-top:10px">
+              💡 Il faut décomposer chaque unité. Tu vas y arriver 👍 <br>
+            </div>
+
+            <div style="margin-top:10px">
+              🧮 Résultat : <b>${result.replace(".", ",")}</b> ${endUnit} <br>
+            </div>
+
+            <div style="margin-top:10px">
+              🤔 Regarde quelles unités changent dans la conversion. (m², cm², facteur…)
+
+            </div>
+
+          </div>
+        `;
+      }
+
+      /* ===== CAS SIMPLE ===== */
+      else {
+
+        const table = buildTable(currentQuestion.from, currentQuestion.to);
+
+        const expFrom = table.exp[table.f];
+        const expTo = table.exp[table.t];
+        const delta = expFrom - expTo;
+
+        const factor = `10<sup>${delta}</sup>`;
+
+        content = `
+          <div class="feedback-box">
+
+            <div>📌 <b>Question :</b><br>
+              ${yellowValue} ${startUnit} → ${endUnit}
+            </div>
+
+            <div style="margin-top:10px">
+              💡 Conversion un peu complexe… mais tu es capable de trouver tout seul 👍
+            </div>
+
+            <div style="margin-top:10px">
+              🧮 Résultat : ${yellowValue} × ${factor} = <b>${result}</b> ${endUnit}
+            </div>
+
+            <div class="table-row" style="margin-top:15px">
+              ${table.cells}
+            </div>
+
+            <div style="margin-top:10px">
+              🤔 Réfléchis : pourquoi ce facteur ${factor} ?
+            </div>
+
+          </div>
+        `;
+      }
+    }
   }
 
   fb.innerHTML = content;
