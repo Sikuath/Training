@@ -175,71 +175,112 @@ function formatFR(x) {
 }
 
 /* =========================
-   TABLEAU PÉDAGOGIQUE (VERSION CASES HORIZONTALES + COULEURS)
+   ANIMATION (SAFE)
+========================= */
+
+function animateJump(step) {
+  const cells = document.querySelectorAll(".cell");
+  if (!cells || !cells.length) return;
+
+  let i = 0;
+  const total = Math.abs(step);
+
+  const interval = setInterval(() => {
+
+    if (i >= total) {
+      clearInterval(interval);
+      return;
+    }
+
+    const index = step > 0 ? cells.length - 1 - i : i;
+
+    if (cells[index]) {
+      cells[index].classList.add("jump");
+      setTimeout(() => {
+        cells[index].classList.remove("jump");
+      }, 400);
+    }
+
+    i++;
+  }, 250);
+}
+
+/* =========================
+   TABLEAU PÉDAGOGIQUE
 ========================= */
 
 function buildTable(from, to) {
 
+  const scale = ["G","M","k","h","da","","d","c","m","µ","n"];
+
   const exp = {
-    "G": 9,
-    "M": 6,
-    "k": 3,
-    "": 0,
-    "c": -2,
-    "m": -3,
-    "µ": -6,
-    "n": -9
+    "G": 9, "M": 6, "k": 3, "h": 2, "da": 1,
+    "": 0, "d": -1, "c": -2, "m": -3, "µ": -6, "n": -9
   };
 
-  const f = (from.match(/(n|µ|m|c|k|M|G)/) || [""])[0];
-  const t = (to.match(/(n|µ|m|c|k|M|G)/) || [""])[0];
+  const getPrefix = (u) =>
+    (u.match(/(G|M|k|h|da|d|c|m|µ|n)/) || [""])[0];
 
-  const e1 = exp[f] ?? 0;
-  const e2 = exp[t] ?? 0;
+  const f = getPrefix(from);
+  const t = getPrefix(to);
 
-  const diff = e1 - e2;
+  const i1 = scale.indexOf(f);
+  const i2 = scale.indexOf(t);
 
-  const formatExp = (e, color = "white") =>
-    `<span style="color:${color};">10<sup>${e}</sup></span>`;
+  const step = i1 - i2;
+
+  setTimeout(() => animateJump(step), 200);
+
+  const baseUnit = from.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
+
+  const cells = scale.map(p => {
+
+    const unit = p + baseUnit;
+    const isStart = p === f;
+    const isEnd = p === t;
+
+    return `
+      <div class="cell"
+        style="background:transparent;color:${isStart || isEnd ? '#7CFC00' : 'white'};font-weight:${isStart || isEnd ? 'bold' : 'normal'};">
+        ${unit}<br>
+        10<sup>${exp[p]}</sup>
+      </div>
+    `;
+  }).join("");
+
+  const value = currentQuestion ? currentQuestion.value : 0;
+  const result = value * Math.pow(10, step);
 
   return `
 <div class="explication">
 
-<h3>📊 Tableau de conversion</h3>
+<h3>📊 Conversion</h3>
+
+<p><b>Question :</b> ${currentQuestion ? currentQuestion.q : ""}</p>
 
 <div class="table-row">
-
-  <div class="cell start" style="background:transparent;color:#7CFC00;">
-    ${from}<br>
-    ${formatExp(e1, "#7CFC00")}
-  </div>
-
-  <div class="cell" style="background:transparent;color:white;">
-    →
-  </div>
-
-  <div class="cell end" style="background:transparent;color:#7CFC00;">
-    ${to}<br>
-    ${formatExp(e2, "#7CFC00")}
-  </div>
-
+  ${cells}
 </div>
 
+<p>🔁 Déplacement : <b>${step}</b></p>
+
 <p>
-🔁 Écart d’exposants : <b>${diff}</b>
+📌 Facteur :
+\\(10^{${step}}\\)
 </p>
 
 <p>
-📌 Donc on multiplie par :
-<b>10<sup>${diff}</sup></b>
+🧮 Calcul :
+\\[
+${value} \\times 10^{${step}} = ${result}
+\\]
 </p>
 
 <p>
-💡 Déplacement dans le tableau :
-<br>
-- vers la droite → on descend les puissances (division)
-<br>
-- vers la gauche → on monte les puissances (multiplication)
+✔ Résultat :
+\\[
+${result} \\; ${to}
+\\]
 </p>
 
 </div>
@@ -247,7 +288,7 @@ function buildTable(from, to) {
 }
 
 /* =========================
-   GENERATION
+   GENERATION (IMPORTANT FIX)
 ========================= */
 
 function generateQuestion() {
@@ -276,6 +317,7 @@ function generateQuestion() {
       : randomSIUnit();
   }
 
+  // 🔥 STOCKAGE SIMPLE (IMPORTANT)
   currentQuestion = {
     q: `${formatFR(value)} ${item.from} → ${item.to}`,
     a: value * item.factor,
@@ -286,7 +328,27 @@ function generateQuestion() {
 }
 
 /* =========================
-   START
+   LOAD (SAFE + MATHJAX)
+========================= */
+
+function load() {
+  const q = document.getElementById("question");
+  const a = document.getElementById("answer");
+  const f = document.getElementById("feedback");
+
+  if (q) q.innerHTML = currentQuestion?.q || "";
+  if (a) a.value = "";
+  if (f) f.textContent = "";
+
+  try {
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise();
+    }
+  } catch (e) {}
+}
+
+/* =========================
+   GAME FLOW
 ========================= */
 
 function startGame() {
@@ -308,12 +370,7 @@ function startGame() {
   updateUI();
 }
 
-/* =========================
-   TIMER
-========================= */
-
 function startTimer() {
-
   clearInterval(timer);
 
   timer = setInterval(() => {
@@ -329,20 +386,6 @@ function startTimer() {
 
   }, 1000);
 }
-
-/* =========================
-   LOAD
-========================= */
-
-function load() {
-  document.getElementById("question").innerHTML = currentQuestion.q;
-  document.getElementById("answer").value = "";
-  document.getElementById("feedback").textContent = "";
-}
-
-/* =========================
-   SUBMIT
-========================= */
 
 function submitAnswer() {
 
@@ -375,13 +418,15 @@ function submitAnswer() {
       "❌ Faux<br><br>" +
       buildTable(currentQuestion.from, currentQuestion.to);
 
-    setTimeout(() => endGame(), 2000);
+    try {
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise([fb]);
+      }
+    } catch (e) {}
+
+    setTimeout(() => endGame(), 20000);
   }
 }
-
-/* =========================
-   END GAME
-========================= */
 
 function endGame() {
 
@@ -394,7 +439,7 @@ function endGame() {
   setTimeout(() => {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
-  }, 1500);
+  }, 20000);
 }
 
 /* =========================

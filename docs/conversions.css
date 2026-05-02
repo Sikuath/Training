@@ -25,7 +25,7 @@ body.conversions-page::before {
 
   text-align: center;
   position: relative;
-  z-index: 2;
+  z-index: 1; /* 🔥 reste derrière le feedback */
 }
 
 /* HUD */
@@ -61,27 +61,51 @@ button:hover {
   background: #e68900;
 }
 
-/* feedback */
+/* =========================
+   FEEDBACK MODE PLEIN ÉCRAN
+========================= */
+
 #feedback {
   margin-top: 10px;
   font-weight: bold;
   color: #ff4444;
 }
-.table-row {
+
+/* quand le feedback contient le tableau => mode “explication” */
+.explication {
+  position: fixed;
+  inset: 0;                 /* 🔥 prend tout l’écran */
+  z-index: 9999;            /* 🔥 au-dessus du jeu */
+
+  background: rgba(0,0,0,0.92);
+  color: white;
+
   display: flex;
-  flex-direction: row;   /* 🔥 force horizontal */
-  flex-wrap: nowrap;     /* 🔥 empêche retour à la ligne */
+  flex-direction: column;
   justify-content: center;
-  gap: 8px;
-  margin: 12px 0;
-  overflow-x: auto;      /* si petit écran, scroll horizontal */
+  align-items: center;
+
+  padding: 20px;
+  text-align: center;
 }
 
+/* tableau horizontal */
+.table-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+/* cases */
 .cell {
-  flex: 0 0 auto;        /* 🔥 empêche les cases de se déformer */
-  width: 75px;
-  height: 75px;
-  border: 2px solid #555;
+  flex: 0 0 auto;
+  width: 90px;
+  height: 90px;
+
+  border: 2px solid white;
   border-radius: 8px;
 
   display: flex;
@@ -90,23 +114,30 @@ button:hover {
   align-items: center;
 
   font-family: monospace;
-  background: #f2f2f2;
+
+  background: transparent; /* 🔥 aucun fond */
+  color: white;
 }
 
+/* départ / arrivée */
 .cell.start {
-  background: #7CFC00;
+  color: #7CFC00;
   font-weight: bold;
+  border-color: #7CFC00;
 }
 
 .cell.end {
-  background: #00c3ff;
+  color: #00c3ff;
   font-weight: bold;
+  border-color: #00c3ff;
+}
+@keyframes jump {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-8px); }
+  60%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
 }
 
-.explication {
-  margin-top: 12px;
-  padding: 10px;
-  background: #111;
-  color: white;
-  border-radius: 8px;
+.cell.jump {
+  animation: jump 0.4s ease-in-out;
 }
