@@ -103,8 +103,10 @@ const SURFACES_VOLUMES = [
 const PHYSICS = [
   { from: "m·s⁻¹", to: "km·h⁻¹", factor: 3.6 },
   { from: "km·h⁻¹", to: "m·s⁻¹", factor: 1 / 3.6 },
+
   { from: "W·m⁻²", to: "W·cm⁻²", factor: 1e-4 },
   { from: "W·cm⁻²", to: "W·m⁻²", factor: 1e4 },
+
   { from: "g·L⁻¹", to: "kg·m⁻³", factor: 1 },
   { from: "kg·m⁻³", to: "g·L⁻¹", factor: 1 }
 ];
@@ -141,18 +143,11 @@ function randomValue(max) {
 }
 
 /* =========================
-   FORMAT FR
-========================= */
-
-function formatFR(x) {
-  return String(x).replace(".", ",");
-}
-
-/* =========================
-   SAFE SI UNIT
+   UNITÉ SIMPLE
 ========================= */
 
 function randomSIUnit() {
+
   const bases = Object.keys(UNITS);
   const base = bases[Math.floor(Math.random() * bases.length)];
   const allowed = UNITS[base];
@@ -172,32 +167,76 @@ function randomSIUnit() {
 }
 
 /* =========================
-   ANIMATION SAFE
+   FORMAT FR
 ========================= */
 
-function animateJump(step) {
-  const cells = document.querySelectorAll(".cell");
-  if (!cells || !cells.length) return;
-
-  let i = 0;
-  const total = Math.abs(step);
-
-  const interval = setInterval(() => {
-    if (i >= total) return clearInterval(interval);
-
-    const index = step > 0 ? cells.length - 1 - i : i;
-
-    if (cells[index]) {
-      cells[index].classList.add("jump");
-      setTimeout(() => cells[index].classList.remove("jump"), 400);
-    }
-
-    i++;
-  }, 250);
+function formatFR(x) {
+  return String(x).replace(".", ",");
 }
 
 /* =========================
-   TABLEAU + FEEDBACK FIX
+   TYPE EXO (CORRIGÉ)
+========================= */
+
+function getExerciseType(item) {
+
+  const base = item.from || item;
+
+  const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
+
+  // 🔥 CAS EXO 3 DIRECT (pas de tableau)
+  if (["mol", "Hz", "Pa", "N", "W", "J"].includes(clean)) {
+    return 3;
+  }
+
+  if (PHYSICS.includes(item)) return 3;
+  if (SURFACES_VOLUMES.includes(item)) return 2;
+  return 1;
+}
+
+/* =========================
+   GENERATION
+========================= */
+
+function generateQuestion() {
+
+  const mode = getMode();
+  let value;
+
+  if (mode === "easy") value = randomValue(10);
+  else if (mode === "medium") value = randomValue(100);
+  else value = +(Math.random() * 50).toFixed(2);
+
+  let item;
+
+  if (mode === "easy") item = randomSIUnit();
+
+  else if (mode === "medium") {
+    item = Math.random() < 0.3
+      ? SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)]
+      : randomSIUnit();
+  }
+
+  else {
+    const r = Math.random();
+
+    if (r < 0.4) item = PHYSICS[Math.floor(Math.random() * PHYSICS.length)];
+    else if (r < 0.7) item = SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)];
+    else item = randomSIUnit();
+  }
+
+  currentQuestion = {
+    q: `${formatFR(value)} ${item.from} → ${item.to}`,
+    a: value * item.factor,
+    value,
+    from: item.from,
+    to: item.to,
+    item: item
+  };
+}
+
+/* =========================
+   TABLEAU (INCHANGÉ)
 ========================= */
 
 function buildTable(from, to) {
@@ -220,170 +259,91 @@ function buildTable(from, to) {
 
   const step = i1 - i2;
 
-  const direction =
-    step > 0
-      ? `${Math.abs(step)} cases vers la gauche`
-      : `${Math.abs(step)} cases vers la droite`;
-
-  setTimeout(() => animateJump(step), 200);
-
-  const baseUnit = from.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
-
   const cells = scale.map(p => {
-    const unit = p + baseUnit;
+
     const isStart = p === f;
     const isEnd = p === t;
 
     return `
       <div class="cell"
-        style="background:transparent;color:${isStart || isEnd ? '#7CFC00' : 'white'};font-weight:${isStart || isEnd ? 'bold' : 'normal'};">
-        ${unit}<br>
+        style="
+          color:${isStart || isEnd ? '#7CFC00' : 'white'};
+          font-weight:${isStart || isEnd ? 'bold' : 'normal'};
+        ">
+        ${p}<br>
         10<sup>${exp[p]}</sup>
       </div>
     `;
   }).join("");
 
-  const value = currentQuestion ? currentQuestion.value : 0;
-  const result = value * Math.pow(10, step);
-
-  return `
-<div class="explication">
-
-<h3>📊 Conversion</h3>
-
-<p><b>Question :</b> ${currentQuestion?.q || ""}</p>
-
-<div class="table-row">
-  ${cells}
-</div>
-
-<p>🔁 Déplacement : <b>${direction}</b></p>
-
-<p>📌 Facteur : \\(10^{${step}}\\)</p>
-
-<p>
-🧮 Calcul :
-\\[
-${value} \\times 10^{${step}} = ${result.toString().replace(".", ",")}
-\\]
-</p>
-
-<p>
-✔ Résultat :
-\\[
-${result.toString().replace(".", ",")} \\; ${to}
-\\]
-</p>
-
-</div>
-`;
-}
-
-/* =========================
-   GENERATION SAFE
-========================= */
-
-function generateQuestion() {
-
-  const mode = getMode();
-
-  let value =
-    mode === "easy"
-      ? randomValue(10)
-      : mode === "medium"
-        ? randomValue(100)
-        : +(Math.random() * 50).toFixed(2);
-
-  let item;
-
-  if (mode === "easy") item = randomSIUnit();
-  else if (mode === "medium")
-    item = Math.random() < 0.3
-      ? SURFACES_VOLUMES[Math.floor(Math.random() * SURFACES_VOLUMES.length)]
-      : randomSIUnit();
-  else
-    item = Math.random() < 0.4
-      ? PHYSICS[Math.floor(Math.random() * PHYSICS.length)]
-      : randomSIUnit();
-
-  currentQuestion = {
-    q: `${formatFR(value)} ${item.from} → ${item.to}`,
-    a: value * item.factor,
-    value,
-    from: item.from,
-    to: item.to
+  return {
+    cells,
+    step
   };
 }
 
 /* =========================
-   START FIX (CAUSE PRINCIPALE DU BUG)
+   FEEDBACK (INCHANGÉ)
 ========================= */
 
-function startGame() {
+function showFeedback(isCorrect) {
 
-  if (gameOver) return;
+  const fb = document.getElementById("feedback");
+  fb.classList.add("active");
 
-  score = 0;
-  current = 0;
-  gameOver = false;
+  const type = getExerciseType(currentQuestion.item);
+  const value = currentQuestion.value;
+  const result = currentQuestion.a;
 
-  generateQuestion();
+  const good = result.toFixed(6).replace(".", ",");
 
-  timeLeft = 180;
+  if (isCorrect) return;
 
-  const startBtn = document.getElementById("startBtn");
-  const valBtn = document.getElementById("validateBtn");
-  const stopBtn = document.getElementById("stopBtn");
+  playBadSound();
 
-  if (startBtn) startBtn.style.display = "none";
-  if (valBtn) valBtn.style.display = "inline-block";
-  if (stopBtn) stopBtn.style.display = "inline-block";
+  let content = "";
 
-  startTimer();
-  load();
-  updateUI();
-}
+  if (type === 1 || type === 2) {
 
-/* =========================
-   TIMER
-========================= */
+    const t = buildTable(currentQuestion.from, currentQuestion.to);
 
-function startTimer() {
-  clearInterval(timer);
+    content = `
+      <div class="feedback-box">
+        <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
 
-  timer = setInterval(() => {
-    if (gameOver) return;
+        <div class="table-row">${t.cells}</div>
 
-    timeLeft--;
-
-    const t = document.getElementById("timer");
-    if (t) t.textContent = timeLeft + "s";
-
-    if (timeLeft <= 0) endGame();
-  }, 1000);
-}
-
-/* =========================
-   LOAD + MATHJAX FIX
-========================= */
-
-function load() {
-
-  const q = document.getElementById("question");
-  const a = document.getElementById("answer");
-  const f = document.getElementById("feedback");
-
-  if (q) q.innerHTML = currentQuestion?.q || "";
-  if (a) a.value = "";
-  if (f) f.textContent = "";
-
-  if (window.MathJax?.typesetPromise) {
-    MathJax.typesetPromise();
+        <div>
+          🧠 Déplacement : <b>${t.step > 0 ? "droite" : "gauche"} (${Math.abs(t.step)} cases)</b><br><br>
+          🧮 Calcul :<br>
+          ${value} × 10<sup>${t.step}</sup> = ${good}
+        </div>
+      </div>
+    `;
   }
+
+  else {
+
+    const factor = currentQuestion.a / currentQuestion.value;
+    const exp = Math.log10(factor).toFixed(2).replace(".", ",");
+
+    content = `
+      <div class="feedback-box">
+        <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
+
+        <div>
+          🧠 Méthode directe :<br><br>
+          ${value} × 10<sup>${exp}</sup> = ${good}
+        </div>
+      </div>
+    `;
+  }
+
+  fb.innerHTML = content;
 }
 
 /* =========================
-   SUBMIT
+   SUBMIT / LOAD / GAME
 ========================= */
 
 function submitAnswer() {
@@ -392,8 +352,6 @@ function submitAnswer() {
 
   const input = Number(document.getElementById("answer").value.replace(",", "."));
   const good = currentQuestion.a;
-
-  const fb = document.getElementById("feedback");
 
   const epsilon = Math.abs(good) * 1e-4 + 1e-6;
 
@@ -405,42 +363,73 @@ function submitAnswer() {
     current++;
 
     updateUI();
+
     generateQuestion();
     load();
 
   } else {
 
-    playBadSound();
-
-    fb.innerHTML = "❌ Faux<br><br>" + buildTable(currentQuestion.from, currentQuestion.to);
-
-    if (window.MathJax?.typesetPromise) {
-      MathJax.typesetPromise([fb]);
-    }
-
-    setTimeout(() => endGame(), 20000);
+    showFeedback(false);
+    setTimeout(() => endGame(), 2500);
   }
 }
 
-/* =========================
-   END
-========================= */
+function load() {
+  document.getElementById("question").innerHTML = currentQuestion.q;
+  document.getElementById("answer").value = "";
+  document.getElementById("feedback").classList.remove("active");
+}
+
+function startGame() {
+
+  score = 0;
+  current = 0;
+  gameOver = false;
+
+  generateQuestion();
+
+  timeLeft = 180;
+
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("validateBtn").style.display = "inline-block";
+  document.getElementById("stopBtn").style.display = "inline-block";
+
+  startTimer();
+  load();
+  updateUI();
+}
+
+function startTimer() {
+
+  clearInterval(timer);
+
+  timer = setInterval(() => {
+
+    if (gameOver) return;
+
+    timeLeft--;
+
+    const t = document.getElementById("timer");
+    if (t) t.textContent = timeLeft + "s";
+
+    if (timeLeft <= 0) endGame();
+
+  }, 1000);
+}
 
 function endGame() {
+
   if (gameOver) return;
 
   gameOver = true;
+
   clearInterval(timer);
 
   setTimeout(() => {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
-  }, 20000);
+  }, 2000);
 }
-
-/* =========================
-   UI
-========================= */
 
 function updateUI() {
 
