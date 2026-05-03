@@ -1,29 +1,112 @@
+/* ================= BACKGROUND ================= */
+
 body.expressions-page {
   background: url("./background3.png") center center / cover no-repeat fixed;
   margin: 0;
   color: white;
 }
 
-/* carte exercice */
-.content {
-  background: rgba(0,0,0,0.6);
-  margin: 30px auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 320px;
-}
+/* ================= GAME CARD ================= */
 
-/* input propre */
-input {
-  padding: 8px;
-  border-radius: 6px;
-  border: none;
-  width: 80%;
+.game-card {
+  width: 420px;
+  margin: 40px auto;
+  padding: 25px;
+
+  background: rgba(0,0,0,0.85);
+  border-radius: 18px;
+
   text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
 
-/* feedback */
-#res3 {
-  margin-top: 10px;
+/* ================= HUD ================= */
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 15px;
+  padding: 10px;
+
+  background: rgba(0,0,0,0.7);
+  border-radius: 10px;
+
+  font-size: 14px;
+}
+
+/* ================= QUESTION ================= */
+
+#question {
+  margin: 15px 0;
+  font-size: 18px;
+}
+
+/* ================= IMAGE ================= */
+
+#illustration {
+  max-width: 200px;
+  display: none;
+  margin: 10px auto;
+  border-radius: 10px;
+}
+
+/* ================= CHOICES ================= */
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.choices button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+
+  background: #333;
+  color: white;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.choices button:hover {
+  background: #555;
+  transform: scale(1.03);
+}
+
+/* ================= FEEDBACK ================= */
+
+#feedback-wrapper {
+  margin-top: 15px;
+  min-height: 60px;
+}
+
+#feedback {
   font-weight: bold;
+}
+
+/* ================= BUTTONS ================= */
+
+.buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+
+  background: #444;
+  color: white;
+
+  cursor: pointer;
+}
+
+button:hover {
+  background: #666;
 }

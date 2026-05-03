@@ -3,15 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Expressions littérales</title>
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="expressions.css">
+
   <script>
     sessionStorage.setItem("lastExercise", window.location.href);
   </script>
+
+  <!-- ✅ MathJax pour affichage expressions -->
+  <script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+  };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 </head>
 
 <body class="page expressions-page">
 
+  <!-- NAV -->
   <nav class="topbar">
     <a class="home" href="index.html">🏠 Accueil</a>
     <a class="rappel" href="rappels.html">📘 Rappels</a>
@@ -19,23 +31,49 @@
 
   <h2>Expressions littérales</h2>
 
-  <div class="content">
-    <p>Simplifier : 2x + 3x = ?</p>
+  <div class="game-card">
 
-    <input type="text" id="rep3">
-    <button onclick="verif3()">Vérifier</button>
+    <!-- HUD -->
+    <div class="hud">
+      <div>⏱ Temps : <span id="timer">180s</span></div>
+      <div>⭐ Score : <span id="score">0</span></div>
+      <div>🎯 Mode : <span id="mode">easy</span></div>
+    </div>
 
-    <p id="res3"></p>
+    <!-- QUESTION -->
+    <p id="question">Clique sur Démarrer</p>
+
+    <!-- IMAGE -->
+    <img id="illustration" style="max-width:200px; display:none; margin:10px auto;">
+
+    <!-- CHOIX QCM -->
+    <div id="choices" class="choices"></div>
+
+    <!-- FEEDBACK -->
+    <div id="feedback-wrapper">
+      <p id="feedback"></p>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="buttons">
+      <button id="startBtn" onclick="startGame()">Démarrer</button>
+      <button id="validateBtn" style="display:none;">Valider</button>
+      <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+    </div>
+
   </div>
 
-  <script>
-    function verif3() {
-      let r = document.getElementById('rep3').value.trim();
+  <!-- SONS -->
+  <audio id="goodSound"
+    src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+    preload="auto"></audio>
 
-      document.getElementById('res3').textContent =
-        (r === "5x") ? "✔ Correct !" : "✘ Incorrect";
-    }
-  </script>
+  <audio id="badLight"
+    src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"
+    preload="auto"></audio>
+
+  <!-- SCRIPT -->
+  <script src="expressions.js"></script>
 
 </body>
 </html>

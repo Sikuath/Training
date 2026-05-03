@@ -1,14 +1,14 @@
-function getRanking() {
-  return JSON.parse(localStorage.getItem("ranking") || "[]");
+f"unction getRanking(game) {
+  return JSON.parse(localStorage.getItem("ranking_" + game) || "[]");
 }
 
-function saveRanking(data) {
-  localStorage.setItem("ranking", JSON.stringify(data));
+function saveRanking(game, data) {
+  localStorage.setItem("ranking_" + game, JSON.stringify(data));
 }
 
-function addScore(name, score) {
+function addScore(game, name, score) {
 
-  let ranking = getRanking();
+  let ranking = getRanking(game);
 
   if (!Array.isArray(ranking)) ranking = [];
 
@@ -18,11 +18,11 @@ function addScore(name, score) {
 
   ranking = ranking.slice(0, 10);
 
-  saveRanking(ranking);
+  saveRanking(game, ranking);
 }
 
-function getBestScore() {
-  const ranking = getRanking();
+function getBestScore(game) {
+  const ranking = getRanking(game);
   if (!ranking.length) return 0;
   return Math.max(...ranking.map(e => e.score));
 }

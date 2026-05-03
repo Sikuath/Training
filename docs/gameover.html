@@ -6,36 +6,40 @@
 <link rel="stylesheet" href="retro.css">
 </head>
 
-<body>
 <body class="game-page">
+
 <h1 class="glitch" id="title">GAME OVER</h1>
 
 <div class="container">
-
   <p>SCORE : <span id="score">0</span></p>
 
   <input id="pseudo" maxlength="3" placeholder="AAA" autofocus />
-
   <br>
 
   <button id="okBtn">SAVE</button>
-
 </div>
 
 <script>
 
 const params = new URLSearchParams(window.location.search);
 
-const game = params.get("game"); // 🔥 important
+const game = params.get("game") || "unknown";
 const score = Number(params.get("score") || 0);
 
 document.getElementById("score").textContent = score;
 
-/* titre dynamique */
+/* =========================
+   TITRE DYNAMIQUE
+========================= */
+
 document.getElementById("title").textContent =
   game === "conversions"
     ? "CONVERSIONS - GAME OVER"
-    : "SIGNIFICATIFS - GAME OVER";
+    : game === "significatifs"
+      ? "SIGNIFICATIFS - GAME OVER"
+      : game === "expressions"
+        ? "EXPRESSIONS - GAME OVER"
+        : "GAME OVER";
 
 /* =========================
    SAVE SCORE
