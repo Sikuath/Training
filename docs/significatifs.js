@@ -43,6 +43,60 @@ function playBadSound() {
 }
 
 /* =========================
+   FEEDBACK (AJOUT UNIQUEMENT)
+========================= */
+
+function feedback(question, user, good) {
+
+  const fb = document.getElementById("feedback");
+  if (!fb) return;
+
+  const q = question.q;
+
+  let type = "";
+
+  if (q.includes("× 10")) type = "scientifique";
+  else if (q.includes(",")) type = "decimal";
+  else type = "integer";
+
+  let aide = "";
+
+  if (type === "integer") {
+    aide = "💡 Compte simplement le nombre de chiffres du nombre.";
+  }
+
+  else if (type === "decimal") {
+    aide = "💡 Les chiffres après la virgule peuvent aussi être significatifs (attention aux zéros).";
+  }
+
+  else {
+    aide = "💡 En notation scientifique, seuls les chiffres de la mantisse comptent.";
+  }
+
+  fb.innerHTML = `
+    <div class="feedback-box">
+
+      <div>📌 <b>Question :</b><br>${q}</div>
+
+      <div style="margin-top:10px">
+        ❌ Ta réponse : <b>${user}</b>
+      </div>
+
+      <div style="margin-top:10px">
+        ✔ Bonne réponse : <b>${good}</b>
+      </div>
+
+      <div style="margin-top:15px;color:#7CFC00;font-weight:bold">
+        ${aide}
+      </div>
+
+    </div>
+  `;
+
+  fb.classList.add("active");
+}
+
+/* =========================
    DIGIT
 ========================= */
 
@@ -193,7 +247,7 @@ function load() {
 }
 
 /* =========================
-   SUBMIT
+   SUBMIT (MODIF MINIMALE)
 ========================= */
 
 function submit() {
@@ -209,7 +263,7 @@ function submit() {
 
   if (val === good) {
 
-    playGoodSound(); // 🔥 SON BONNE REPONSE
+    playGoodSound();
 
     score++;
     i++;
@@ -223,12 +277,10 @@ function submit() {
 
   } else {
 
-    playBadSound(); // 🔥 SON ERREUR
+    playBadSound();
 
-    document.getElementById("feedback").innerHTML =
-      "✘ Faux<br>✔ Réponse : <b>" + good + "</b>";
+    feedback(questions[i], val, good);
 
-    endGame(true);
   }
 
   updateUI();
@@ -249,7 +301,7 @@ function startTimer() {
     const t = document.getElementById("timer");
     if (t) t.textContent = timeLeft + "s";
 
-    if (timeLeft <= 0) endGame(true);
+    if (timeLeft <= 0) endGame();
 
   }, 1000);
 }
@@ -260,8 +312,7 @@ function startTimer() {
 
 function endGame() {
 
-  if (gameOver) return;
-
+  if (gameOver) return;   // 🔥 garde anti double appel
   gameOver = true;
   playing = false;
 
@@ -272,12 +323,16 @@ function endGame() {
   if (fb && lastGoodAnswer !== null) {
     fb.innerHTML =
       "✔ Bonne réponse : <b>" + lastGoodAnswer + "</b>";
+    fb.classList.add("active");
   }
+
+  // 🔥 IMPORTANT : on force le feedback visible
+  // et on bloque toute autre logique
 
   setTimeout(() => {
     window.location.href =
       "gameover.html?game=significatifs&score=" + score;
-  }, 1500);
+  }, 8000);
 }
 
 function quitGame() {
