@@ -90,3 +90,10 @@ button:hover {
   max-width: 900px;
   text-align: left;
 }
+.site-footer {
+  text-align: center;
+  padding: 15px;
+  font-size: 0.9em;
+  color: #aaa;
+  margin-top: 40px;
+}

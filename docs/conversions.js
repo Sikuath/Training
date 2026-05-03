@@ -182,17 +182,41 @@ function getExerciseType(item) {
   const base = item.from || item;
   const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
-  if (DERIVED_UNITS.some(u => u.from === item.from && u.to === item.to)) {
+  /* =========================
+     CAS DERIVÉS (type 4)
+  ========================= */
+  if (DERIVED_UNITS.some(u =>
+    u.from === item.from && u.to === item.to
+  )) {
     return 4;
   }
 
+  /* =========================
+     CAS PHYSIQUE SIMPLE (type 3)
+  ========================= */
   if (["mol", "Hz", "Pa", "N", "W", "J"].includes(clean)) {
     return 3;
   }
 
-  if (PHYSICS.includes(item)) return 3;
-  if (SURFACES_VOLUMES.includes(item)) return 2;
+  /* PHYSIQUE COMPLEXE (liste objet) */
+  if (PHYSICS.some(u =>
+    u.from === item.from && u.to === item.to
+  )) {
+    return 3;
+  }
 
+  /* =========================
+     SURFACES / VOLUMES (type 3 MAIS SUBTYPE geom)
+  ========================= */
+  if (SURFACES_VOLUMES.some(u =>
+    u.from === item.from && u.to === item.to
+  )) {
+    return 3;
+  }
+
+  /* =========================
+     TYPE 1 (conversion simple)
+  ========================= */
   return 1;
 }
 
@@ -203,18 +227,41 @@ function getExerciseType(item) {
 function getType3Subtype(item) {
 
   const base = item.from || item;
-  const clean = base.replace(/(G|M|k|h|da|d|c|m|µ|n)/, "");
 
+  /* =========================
+     NETTOYAGE ROBUSTE UNITÉS COMPOSÉES
+  ========================= */
+  const clean = base
+    .replace(/·/g, "")
+    .replace(/⁻¹/g, "")
+    .replace(/⁻²/g, "")
+    .replace(/⁻³/g, "")
+    .replace(/(G|M|k|h|da|d|c|m|µ|n)/g, "");
+
+  /* =========================
+     FRÉQUENCE
+  ========================= */
   if (clean === "Hz") return "freq";
 
+  /* =========================
+     PHYSIQUE SIMPLE
+  ========================= */
   if (["Pa", "N", "W", "J", "mol"].includes(clean)) {
     return "physics";
   }
 
-  if (SURFACES_VOLUMES.includes(item)) {
+  /* =========================
+     SURFACES / VOLUMES (FIX IMPORTANT)
+  ========================= */
+  if (SURFACES_VOLUMES.some(u =>
+    u.from === item.from && u.to === item.to
+  )) {
     return "geom";
   }
 
+  /* =========================
+     PAR DÉFAUT
+  ========================= */
   return "physics";
 }
 
@@ -404,118 +451,86 @@ function showFeedback(isCorrect) {
   }
 
   /* =========================
-     TYPE 3 + SURFACES/VOLUMES
+     TYPE 3 + PHYSICS
   ========================= */
   else {
 
     const subtype = getType3Subtype(currentQuestion.item);
-    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
 
-    /* =========================
-       SURFACES / VOLUMES (À PART)
-    ========================= */
-    if (subtype === "geom") {
+    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+    const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
+    const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
+
+    const isComposite =
+      currentQuestion.from.includes("·") ||
+      currentQuestion.from.includes("⁻") ||
+      currentQuestion.to.includes("·") ||
+      currentQuestion.to.includes("⁻");
+
+    if (isComposite) {
 
       content = `
         <div class="feedback-box">
 
-          <div>📌 <b>Question :</b><br>${currentQuestion.q}</div>
+          <div>📌 <b>Question :</b><br>
+            ${yellowValue} ${startUnit} → ${endUnit}
+          </div>
 
-          <div>
-            📐 <b>Conversion géométrique</b><br><br>
+          <div style="margin-top:10px">
+            🔥 Tu es sur une unité composée !
+          </div>
 
-            ${yellowValue} × facteur = <b>${result}</b> ${currentQuestion.to}
+          <div style="margin-top:10px">
+            🧮 Résultat : ${yellowValue} ${startUnit} = ${result} ${endUnit}
+          </div>
 
-            <br><br>
-
-            🤔 Réfléchis : pourquoi le facteur est-il au carré ou au cube ?
+          <div style="margin-top:10px">
+            💪 Essaie de décomposer les unités étape par étape pour retrouver le facteur entre les deux grandeurs !
           </div>
 
         </div>
       `;
     }
 
-    /* =========================
-       TYPE 3 UNIFIÉ (CORRIGÉ)
-    ========================= */
     else {
 
-      const isComposite =
-        currentQuestion.from.includes("·") ||
-        currentQuestion.from.includes("⁻") ||
-        currentQuestion.to.includes("·") ||
-        currentQuestion.to.includes("⁻");
+      const table = buildTable(currentQuestion.from, currentQuestion.to);
 
-      const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
-      const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
+      const expFrom = table.exp[table.f];
+      const expTo = table.exp[table.t];
+      const delta = expFrom - expTo;
 
-      /* ===== CAS COMPOSÉ ===== */
-      if (isComposite) {
+      const factor = `10<sup>${delta}</sup>`;
 
-        content = `
-          <div class="feedback-box">
+      content = `
+        <div class="feedback-box">
 
-            <div>📌 <b>Question :</b><br>
-              ${yellowValue} ${startUnit} → ${endUnit}
-            </div>
-
-            <div style="margin-top:10px">
-              🔥 Là, on est sur une vraie réflexion scientifique !<br>
-
-            <div style="margin-top:10px">
-              💡 Il faut décomposer chaque unité. Tu vas y arriver 👍 <br>
-            </div>
-
-            <div style="margin-top:10px">
-              🧮 Résultat : <b>${result.replace(".", ",")}</b> ${endUnit} <br>
-            </div>
-
-            <div style="margin-top:10px">
-              🤔 Regarde quelles unités changent dans la conversion. (m², cm², facteur…)
-
-            </div>
-
+          <div>📌 <b>Question :</b><br>
+            ${yellowValue} ${startUnit} → ${endUnit}
           </div>
-        `;
-      }
 
-      /* ===== CAS SIMPLE ===== */
-      else {
-
-        const table = buildTable(currentQuestion.from, currentQuestion.to);
-
-        const expFrom = table.exp[table.f];
-        const expTo = table.exp[table.t];
-        const delta = expFrom - expTo;
-
-        const factor = `10<sup>${delta}</sup>`;
-
-        content = `
-          <div class="feedback-box">
-
-            <div>📌 <b>Question :</b><br>
-              ${yellowValue} ${startUnit} → ${endUnit}
-            </div>
-
-            <div style="margin-top:10px">
-              💡 Conversion un peu complexe… mais tu es capable de trouver tout seul 👍
-            </div>
-
-            <div style="margin-top:10px">
-              🧮 Résultat : ${yellowValue} × ${factor} = <b>${result}</b> ${endUnit}
-            </div>
-
-            <div class="table-row" style="margin-top:15px">
-              ${table.cells}
-            </div>
-
-            <div style="margin-top:10px">
-              🤔 Réfléchis : pourquoi ce facteur ${factor} ?
-            </div>
-
+          <div style="margin-top:10px">
+            📦 Unité de départ : ${startUnit}
           </div>
-        `;
-      }
+
+          <div style="margin-top:10px">
+            📦 Unité d’arrivée : ${endUnit}
+          </div>
+
+          <div class="table-row" style="filter: grayscale(1); opacity:0.9;">
+            ${table.cells}
+          </div>
+
+          <div style="margin-top:10px">
+            🧮 Résultat : ${yellowValue} ${startUnit} = ${result} ${endUnit}
+          </div>
+
+          <div style="margin-top:10px">
+            🚀 Maintenant, ton défi : retrouve par toi-même le facteur de conversion entre ces deux unités !
+          </div>
+
+        </div>
+      `;
     }
   }
 
