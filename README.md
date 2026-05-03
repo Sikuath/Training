@@ -1,3 +1,5 @@
+https://sikuath.github.io/Training/
+
 # 🎮 Training Physique-Chimie
 
 Mini plateforme de jeux éducatifs en **physique-chimie niveau lycée**  
