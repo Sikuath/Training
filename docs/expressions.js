@@ -143,9 +143,9 @@ function load() {
 
   document.getElementById("question").innerHTML =
     `📘 <b>${q.domain}</b><br><br>
-     D’après la relation :<br>
-     \\(${q.expr}\\)<br><br>
-     Exprimer <b>${q.target}</b> en fonction des variables`;
+     D’après la relation : \\(${q.expr}\\)<br><br>
+     On cherche à exprimer la variable <b>${q.target}</b><br><br>
+     Quelle est la bonne expression?</b> ?`;
 
   renderChoices(q);
 
