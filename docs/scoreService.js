@@ -1,4 +1,4 @@
-f"unction getRanking(game) {
+function getRanking(game) {
   return JSON.parse(localStorage.getItem("ranking_" + game) || "[]");
 }
 

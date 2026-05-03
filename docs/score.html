@@ -16,33 +16,47 @@
 
 <div class="scores-container">
 
-  <!-- SIGNIFICATIFS -->
+  <!-- ===================== SIGNIFICATIFS ===================== -->
   <div class="score-block">
     <h2>📐 Significatifs</h2>
-
     <div class="scoreboard">
       <div class="row header">
-        <span>#</span>
-        <span>Nom</span>
-        <span>Score</span>
+        <span>#</span><span>Nom</span><span>Score</span>
       </div>
-
       <div id="sig"></div>
     </div>
   </div>
 
-  <!-- CONVERSIONS -->
+  <!-- ===================== CONVERSIONS ===================== -->
   <div class="score-block">
     <h2>🔢 Conversions</h2>
-
     <div class="scoreboard">
       <div class="row header">
-        <span>#</span>
-        <span>Nom</span>
-        <span>Score</span>
+        <span>#</span><span>Nom</span><span>Score</span>
       </div>
-
       <div id="conv"></div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPRESSIONS ===================== -->
+  <div class="score-block">
+    <h2>🧮 Expressions</h2>
+    <div class="scoreboard">
+      <div class="row header">
+        <span>#</span><span>Nom</span><span>Score</span>
+      </div>
+      <div id="expr"></div>
+    </div>
+  </div>
+
+  <!-- ===================== INCERTITUDES ===================== -->
+  <div class="score-block">
+    <h2>📊 Incertitudes</h2>
+    <div class="scoreboard">
+      <div class="row header">
+        <span>#</span><span>Nom</span><span>Score</span>
+      </div>
+      <div id="incert"></div>
     </div>
   </div>
 
@@ -77,9 +91,14 @@ function display(key, id) {
   });
 }
 
-/* LOAD */
+/* =========================
+   4 JEUX OFFICIELS
+========================= */
+
 display("ranking_significatifs", "sig");
 display("ranking_conversions", "conv");
+display("ranking_expressions", "expr");
+display("ranking_incertitudes", "incert");
 
 </script>
 

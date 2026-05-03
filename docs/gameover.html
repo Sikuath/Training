@@ -29,7 +29,7 @@ const score = Number(params.get("score") || 0);
 document.getElementById("score").textContent = score;
 
 /* =========================
-   TITRE DYNAMIQUE
+   TITRE DYNAMIQUE 4 JEUX
 ========================= */
 
 document.getElementById("title").textContent =
@@ -39,10 +39,12 @@ document.getElementById("title").textContent =
       ? "SIGNIFICATIFS - GAME OVER"
       : game === "expressions"
         ? "EXPRESSIONS - GAME OVER"
-        : "GAME OVER";
+        : game === "incertitudes"
+          ? "INCERTITUDES - GAME OVER"
+          : "GAME OVER";
 
 /* =========================
-   SAVE SCORE
+   SAVE SCORE UNIFIÉ
 ========================= */
 
 document.getElementById("okBtn").addEventListener("click", () => {
