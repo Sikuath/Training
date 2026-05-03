@@ -74,3 +74,11 @@ Mini plateforme de jeux éducatifs en **physique-chimie niveau lycée**
 ```bash
 git clone https://github.com/ton-repo/training-physique.git
 cd training-physique
+
+---
+
+## ⚙️Utilisation
+
+👉 Aucun serveur nécessaire
+
+ouvrir simplement le fichier "index.html"
