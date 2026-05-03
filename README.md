@@ -82,3 +82,15 @@ cd training-physique
 👉 Aucun serveur nécessaire
 
 ouvrir simplement le fichier "index.html"
+
+## License
+
+### Code
+The code of this project is licensed under the MIT License.
+
+### Educational content
+All educational content (texts, exercises, explanations) is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+
+You are free to use, modify, and share this content, provided you give appropriate credit and distribute your contributions under the same license.
+
+© 2026 Sikuath

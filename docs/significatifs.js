@@ -11,6 +11,7 @@ let timeLeft = 180;
 let timer = null;
 
 let lastGoodAnswer = null;
+let currentQuestion = null; // ✅ AJOUT
 
 /* =========================
    GLOBAL EXPORT
@@ -43,6 +44,16 @@ function playBadSound() {
 }
 
 /* =========================
+   MODE
+========================= */
+
+function getMode() {
+  if (score >= 10) return "hard";
+  if (score >= 5) return "medium";
+  return "easy";
+}
+
+/* =========================
    FEEDBACK (AJOUT UNIQUEMENT)
 ========================= */
 
@@ -70,12 +81,11 @@ function feedback(question, user, good) {
   }
 
   else {
-    aide = "💡 En notation scientifique, seuls les chiffres de la mantisse comptent.";
+    aide = "💡 En notation scientifique, seuls les chiffres de la mantisse (chiffres avant la puissance de 10) comptent.";
   }
 
   fb.innerHTML = `
     <div class="feedback-box">
-
       <div>📌 <b>Question :</b><br>${q}</div>
 
       <div style="margin-top:10px">
@@ -89,7 +99,6 @@ function feedback(question, user, good) {
       <div style="margin-top:15px;color:#7CFC00;font-weight:bold">
         ${aide}
       </div>
-
     </div>
   `;
 
@@ -105,37 +114,47 @@ function digit() {
 }
 
 /* =========================
-   GENERATE
+   GENERATE ONE (NOUVEAU)
 ========================= */
 
-function generate() {
+function generateOne() {
 
-  const set = new Set();
-  questions = [];
+  const mode = getMode();
 
-  while (questions.length < 200) {
+  let cs;
+  let type;
 
-    let cs;
-
-    if (Math.random() < 0.7) cs = Math.floor(Math.random() * 4) + 2;
-    else cs = Math.floor(Math.random() * 3) + 5;
-
-    const type = Math.floor(Math.random() * 4);
-
-    let q;
-
-    if (type === 0) q = genInteger(cs);
-    if (type === 1) q = genDecimal(cs);
-    if (type === 2) q = genScientific(cs);
-    if (type === 3) q = genHardcore();
-
-    if (!set.has(q.q)) {
-      set.add(q.q);
-      questions.push(q);
-    }
+  if (mode === "easy") {
+    cs = Math.floor(Math.random() * 3) + 2;
+  }
+  else if (mode === "medium") {
+    cs = Math.floor(Math.random() * 4) + 3;
+  }
+  else {
+    cs = Math.floor(Math.random() * 5) + 4;
   }
 
-  questions.sort(() => Math.random() - 0.5);
+  const r = Math.random();
+
+  if (mode === "easy") {
+    type = (r < 0.4) ? 0 : 1;
+  }
+  else if (mode === "medium") {
+    if (r < 0.3) type = 0;
+    else if (r < 0.6) type = 1;
+    else type = 2;
+  }
+  else {
+    if (r < 0.2) type = 0;
+    else if (r < 0.4) type = 1;
+    else if (r < 0.8) type = 2;
+    else type = 3;
+  }
+
+  if (type === 0) return genInteger(cs);
+  if (type === 1) return genDecimal(cs);
+  if (type === 2) return genScientific(cs);
+  if (type === 3) return genHardcore();
 }
 
 /* =========================
@@ -207,12 +226,13 @@ function genHardcore() {
 
 function startGame() {
 
-  console.log("START GAME");
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
 
-  generate();
-
-  i = 0;
   score = 0;
+  i = 0;
   level = 1;
 
   gameOver = false;
@@ -220,34 +240,36 @@ function startGame() {
 
   timeLeft = 180;
 
+  load(); // 🔥 plus de generate()
+
+  updateUI();
+
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("validateBtn").style.display = "inline-block";
   document.getElementById("stopBtn").style.display = "inline-block";
 
   startTimer();
-  load();
-  updateUI();
 }
 
 /* =========================
-   LOAD
+   LOAD (MODIFIÉ)
 ========================= */
 
 function load() {
 
-  const q = questions[i];
+  currentQuestion = generateOne(); // 🔥 dynamique
 
-  lastGoodAnswer = q.a;
+  lastGoodAnswer = currentQuestion.a;
 
   document.getElementById("question").innerHTML =
-    "Combien de chiffres significatifs dans : " + q.q;
+    "Combien de chiffres significatifs dans : " + currentQuestion.q;
 
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
 }
 
 /* =========================
-   SUBMIT (MODIF MINIMALE)
+   SUBMIT (MODIFIÉ)
 ========================= */
 
 function submit() {
@@ -259,7 +281,7 @@ function submit() {
   if (input === "" || isNaN(input)) return;
 
   const val = Number(input);
-  const good = questions[i].a;
+  const good = currentQuestion.a;
 
   if (val === good) {
 
@@ -268,66 +290,68 @@ function submit() {
     score++;
     i++;
 
-    if (i >= questions.length) {
-      endGame(false);
-      return;
-    }
-
     load();
 
   } else {
 
     playBadSound();
 
-    feedback(questions[i], val, good);
+    feedback(currentQuestion, val, good);
 
+    setTimeout(() => {
+      endGame(true);
+    }, 2000);
   }
 
   updateUI();
 }
 
 /* =========================
-   TIMER
+   TIMER (INCHANGÉ)
 ========================= */
 
 function startTimer() {
 
+  clearInterval(timer);
+  timer = null;
+
   timer = setInterval(() => {
 
-    if (gameOver) return;
+    if (gameOver) {
+      clearInterval(timer);
+      timer = null;
+      return;
+    }
 
     timeLeft--;
 
     const t = document.getElementById("timer");
     if (t) t.textContent = timeLeft + "s";
 
-    if (timeLeft <= 0) endGame();
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      timer = null;
+      endGame(true);
+    }
 
   }, 1000);
 }
 
 /* =========================
-   END GAME
+   END GAME (INCHANGÉ)
 ========================= */
 
 function endGame() {
 
-  if (gameOver) return;   // 🔥 garde anti double appel
+  if (gameOver) return;
+
   gameOver = true;
   playing = false;
 
-  clearInterval(timer);
-
-  const fb = document.getElementById("feedback");
-
-  if (fb && lastGoodAnswer !== null) {
-    fb.innerHTML =
-      "✔ Bonne réponse : <b>" + lastGoodAnswer + "</b>";
-    fb.classList.add("active");
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
   }
-
-  // 🔥 IMPORTANT : on force le feedback visible
-  // et on bloque toute autre logique
 
   setTimeout(() => {
     window.location.href =
@@ -357,6 +381,18 @@ function updateUI() {
 
   const s = document.getElementById("score");
   if (s) s.textContent = score;
+
+  const mode = getMode();
+
+  const lvl = document.getElementById("level");
+  if (lvl) {
+    lvl.textContent = mode;
+
+    lvl.style.color =
+      mode === "easy" ? "#7CFC00" :
+      mode === "medium" ? "#FFD700" :
+      "#FF4500";
+  }
 
   const ranking = JSON.parse(
     localStorage.getItem("ranking_significatifs") || "[]"
