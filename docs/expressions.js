@@ -14,72 +14,97 @@ let currentQuestion = null;
 
 const QUESTIONS = [
 
-  // EASY
   {
     difficulty: "easy",
-    question: "Exprimer R en fonction de U et I",
-    expr: "U = R × I",
-
-    choices: [
-      "R = U × I",
-      "R = U / I",
-      "R = I / U",
-      "R = U - I"
-    ],
-
-    answer: 1,
-
-    feedback: "On isole R en divisant par I.",
-    image: "images/ohm.png"
+    domain: "Électricité",
+    question: "Loi d’Ohm",
+    expr: "U = R \\times I",
+    baseVars: ["U", "R", "I"],
+    targetPool: ["R", "I"],
+    feedback: "On isole la variable en réarrangeant la relation.",
+    image: "images/ohm.jpg"
   },
 
-  // MEDIUM
   {
     difficulty: "medium",
-    question: "Exprimer m en fonction de E et c",
-    expr: "E = m × c²",
-
-    choices: [
-      "m = E × c²",
-      "m = E / c²",
-      "m = c² / E",
-      "m = √E / c"
-    ],
-
-    answer: 1,
-
-    feedback: "On divise par c².",
-    image: "images/einstein.png"
+    domain: "Relativité",
+    question: "Énergie de masse",
+    expr: "E = m \\times c^2",
+    baseVars: ["E", "m", "c"],
+    targetPool: ["m", "E"],
+    feedback: "On isole la variable en divisant par c².",
+    image: "images/einstein.jpg"
   },
 
-  // HARD
   {
     difficulty: "hard",
-    question: "Exprimer t en fonction de d et v",
-    expr: "v = d / t",
-
-    choices: [
-      "t = d × v",
-      "t = v / d",
-      "t = d / v",
-      "t = 1 / (d × v)"
-    ],
-
-    answer: 2,
-
-    feedback: "On inverse la relation : t = d / v.",
-    image: "images/speed.png"
+    domain: "Cinématique",
+    question: "Relation vitesse-distance-temps",
+    expr: "v = \\frac{d}{t}",
+    baseVars: ["v", "d", "t"],
+    targetPool: ["t", "d"],
+    feedback: "On réarrange la fraction pour isoler la variable.",
+    image: "images/speed.jpg"
   }
 
 ];
+
+/* =========================
+   OUTIL VARIABLES (IMPORTANT FIX)
+========================= */
+
+function getVars(q, target) {
+  return q.baseVars.filter(v => v !== target);
+}
+
+/* =========================
+   GÉNÉRATION CHOIX
+========================= */
+
+function generateChoices(q, target) {
+
+  const vars = getVars(q, target);
+  const a = vars[0];
+  const b = vars[1];
+
+  let correct = "";
+
+  // règles simples mais robustes
+  if (q.expr.includes("\\times") || q.expr.includes("*")) {
+    correct = `${target} = \\frac{${a}}{${b}}`;
+  }
+
+  else if (q.expr.includes("\\frac")) {
+    correct = `${target} = \\frac{${a}}{${b}}`;
+  }
+
+  else {
+    correct = `${target} = ${a} / ${b}`;
+  }
+
+  const wrong = [
+    `${target} = ${a} \\times ${b}`,
+    `${target} = ${b} / ${a}`,
+    `${target} = ${a} - ${b}`
+  ];
+
+  const all = [correct, ...wrong];
+
+  all.sort(() => Math.random() - 0.5);
+
+  return {
+    choices: all,
+    answer: all.indexOf(correct)
+  };
+}
 
 /* =========================
    MODE
 ========================= */
 
 function getMode() {
-  if (score >= 2) return "hard";
-  if (score >= 1) return "medium";
+  if (score >= 10) return "hard";
+  if (score >= 5) return "medium";
   return "easy";
 }
 
@@ -91,9 +116,21 @@ function generateQuestion() {
 
   const mode = getMode();
 
-  const filtered = QUESTIONS.filter(q => q.difficulty === mode);
+  const pool = QUESTIONS.filter(q => q.difficulty === mode);
+  const base = pool[0];
 
-  currentQuestion = filtered[0]; // une seule question par niveau ici
+  const target = base.targetPool[
+    Math.floor(Math.random() * base.targetPool.length)
+  ];
+
+  const gen = generateChoices(base, target);
+
+  currentQuestion = {
+    ...base,
+    target,
+    choices: gen.choices,
+    answer: gen.answer
+  };
 }
 
 /* =========================
@@ -105,16 +142,25 @@ function load() {
   const q = currentQuestion;
 
   document.getElementById("question").innerHTML =
-    `${q.question}<br><br><b>${q.expr}</b>`;
+    `📘 <b>${q.domain}</b><br><br>
+     D’après la relation :<br>
+     \\(${q.expr}\\)<br><br>
+     Exprimer <b>${q.target}</b> en fonction des variables`;
 
   renderChoices(q);
-  showImage(q);
 
   document.getElementById("feedback").innerHTML = "";
+
+  if (window.MathJax) MathJax.typeset();
+
+  // 🔥 IMPORTANT : delay DOM paint
+  setTimeout(() => {
+    showImage(q);
+  }, 0);
 }
 
 /* =========================
-   CHOIX (QCM)
+   CHOIX
 ========================= */
 
 function renderChoices(q) {
@@ -125,28 +171,40 @@ function renderChoices(q) {
   q.choices.forEach((choice, index) => {
 
     const btn = document.createElement("button");
-    btn.textContent = choice;
+
+    btn.innerHTML = `\\(${choice}\\)`;
 
     btn.onclick = () => submitAnswer(index);
 
     container.appendChild(btn);
   });
+
+  if (window.MathJax) MathJax.typeset();
 }
 
 /* =========================
-   IMAGE
+   IMAGE (inchangé)
 ========================= */
 
 function showImage(q) {
 
   const img = document.getElementById("illustration");
 
-  if (q.image) {
+  if (!q || !q.image) {
+    img.style.display = "none";
+    return;
+  }
+
+  img.style.display = "none";
+
+  const temp = new Image();
+
+  temp.onload = () => {
     img.src = q.image;
     img.style.display = "block";
-  } else {
-    img.style.display = "none";
-  }
+  };
+
+  temp.src = q.image;
 }
 
 /* =========================
@@ -188,11 +246,16 @@ function showFeedback() {
   const fb = document.getElementById("feedback");
   const q = currentQuestion;
 
+  const vars = getVars(q, q.target);
+
   fb.innerHTML = `
     ❌ Mauvaise réponse<br><br>
-    ✔ Bonne réponse : <b>${q.choices[q.answer]}</b><br><br>
-    💡 ${q.feedback}
+    ✔ Bonne réponse : \\(${q.choices[q.answer]}\\)<br><br>
+    💡 ${q.feedback}<br>
+    Variables : ${vars.join(", ")}
   `;
+
+  if (window.MathJax) MathJax.typeset();
 }
 
 /* =========================
@@ -230,6 +293,14 @@ function startGame() {
 
   clearInterval(timer);
 
+  // 🔥 PRELOAD IMAGES (OK on garde)
+  QUESTIONS.forEach(q => {
+    if (q.image) {
+      const i = new Image();
+      i.src = q.image;
+    }
+  });
+
   score = 0;
   current = 0;
   gameOver = false;
@@ -237,11 +308,17 @@ function startGame() {
   timeLeft = 180;
 
   generateQuestion();
-  load();
-  updateUI();
+
+  // 🔥 FIX IMPORTANT : attendre le rendu DOM avant load()
+  requestAnimationFrame(() => {
+
+    load();
+    updateUI();
+
+  });
 
   document.getElementById("startBtn").style.display = "none";
-  document.getElementById("validateBtn").style.display = "none"; // pas utilisé ici
+  document.getElementById("validateBtn").style.display = "none";
   document.getElementById("stopBtn").style.display = "inline-block";
 
   startTimer();
@@ -259,27 +336,17 @@ function endGame() {
 
   clearInterval(timer);
 
-  /* =========================
-     🏆 SAUVEGARDE SCORE EXPRESSIONS
-  ========================= */
-
   const key = "ranking_expressions";
 
   let ranking = JSON.parse(localStorage.getItem(key) || "[]");
 
-  const name = "AAA"; // temporaire (sera demandé dans gameover.html)
-
-  ranking.push({ name, score });
+  ranking.push({ name: "AAA", score });
 
   ranking.sort((a, b) => b.score - a.score);
 
   ranking = ranking.slice(0, 10);
 
   localStorage.setItem(key, JSON.stringify(ranking));
-
-  /* =========================
-     REDIRECTION GAMEOVER
-  ========================= */
 
   setTimeout(() => {
     window.location.href =
@@ -295,9 +362,7 @@ function quitGame() {
 
   if (gameOver) return;
 
-  const confirmQuit = confirm("Quitter la partie ?");
-
-  if (!confirmQuit) return;
+  if (!confirm("Quitter la partie ?")) return;
 
   gameOver = true;
   clearInterval(timer);

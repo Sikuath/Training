@@ -11,13 +11,14 @@
     sessionStorage.setItem("lastExercise", window.location.href);
   </script>
 
-  <!-- ✅ MathJax pour affichage expressions -->
-  <script>
-  window.MathJax = {
-    tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
-  };
-  </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<!-- MATHJAX -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </head>
 
@@ -29,36 +30,38 @@
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <h2>Expressions littérales</h2>
+  <!-- ✅ LAYOUT GLOBAL -->
+  <div class="game-wrapper">
 
-  <div class="game-card">
+    <div class="game-card">
 
-    <!-- HUD -->
-    <div class="hud">
-      <div>⏱ Temps : <span id="timer">180s</span></div>
-      <div>⭐ Score : <span id="score">0</span></div>
-      <div>🎯 Mode : <span id="mode">easy</span></div>
+      <h2>Expressions littérales</h2>
+
+      <div class="hud">
+        <div>⏱ Temps : <span id="timer">180s</span></div>
+        <div>⭐ Score : <span id="score">0</span></div>
+        <div>🎯 Mode : <span id="mode">easy</span></div>
+      </div>
+
+      <p id="question">Clique sur Démarrer</p>
+
+      <div id="choices" class="choices"></div>
+
+      <div id="feedback-wrapper">
+        <p id="feedback"></p>
+      </div>
+
+      <div class="buttons">
+        <button id="startBtn" onclick="startGame()">Démarrer</button>
+        <button id="validateBtn" style="display:none;">Valider</button>
+        <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+      </div>
+
     </div>
 
-    <!-- QUESTION -->
-    <p id="question">Clique sur Démarrer</p>
-
-    <!-- IMAGE -->
-    <img id="illustration" style="max-width:200px; display:none; margin:10px auto;">
-
-    <!-- CHOIX QCM -->
-    <div id="choices" class="choices"></div>
-
-    <!-- FEEDBACK -->
-    <div id="feedback-wrapper">
-      <p id="feedback"></p>
-    </div>
-
-    <!-- BUTTONS -->
-    <div class="buttons">
-      <button id="startBtn" onclick="startGame()">Démarrer</button>
-      <button id="validateBtn" style="display:none;">Valider</button>
-      <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+    <!-- ✅ IMAGE HORS CADRE -->
+    <div class="image-zone">
+      <img id="illustration">
     </div>
 
   </div>
@@ -72,7 +75,6 @@
     src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"
     preload="auto"></audio>
 
-  <!-- SCRIPT -->
   <script src="expressions.js"></script>
 
 </body>
