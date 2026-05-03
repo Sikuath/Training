@@ -88,7 +88,7 @@ body.expressions-page {
   font-weight: bold;
 }
 
-/* ================= BUTTONS ================= */
+/* ================= BUTTONS (CORRIGÉ POUR COHÉRENCE) ================= */
 
 .buttons {
   display: flex;
@@ -96,17 +96,22 @@ body.expressions-page {
   margin-top: 15px;
 }
 
+/* 🔥 même style que les autres jeux (orange global implicite) */
 button {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
 
-  background: #444;
+  background: #ff9800;   /* 🔥 ORANGE UNIFIÉ */
   color: white;
 
+  font-weight: bold;
   cursor: pointer;
+
+  transition: 0.2s;
 }
 
 button:hover {
-  background: #666;
+  background: #ffb74d;
+  transform: scale(1.05);
 }

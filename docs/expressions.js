@@ -259,6 +259,28 @@ function endGame() {
 
   clearInterval(timer);
 
+  /* =========================
+     🏆 SAUVEGARDE SCORE EXPRESSIONS
+  ========================= */
+
+  const key = "ranking_expressions";
+
+  let ranking = JSON.parse(localStorage.getItem(key) || "[]");
+
+  const name = "AAA"; // temporaire (sera demandé dans gameover.html)
+
+  ranking.push({ name, score });
+
+  ranking.sort((a, b) => b.score - a.score);
+
+  ranking = ranking.slice(0, 10);
+
+  localStorage.setItem(key, JSON.stringify(ranking));
+
+  /* =========================
+     REDIRECTION GAMEOVER
+  ========================= */
+
   setTimeout(() => {
     window.location.href =
       "gameover.html?game=expressions&score=" + score;

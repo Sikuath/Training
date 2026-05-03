@@ -73,7 +73,7 @@ function feedback(question, user, good) {
   let aide = "";
 
   if (type === "integer") {
-    aide = "💡 Compte simplement le nombre de chiffres du nombre.";
+    aide = "💡 Compte simplement le nombre de chiffres car ils sont tous significatifs dans cet exemple.";
   }
 
   else if (type === "decimal") {
