@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Incertitudes</title>
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="incertitudes.css">
+
   <script>
     sessionStorage.setItem("lastExercise", window.location.href);
   </script>
@@ -17,25 +19,35 @@
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <h2>Incertitudes</h2>
-
-  <div class="content">
-    <p>Quelle est l’incertitude de 10 ± 0,5 ?</p>
-
-    <input type="number" id="rep4">
-    <button onclick="verif4()">Vérifier</button>
-
-    <p id="res4"></p>
+  <!-- HUD -->
+  <div class="hud">
+    <div>⏱ Temps : <span id="timer">180s</span></div>
+    <div>⭐ Score : <span id="score">0</span></div>
+    <div>🎯 Mode : <span id="mode">easy</span></div>
   </div>
 
-  <script>
-    function verif4() {
-      let r = Number(document.getElementById('rep4').value);
+  <div class="game-card">
 
-      document.getElementById('res4').textContent =
-        (r === 0.5) ? "✔ Correct !" : "✘ Incorrect";
-    }
-  </script>
+    <h2>Incertitudes</h2>
+
+    <p id="question">Clique sur Démarrer</p>
+
+    <div id="choices"></div>
+
+    <p id="feedback"></p>
+
+    <div class="buttons">
+      <button id="startBtn" onclick="startGame()">Démarrer</button>
+      <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+    </div>
+
+  </div>
+
+  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
+
+  <script src="scoreService.js"></script>
+  <script src="incertitudes.js"></script>
 
 </body>
 </html>

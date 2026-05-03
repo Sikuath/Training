@@ -1,44 +1,66 @@
 body.incertitudes-page {
-  background: url("./background4.png") center center / cover no-repeat fixed;
+  background: url("./background3.png") center center / cover no-repeat fixed;
   margin: 0;
   color: white;
 }
 
-/* carte centrale */
-.content {
-  background: rgba(0,0,0,0.6);
-  margin: 30px auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 320px;
-}
+.game-card {
+  width: 420px;
+  margin: 40px auto;
+  padding: 25px;
 
-/* inputs */
-input {
-  padding: 8px;
-  border-radius: 6px;
-  border: none;
-  width: 80%;
+  background: rgba(0,0,0,0.85);
+  border-radius: 18px;
+
   text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
 
-/* boutons */
-button {
-  margin-top: 10px;
+.hud {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px auto;
+  width: 420px;
+
+  background: rgba(0,0,0,0.7);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* QCM */
+#choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#choices button {
   padding: 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+
   background: #ff9800;
   color: white;
+
+  cursor: pointer;
+}
+
+#choices button:hover {
+  background: #ffb74d;
+}
+
+button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+
+  background: #ff9800;
+  color: white;
+
   cursor: pointer;
 }
 
 button:hover {
-  background: #e68900;
-}
-
-/* feedback */
-#res {
-  margin-top: 10px;
-  font-weight: bold;
+  background: #ffb74d;
 }
