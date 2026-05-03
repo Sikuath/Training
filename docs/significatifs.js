@@ -280,6 +280,20 @@ function endGame() {
   }, 1500);
 }
 
+function quitGame() {
+
+  if (gameOver) return;
+
+  const confirmQuit = confirm("Êtes-vous sûr de vouloir quitter la partie ?");
+
+  if (!confirmQuit) return;
+
+  gameOver = true;
+  clearInterval(timer);
+
+  window.location.href = "index.html";
+}
+
 /* =========================
    UI
 ========================= */

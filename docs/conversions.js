@@ -115,8 +115,8 @@ const PHYSICS = [
 ========================= */
 
 function getMode() {
-  if (score >= 3) return "hard";
-  if (score >= 2) return "medium";
+  if (score >= 10) return "hard";
+  if (score >= 5) return "medium";
   return "easy";
 }
 
@@ -379,7 +379,11 @@ function showFeedback(isCorrect) {
   playBadSound();
 
   const value = currentQuestion.value;
-  const result = toScientific(currentQuestion.a);
+
+  // ✅ FORMAT FR GLOBAL (IMPORTANT)
+  const formatDisplay = (x) => String(x).replace(/\./g, ",");
+
+  const result = formatDisplay(toScientific(currentQuestion.a));
 
   let content = "";
 
@@ -413,7 +417,7 @@ function showFeedback(isCorrect) {
     const expFrom = table.exp[table.f];
     const expTo = table.exp[table.t];
 
-    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatDisplay(value)}</span>`;
     const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
     const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
 
@@ -457,7 +461,7 @@ function showFeedback(isCorrect) {
 
     const subtype = getType3Subtype(currentQuestion.item);
 
-    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatFR(value)}</span>`;
+    const yellowValue = `<span style="color:yellow;font-weight:bold;">${formatDisplay(value)}</span>`;
     const startUnit = `<span style="color:#7CFC00;font-weight:bold;">${currentQuestion.from}</span>`;
     const endUnit = `<span style="color:violet;font-weight:bold;">${currentQuestion.to}</span>`;
 
@@ -467,6 +471,9 @@ function showFeedback(isCorrect) {
       currentQuestion.to.includes("·") ||
       currentQuestion.to.includes("⁻");
 
+    /* =========================
+       CAS COMPOSÉ PHYSIQUE
+    ========================= */
     if (isComposite) {
 
       content = `
@@ -485,13 +492,16 @@ function showFeedback(isCorrect) {
           </div>
 
           <div style="margin-top:10px">
-            💪 Essaie de décomposer les unités étape par étape pour retrouver le facteur entre les deux grandeurs !
+            💪 Essaie de décomposer les unités étape par étape pour retrouver le facteur !
           </div>
 
         </div>
       `;
     }
 
+    /* =========================
+       CAS SIMPLE PHYSICS
+    ========================= */
     else {
 
       const table = buildTable(currentQuestion.from, currentQuestion.to);
@@ -526,7 +536,7 @@ function showFeedback(isCorrect) {
           </div>
 
           <div style="margin-top:10px">
-            🚀 Maintenant, ton défi : retrouve par toi-même le facteur de conversion entre ces deux unités !
+            🚀 Maintenant, ton défi : retrouve par toi-même le facteur de conversion !
           </div>
 
         </div>
@@ -623,7 +633,21 @@ function endGame() {
   setTimeout(() => {
     window.location.href =
       "gameover.html?game=conversions&score=" + score;
-  }, 20000);
+  }, 8000);
+}
+
+function quitGame() {
+
+  if (gameOver) return;
+
+  const confirmQuit = confirm("Êtes-vous sûr de vouloir quitter la partie ?");
+
+  if (!confirmQuit) return;
+
+  gameOver = true;
+  clearInterval(timer);
+
+  window.location.href = "index.html";
 }
 
 function updateUI() {
