@@ -31,7 +31,10 @@ const QUESTIONS = [
     question: "Énergie de masse",
     expr: "E = m \\times c^2",
     baseVars: ["E", "m", "c"],
-    targetPool: ["m", "E"],
+    displayVars: {
+      "c": "c^2"
+    },
+    targetPool: ["m", "c"],
     feedback: "On isole la variable en divisant par c².",
     image: "images/einstein.jpg"
   },
@@ -41,7 +44,7 @@ const QUESTIONS = [
     domain: "Cinématique",
     question: "Relation vitesse-distance-temps",
     expr: "v = \\frac{d}{t}",
-    baseVars: ["v", "d", "t"],
+    baseVars: ["d", "t"],
     targetPool: ["t", "d"],
     feedback: "On réarrange la fraction pour isoler la variable.",
     image: "images/speed.jpg"
@@ -50,7 +53,7 @@ const QUESTIONS = [
 ];
 
 /* =========================
-   OUTIL VARIABLES (IMPORTANT FIX)
+   OUTIL VARIABLES
 ========================= */
 
 function getVars(q, target) {
@@ -58,33 +61,49 @@ function getVars(q, target) {
 }
 
 /* =========================
-   GÉNÉRATION CHOIX
+   FORMAT VARIABLE (IMPORTANT c²)
+========================= */
+
+function formatVar(q, v) {
+  return q.displayVars && q.displayVars[v]
+    ? q.displayVars[v]
+    : v;
+}
+
+/* =========================
+   GÉNÉRATION CHOIX (FIX STABLE)
 ========================= */
 
 function generateChoices(q, target) {
 
   const vars = getVars(q, target);
-  const a = vars[0];
-  const b = vars[1];
 
-  let correct = "";
+  const aRaw = vars[0];
+  const bRaw = vars[1];
 
-  // règles simples mais robustes
-  if (q.expr.includes("\\times") || q.expr.includes("*")) {
-    correct = `${target} = \\frac{${a}}{${b}}`;
+  // 🔥 sécurité anti-bug (évite crash silencieux)
+  if (!aRaw || !bRaw) {
+
+    const fallback = [
+      `${target} = ${aRaw || "?"} / ${bRaw || "?"}`,
+      `${target} = ${aRaw || "?"} \\times ${bRaw || "?"}`,
+      `${target} = ${bRaw || "?"} / ${aRaw || "?"}`
+    ];
+
+    return {
+      choices: fallback,
+      answer: 0
+    };
   }
 
-  else if (q.expr.includes("\\frac")) {
-    correct = `${target} = \\frac{${a}}{${b}}`;
-  }
+  const a = formatVar(q, aRaw);
+  const b = formatVar(q, bRaw);
 
-  else {
-    correct = `${target} = ${a} / ${b}`;
-  }
+  let correct = `${target} = \\frac{${a}}{${b}}`;
 
   const wrong = [
     `${target} = ${a} \\times ${b}`,
-    `${target} = ${b} / ${a}`,
+    `${target} = \\frac{${b}}{${a}}`,
     `${target} = ${a} - ${b}`
   ];
 
@@ -103,8 +122,8 @@ function generateChoices(q, target) {
 ========================= */
 
 function getMode() {
-  if (score >= 10) return "hard";
-  if (score >= 5) return "medium";
+  if (score >= 5) return "hard";
+  if (score >= 2) return "medium";
   return "easy";
 }
 
@@ -145,7 +164,7 @@ function load() {
     `📘 <b>${q.domain}</b><br><br>
      D’après la relation : \\(${q.expr}\\)<br><br>
      On cherche à exprimer la variable <b>${q.target}</b><br><br>
-     Quelle est la bonne expression?</b> ?`;
+     Quelle est la bonne expression ?`;
 
   renderChoices(q);
 
@@ -153,10 +172,7 @@ function load() {
 
   if (window.MathJax) MathJax.typeset();
 
-  // 🔥 IMPORTANT : delay DOM paint
-  setTimeout(() => {
-    showImage(q);
-  }, 0);
+  setTimeout(() => showImage(q), 0);
 }
 
 /* =========================
@@ -183,7 +199,7 @@ function renderChoices(q) {
 }
 
 /* =========================
-   IMAGE (inchangé)
+   IMAGE (FIX PREMIÈRE QUESTION)
 ========================= */
 
 function showImage(q) {
@@ -194,8 +210,6 @@ function showImage(q) {
     img.style.display = "none";
     return;
   }
-
-  img.style.display = "none";
 
   const temp = new Image();
 
@@ -246,13 +260,10 @@ function showFeedback() {
   const fb = document.getElementById("feedback");
   const q = currentQuestion;
 
-  const vars = getVars(q, q.target);
-
   fb.innerHTML = `
     ❌ Mauvaise réponse<br><br>
     ✔ Bonne réponse : \\(${q.choices[q.answer]}\\)<br><br>
-    💡 ${q.feedback}<br>
-    Variables : ${vars.join(", ")}
+    💡 ${q.feedback}
   `;
 
   if (window.MathJax) MathJax.typeset();
@@ -278,9 +289,7 @@ function startTimer() {
     const t = document.getElementById("timer");
     if (t) t.textContent = timeLeft + "s";
 
-    if (timeLeft <= 0) {
-      endGame();
-    }
+    if (timeLeft <= 0) endGame();
 
   }, 1000);
 }
@@ -293,7 +302,7 @@ function startGame() {
 
   clearInterval(timer);
 
-  // 🔥 PRELOAD IMAGES (OK on garde)
+  // 🔥 preload images
   QUESTIONS.forEach(q => {
     if (q.image) {
       const i = new Image();
@@ -309,12 +318,9 @@ function startGame() {
 
   generateQuestion();
 
-  // 🔥 FIX IMPORTANT : attendre le rendu DOM avant load()
   requestAnimationFrame(() => {
-
     load();
     updateUI();
-
   });
 
   document.getElementById("startBtn").style.display = "none";
@@ -407,10 +413,5 @@ function playSound(id) {
   } catch {}
 }
 
-function playGoodSound() {
-  playSound("goodSound");
-}
-
-function playBadSound() {
-  playSound("badLight");
-}
+function playGoodSound() { playSound("goodSound"); }
+function playBadSound() { playSound("badLight"); }
