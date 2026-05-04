@@ -19,7 +19,6 @@
   </script>
 
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </head>
 
@@ -31,45 +30,45 @@
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <!-- LAYOUT GLOBAL -->
-  <div class="game-wrapper">
+  <!-- ===================== 3 COLONNES ===================== -->
+  <div class="game-container">
 
-    <div class="game-card">
-
-      <h2>Expressions littérales</h2>
-
-      <div class="hud">
-        <div>⏱ Temps : <span id="timer">180s</span></div>
-        <div>⭐ Score : <span id="score">0</span></div>
-        <div>🎯 Mode : <span id="mode">easy</span></div>
-      </div>
-
-      <p id="question">Clique sur Démarrer</p>
-
-      <div id="choices" class="choices"></div>
-
-      <div id="feedback-wrapper">
-        <p id="feedback"></p>
-      </div>
-
-      <div class="buttons">
-        <button id="startBtn" onclick="startGame()">Démarrer</button>
-        <button id="validateBtn" style="display:none;">Valider</button>
-        <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
-      </div>
-
-    </div>
-
-    <!-- IMAGE ZONE -->
-    <div class="image-zone">
+    <!-- 🟦 GAUCHE : CONTEXTE -->
+    <div class="panel left">
 
       <div id="imageDomain"></div>
 
       <img id="illustration">
-      
+
       <div id="imageTitle"></div>
 
-      
+    </div>
+
+    <!-- 🟨 CENTRE : JEU -->
+    <div class="panel center">
+
+      <div class="hud">
+        <div>⏱ <span id="timer">180s</span></div>
+        <div>⭐ <span id="score">0</span></div>
+        <div>🎯 <span id="mode">easy</span></div>
+      </div>
+
+      <div id="question">Clique sur Démarrer</div>
+
+      <div id="choices" class="choices"></div>
+
+      <div class="buttons">
+        <button id="startBtn" onclick="startGame()">Démarrer</button>
+        <button id="stopBtn" onclick="quitGame()">Fin</button>
+      </div>
+
+    </div>
+
+    <!-- 🟥 DROITE : FEEDBACK -->
+    <div class="panel right">
+
+      <div id="feedback"></div>
+
     </div>
 
   </div>

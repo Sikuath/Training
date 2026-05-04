@@ -6,117 +6,150 @@ body.expressions-page {
   color: white;
 }
 
-/* ================= GLOBAL LAYOUT ================= */
+/* ================= GRID PRINCIPAL ================= */
 
-.game-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 30px;
-  margin-top: 10px;
+.game-container {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1.5fr;
 
-  flex-wrap: nowrap; /* 🔥 FIX stabilité écran */
+  gap: 15px;
+  padding: 15px;
+  box-sizing: border-box;
+
+  /* 🔥 IMPORTANT : plus de hauteur figée */
+  min-height: 100vh;
+
+  align-items: start; /* évite étirement vertical forcé */
 }
 
-/* ================= GAME CARD ================= */
+/* ================= PANELS ================= */
 
-.game-card {
-  width: 420px;
-  min-height: 400px;
-  padding: 25px;
-  margin: 0; /* 🔥 FIX: évite décalage variable */
-
+.panel {
   background: rgba(0,0,0,0.85);
   border-radius: 18px;
+  padding: 15px;
 
-  text-align: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 
+  /* 🔥 clé : hauteur naturelle */
+  height: fit-content;
+
+  /* ❌ suppression scroll interne agressif */
+  overflow: visible;
+}
+
+/* ================= LEFT ================= */
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* image responsive propre */
+#illustration {
+  width: 100%;
   height: auto;
-
-  flex: 0 0 420px; /* 🔥 FIX: bloque largeur en flex */
+  border-radius: 12px;
+  display: block;
 }
 
-/* ================= TITRE ================= */
-
-.game-card h2 {
-  margin-top: 0;
-  margin-bottom: 10px;
+/* domaine + loi */
+#imageDomain,
+#imageTitle {
+  color: #ffd700;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
 }
 
-/* ================= HUD ================= */
+/* ================= CENTER ================= */
 
+.center {
+  
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  justify-content: flex-start; /* 🔥 important */
+}
+
+/* HUD */
 .hud {
   display: flex;
   justify-content: space-between;
 
-  margin-bottom: 15px;
   padding: 10px;
-
-  background: rgba(0,0,0,0.7);
+  background: rgba(255,255,255,0.05);
   border-radius: 10px;
-
-  font-size: 14px;
 }
 
-/* ================= QUESTION ================= */
-
+/* QUESTION */
 #question {
-  margin: 15px 0;
-  font-size: 18px;
+  font-size: 1.3em;
+  line-height: 1.4;
+  margin: 10px 0;
+  max-width: 100%;
+  word-wrap: break-word;
 }
 
-/* ================= CHOICES ================= */
-
+/* CHOICES */
 .choices {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin: 15px 0;
 }
 
 .choices button {
   padding: 10px;
-  border: none;
   border-radius: 8px;
-
+  border: none;
   background: #333;
   color: white;
-
   cursor: pointer;
   transition: 0.2s;
 }
 
 .choices button:hover {
   background: #555;
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
-/* ================= FEEDBACK ================= */
-
-#feedback-wrapper {
-  margin-top: 5px; /* 🔥 FIX vide inutile */
-  min-height: 0;   /* 🔥 FIX suppression trou vertical */
-}
-
-#feedback {
-  font-weight: bold;
-}
-
-/* ================= BUTTONS ================= */
-
+/* BUTTONS */
 .buttons {
+  margin-top: 10px;
   display: flex;
   justify-content: space-around;
-  margin-top: 10px; /* 🔥 légèrement réduit */
 }
 
-/* ================= GLOBAL BUTTON STYLE ================= */
+/* ================= RIGHT ================= */
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  /* 🔥 permet feedback dynamique */
+  min-height: 100px;
+}
+
+/* FEEDBACK */
+#feedback {
+  font-size: 1em;
+  line-height: 1.5em;
+
+  white-space: normal;
+}
+
+/* ================= GLOBAL BUTTON ================= */
 
 button {
   padding: 10px 14px;
-  border: none;
   border-radius: 8px;
+  border: none;
 
   background: #ff9800;
   color: white;
@@ -132,46 +165,14 @@ button:hover {
   transform: scale(1.05);
 }
 
-/* ================= IMAGE ZONE ================= */
+/* ================= RESPONSIVE ================= */
 
-.image-zone {
-  width: 240px;
+@media (max-width: 900px) {
+  .game-container {
+    grid-template-columns: 1fr;
+  }
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: 10px;
-
-  /* 🔥 UNE SEULE BOX GLOBALE */
-  background: rgba(0,0,0,0.85);
-  padding: 12px;
-  border-radius: 18px;
-
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-
-/* IMAGE */
-#illustration {
-  width: 100%;
-  max-width: 240px;
-  border-radius: 12px;
-  display: block;
-}
-
-/* TEXTE DOMAIN + LAW (SANS BACKGROUND INDIVIDUEL) */
-#imageDomain {
-  font-size: 14px;
-  font-weight: bold;
-  color: #ffd700;
-  text-align: center;
-  width: 100%;
-}
-
-#imageTitle {
-  font-size: 15px;
-  font-weight: bold;
-  color: #ffd700;
-  text-align: center;
-  width: 100%;
+  .panel {
+    width: 100%;
+  }
 }
