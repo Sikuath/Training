@@ -11,14 +11,15 @@
     sessionStorage.setItem("lastExercise", window.location.href);
   </script>
 
-<!-- MATHJAX -->
-<script>
-window.MathJax = {
-  tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
-};
-</script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- MATHJAX -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </head>
 
@@ -30,7 +31,7 @@ window.MathJax = {
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <!-- ✅ LAYOUT GLOBAL -->
+  <!-- LAYOUT GLOBAL -->
   <div class="game-wrapper">
 
     <div class="game-card">
@@ -59,9 +60,16 @@ window.MathJax = {
 
     </div>
 
-    <!-- ✅ IMAGE HORS CADRE -->
+    <!-- IMAGE ZONE -->
     <div class="image-zone">
+
+      <div id="imageDomain"></div>
+
       <img id="illustration">
+      
+      <div id="imageTitle"></div>
+
+      
     </div>
 
   </div>

@@ -16,52 +16,52 @@ const QUESTIONS = [
 
   {
     difficulty: "easy",
-    domain: "Électricité",
+    domain: "electricite",
     expr: "U = R \\times I",
     baseVars: ["U", "R", "I"],
     targetPool: ["R", "I"],
-    feedback: "Loi d’Ohm",
+    law: "Loi d’Ohm",
     image: "images/ohm.jpg"
   },
 
   {
     difficulty: "medium",
-    domain: "Relativité",
+    domain: "gravitation",
     expr: "E = m \\times c^2",
     baseVars: ["E", "m", "c"],
     displayVars: { "c": "c^2" },
     targetPool: ["m", "c"],
-    feedback: "Énergie de masse",
+    law: "Énergie de masse",
     image: "images/einstein.jpg"
   },
 
   {
-    difficulty: "hard",
-    domain: "Cinématique",
+    difficulty: "easy",
+    domain: "mouvement",
     expr: "v = \\frac{d}{t}",
     baseVars: ["v", "d", "t"],
     targetPool: ["t", "d"],
-    feedback: "Relation vitesse",
+    law: "Relation vitesse",
     image: "images/speed.jpg"
   },
 
   {
     difficulty: "hard",
-    domain: "Gravitation",
+    domain: "gravitation",
     expr: "v = \\sqrt{\\frac{G M}{R}}",
     baseVars: ["v","G","M","R"],
     targetPool: ["R","M"],
-    feedback: "Orbites",
+    law: "Lois des orbites",
     image: "images/orbit.jpg"
   },
 
   {
     difficulty: "hard",
-    domain: "Kepler",
+    domain: "gravitation",
     expr: "T = \\sqrt{\\frac{R^3}{G M}}",
     baseVars: ["T","R","G","M"],
     targetPool: ["R","M"],
-    feedback: "Loi de Kepler",
+    law: "Loi de Kepler",
     image: "images/kepler.jpg"
   }
 ];
@@ -76,6 +76,38 @@ function getVars(q, target) {
 
 function formatVar(q, v) {
   return q.displayVars?.[v] || v;
+}
+
+/* =========================
+   ICONES
+========================= */
+
+function formatDomain(domain) {
+
+  const d = domain.toLowerCase();
+
+  if (d.includes("chimie")) return "⚗️ Chimie";
+  if (d.includes("atomistique")) return "⚛️ Atomistique";
+  if (d.includes("synthese")) return "🧬 Synthèse chimique";
+
+  if (d.includes("mouvement")) return "🏃 Mouvement";
+  if (d.includes("forces")) return "💪 Forces";
+
+  if (d.includes("onde")) return "🌊 Ondes";
+  if (d.includes("lentilles")) return "🔭 Lentilles";
+
+  if (d.includes("electricite")) return "⚡ Électricité";
+  if (d.includes("gravitation")) return "🌍 Gravitation";
+
+  if (d.includes("fluide")) return "💧 Fluides";
+
+  if (d.includes("thermodynam")) return "🔥 Thermodynamique";
+
+  if (d.includes("quantique")) return "🧠 Quantique";
+
+  if (d.includes("energie")) return "⚙️ Énergie";
+
+  return "📚 Physique";
 }
 
 /* =========================
@@ -351,9 +383,9 @@ function load() {
 
   const q = currentQuestion;
 
+  // ❌ on retire domain de la box question
   document.getElementById("question").innerHTML =
-    `📘 <b>${q.domain}</b><br><br>
-     D’après la relation : \\(${q.expr}\\)<br><br>
+    `D’après la relation : \\(${q.expr}\\)<br><br>
      Variable : <b>${q.target}</b>`;
 
   renderChoices(q);
@@ -363,6 +395,13 @@ function load() {
   if (window.MathJax) MathJax.typeset();
 
   setTimeout(() => showImage(q), 0);
+
+  // 🔥 ZONE DROITE ENRICHIE
+  const dom = document.getElementById("imageDomain");
+  const law = document.getElementById("imageTitle");
+
+  if (dom) dom.innerHTML = q.domain ? formatDomain(q.domain) : "";
+  if (law) law.innerHTML = q.law ? `🔬 ${q.law}` : "";
 }
 
 /* =========================
