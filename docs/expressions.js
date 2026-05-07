@@ -15,13 +15,13 @@ let currentQuestion = null;
 const QUESTIONS = [
 
   // 1. LOI D'OHM
-  // { difficulty: "easy", domain: "electricite", expr: "U = R \\times I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
+  // { difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
 
   // 2. MASSE VOLUMIQUE
-   { difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
+  //{ difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
 
   // 3. DENSITÉ
-  // { difficulty:"easy", domain:"chimie", expr:"d = rho / rho0", baseVars:["d","rho","rho0"], targetPool:["rho"], law:"Densité", image:"./images/densite.jpg" },
+   { difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
 
   // 4. CONCENTRATION MASSIQUE
   // { difficulty:"easy", domain:"chimie", expr:"Cm = m / V", baseVars:["Cm","m","V"], targetPool:["m","V"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
@@ -155,6 +155,7 @@ const GREEK_SYMBOLS = {
   mu: "\\mu",
   pi: "\\pi",
   rho: "\\rho",
+  rho0: "\\rho_0",
   sigma: "\\sigma",
   tau: "\\tau",
   phi: "\\phi",
@@ -229,7 +230,7 @@ function toLatex(str) {
   // Fractions
   // =========================
   out = out.replace(
-    /([a-zA-Z0-9\\]+)\s*\/\s*([a-zA-Z0-9\\]+)/g,
+    /([a-zA-Z0-9_\\]+)\s*\/\s*([a-zA-Z0-9_\\]+)/g,
     "\\frac{$1}{$2}"
   );
 
@@ -497,26 +498,50 @@ function generateDistractors(q, target, correct, vars) {
   // =========================
   // FILTRE INTELLIGENT (clé)
   // =========================
-  function isValid(expr) {
 
-    const norm = normalizeLatex(expr);
+function isValid(expr) {
 
-    // 1. pas identique à la bonne réponse
-    if (norm === normalizeLatex(correct)) return false;
+  const norm = normalizeLatex(expr);
 
-    // 2. doit contenir une opération (évite "V = rho")
-    if (!/[*/+\-]/.test(expr)) return false;
+  // 1. pas identique à la bonne réponse
+  if (norm === normalizeLatex(correct)) return false;
 
-    // 3. pas de forme triviale : V = V / ...
-    const left = expr.split("=")[0].trim();
-    if (expr.includes(`${left}/`) || expr.includes(`${left}*`)) return false;
+  // 2. doit contenir une opération
+  if (!/[*/+\-]/.test(expr)) return false;
 
-    // 4. éviter divisions absurdes : x/x
-    const parts = expr.split(/[*/]/);
-    if (parts.length === 2 && parts[0] === parts[1]) return false;
+  // 3. pas de forme triviale
+  const left = expr.split("=")[0].trim();
+  if (expr.includes(`${left}/`) || expr.includes(`${left}*`)) return false;
 
-    return true;
+  // 4. éviter divisions absurdes
+  const parts = expr.split(/[*/]/);
+  if (parts.length === 2 && parts[0] === parts[1]) return false;
+
+  // 5. éviter la formule originale
+  if (
+    normalizeLatex(expr) === normalizeLatex(q.expr)
+  ) return false;
+
+  // 6. le membre de gauche doit être la cible
+  const leftSide = expr.split("=")[0].trim();
+
+  if (normalizeLatex(leftSide) !== normalizeLatex(target)) {
+    return false;
   }
+
+  // 7. éviter inversion de formule
+  const originalRight = normalizeLatex(q.expr.split("=")[1]);
+  const exprRight = normalizeLatex(expr.split("=")[1]);
+
+  if (
+    exprRight === originalRight ||
+    exprRight === originalRight.split("/").reverse().join("/")
+  ) {
+    return false;
+  }
+
+  return true;
+}
 
   // =========================
   // Nettoyage final
