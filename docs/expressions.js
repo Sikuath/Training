@@ -344,6 +344,17 @@ function generateFractions(vars) {
   return res;
 }
 
+function shuffle(array) {
+  const arr = [...array]; // évite de modifier l’original
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
 /* =========================
    ICONES
 ========================= */
@@ -630,14 +641,14 @@ function generateDistractors(q, target, correct, vars) {
 
     } else {
 
-      const shuffled = [...fractions].sort(() => Math.random() - 0.5);
+      const shuffled = shuffle(fractions);
 
       candidates = shuffled
         .slice(0, 6)
         .map(f => `${t} = ${f}`);
     }
 
-  } 
+  }
   // =========================
   // MODE SIMPLE
   // =========================
@@ -657,7 +668,7 @@ function generateDistractors(q, target, correct, vars) {
 
     ];
 
-    candidates = pool.sort(() => Math.random() - 0.5).slice(0, 5);
+    candidates = shuffle(pool).slice(0, 5);
   }
 
   // =========================
@@ -849,10 +860,7 @@ function generateQuestion() {
   // =========================
   // Mélange
   // =========================
-  const choices = unique
-    .slice(0, 4)
-    .sort(() => Math.random() - 0.5);
-
+  const choices = shuffle(unique.slice(0, 4));
   // =========================
   // Index bonne réponse (FIABLE)
   // =========================
