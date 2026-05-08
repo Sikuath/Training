@@ -15,13 +15,13 @@ let currentQuestion = null;
 const QUESTIONS = [
 
   // 1. LOI D'OHM
-  //{ difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
+  { difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
 
   // 2. MASSE VOLUMIQUE
   //{ difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
 
   // 3. DENSITÉ
-  //{ difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
+  { difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
 
   // 4. CONCENTRATION MASSIQUE
   //{ difficulty:"easy", domain:"chimie", expr:"t = msolute/Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
@@ -354,6 +354,18 @@ function shuffle(array) {
 
   return arr;
 }
+function pushUnique(arr, expr) {
+
+  const norm = normalizeLatex(expr);
+
+  const exists = arr.some(
+    e => normalizeLatex(e) === norm
+  );
+
+  if (!exists) {
+    arr.push(expr);
+  }
+}
 
 /* =========================
    ICONES
@@ -634,9 +646,10 @@ function generateDistractors(q, target, correct, vars) {
 
       candidates = [
         `${t} = x/y`,
-        `${t} = y/x`,
+        `${t} = x-y`,
         `${t} = x*y`,
-        `${t} = x/y`
+        `${t} = y/x`,
+        `${t} = y-x`
       ];
 
     } else {
@@ -805,7 +818,13 @@ function generateQuestion() {
   // =========================
   // Fusion
   // =========================
-  const all = [correctRaw, ...distractors];
+const all = [];
+
+pushUnique(all, correctRaw);
+
+distractors.forEach(d => {
+  pushUnique(all, d);
+});
 
   // =========================
   // Déduplication robuste
@@ -853,10 +872,21 @@ function generateQuestion() {
   // =========================
   // Complétion si manque
   // =========================
-  while (unique.length < 4) {
-    unique.push(`${target} = ${vars[0] || "x"}/${vars[1] || "y"}`);
-  }
+const fallbackPool = [
+  `${target} = ${vars[0] || "x"}/${vars[1] || "y"}`,
+  `${target} = ${vars[1] || "y"}/${vars[0] || "x"}`,
+  `${target} = ${vars[0] || "x"}*${vars[1] || "y"}`,
+  `${target} = ${vars[0] || "x"}+${vars[1] || "y"}`
+];
 
+let idx = 0;
+
+while (unique.length < 4 && idx < fallbackPool.length) {
+
+  pushUnique(unique, fallbackPool[idx]);
+
+  idx++;
+}
   // =========================
   // Mélange
   // =========================
