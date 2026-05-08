@@ -174,6 +174,33 @@ const LATEX_SYMBOLS = {
 
 };
 
+/* =========================
+   EXTRACTEUR DE NOMBRE DE VARIABLES
+========================= */
+
+function getDistractorVars(q, target) {
+
+  const vars = q.baseVars.filter(v => v !== target);
+
+  // Cas spécial 4 variables (type dilution)
+  if (q.baseVars.length === 4) {
+    return {
+      a: q.baseVars[0],
+      b: q.baseVars[1],
+      c: q.baseVars[2],
+      d: q.baseVars[3],
+      mode: "quad"
+    };
+  }
+
+  // Cas standard (2 variables utiles)
+  return {
+    a: vars[0] || "x",
+    b: vars[1] || "y",
+    mode: "simple"
+  };
+}
+
 function normalizeExpr(str) {
 
   if (!str) return "";
@@ -289,6 +316,32 @@ function parseExpr(expr) {
 function getVars(q, target) {
   const clean = v => v.replace(/\\/g, "");
   return q.baseVars.filter(v => clean(v) !== clean(target));
+}
+
+function generateFractions(vars) {
+
+  const res = [];
+
+  if (!vars || vars.length < 3) return res;
+
+  const n = vars.length;
+
+  for (let i = 0; i < n; i++) {
+
+    const denom = vars[i];
+
+    const numerators = vars.filter((_, j) => j !== i);
+
+    for (let a = 0; a < numerators.length; a++) {
+      for (let b = a + 1; b < numerators.length; b++) {
+
+        res.push(`(${numerators[a]}*${numerators[b]})/${denom}`);
+
+      }
+    }
+  }
+
+  return res;
 }
 
 /* =========================
@@ -551,25 +604,61 @@ function generateDistractors(q, target, correct, vars) {
 
   const t = target;
 
-  const a = vars[0] || "x";
-  const b = vars[1] || "y";
+  const v = getDistractorVars(q, target);
 
   const wrong = [];
 
+  let candidates = [];
+
   // =========================
-  // Génération brute
+  // MODE QUAD
   // =========================
-  const candidates = [
+  if (v.mode === "quad") {
 
-    `${t} = ${b}/${a}`,
-    `${t} = ${a}*${b}`,
-    `${t} = ${a}+${b}`,
-    `${t} = ${a}-${b}`,
+    const fractions = generateFractions(
+      q.baseVars.filter(x => x !== target)
+    ) || [];
 
-    `${t} = ${a}/${b}`,
-    `${t} = ${b}*${a}`
+    if (!fractions.length) {
 
-  ];
+      candidates = [
+        `${t} = x/y`,
+        `${t} = y/x`,
+        `${t} = x*y`,
+        `${t} = x/y`
+      ];
+
+    } else {
+
+      const shuffled = [...fractions].sort(() => Math.random() - 0.5);
+
+      candidates = shuffled
+        .slice(0, 6)
+        .map(f => `${t} = ${f}`);
+    }
+
+  } 
+  // =========================
+  // MODE SIMPLE
+  // =========================
+  else {
+
+    const { a = "x", b = "y" } = v;
+
+    const pool = [
+
+      `${t} = ${b}/${a}`,
+      `${t} = ${a}/${b}`,
+      `${t} = ${a}*${b}`,
+      `${t} = ${b}*${a}`,
+
+      `${t} = ${a}+${b}`,
+      `${t} = ${a}-${b}`
+
+    ];
+
+    candidates = pool.sort(() => Math.random() - 0.5).slice(0, 5);
+  }
 
   // =========================
   // VALIDATION
@@ -580,19 +669,12 @@ function generateDistractors(q, target, correct, vars) {
     const normCorrect = normalizeLatex(correct);
     const normOriginal = normalizeLatex(q.expr);
 
-    // =========================
-    // 1. pas identique à la bonne réponse
-    // =========================
+    // 1. pas identique bonne réponse
     if (normExpr === normCorrect) return false;
 
-    // =========================
     // 2. doit contenir une opération
-    // =========================
     if (!/[*/+\-]/.test(expr)) return false;
 
-    // =========================
-    // 3. le membre gauche doit être target
-    // =========================
     const eq = expr.split("=");
 
     if (eq.length !== 2) return false;
@@ -600,65 +682,42 @@ function generateDistractors(q, target, correct, vars) {
     const left = eq[0].trim();
     const right = eq[1].trim();
 
-    if (
-      normalizeLatex(left) !== normalizeLatex(target)
-    ) {
+    // 3. côté gauche doit être target
+    if (normalizeLatex(left) !== normalizeLatex(target)) {
       return false;
     }
 
-    // =========================
-    // 4. éviter :
-    // rho = rho/x
-    // =========================
-    if (
-      normalizeLatex(right).includes(
-        normalizeLatex(target)
-      )
-    ) {
+    // 4. éviter réutilisation directe target
+    if (normalizeLatex(right).includes(normalizeLatex(target))) {
       return false;
     }
 
-    // =========================
     // 5. éviter formule originale
-    // =========================
     if (normExpr === normOriginal) return false;
 
-    // =========================
-    // 6. éviter inversion exacte
-    // ex:
-    // rho0/rho
-    // quand original = rho/rho0
-    // =========================
+    // 6. inversion inutile
     const originalEq = q.expr.split("=");
 
     if (originalEq.length === 2) {
 
-      const originalRight =
-        normalizeLatex(originalEq[1]);
+      const originalRight = normalizeLatex(originalEq[1]);
 
-      const reversed =
-        originalRight
-          .split("/")
-          .reverse()
-          .join("/");
+      const reversed = originalRight
+        .split("/")
+        .reverse()
+        .join("/");
 
-      if (
-        normalizeLatex(right) === reversed
-      ) {
+      if (normalizeLatex(right) === reversed) {
         return false;
       }
     }
 
-    // =========================
-    // 7. éviter divisions absurdes
-    // x/x
-    // =========================
+    // 7. éviter x/x
     const parts = right.split(/[*/]/);
 
     if (
       parts.length === 2 &&
-      normalizeLatex(parts[0]) ===
-      normalizeLatex(parts[1])
+      normalizeLatex(parts[0]) === normalizeLatex(parts[1])
     ) {
       return false;
     }
@@ -667,22 +726,29 @@ function generateDistractors(q, target, correct, vars) {
   }
 
   // =========================
-  // Nettoyage
+  // FILTRAGE
   // =========================
   candidates.forEach(c => {
 
-    if (isValid(c)) {
-      wrong.push(c);
+    try {
+      if (c && isValid(c)) {
+        wrong.push(c);
+      }
+    } catch (e) {
+      // sécurité anti crash silencieux
+      console.warn("Distracteur invalide ignoré:", c);
     }
 
   });
 
   // =========================
-  // fallback sécurisé
+  // FALLBACK
   // =========================
   let fallbackIndex = 0;
 
   while (wrong.length < 3) {
+
+    const { a = "x", b = "y" } = v;
 
     const fallback = [
       `${t} = ${a}+${b}`,
@@ -692,6 +758,7 @@ function generateDistractors(q, target, correct, vars) {
     ][fallbackIndex % 4];
 
     if (
+      fallback &&
       isValid(fallback) &&
       !wrong.includes(fallback)
     ) {
@@ -700,10 +767,12 @@ function generateDistractors(q, target, correct, vars) {
 
     fallbackIndex++;
 
-    // sécurité anti boucle infinie
     if (fallbackIndex > 20) break;
   }
 
+  // =========================
+  // RETURN FINAL
+  // =========================
   return [...new Set(wrong)].slice(0, 3);
 }
 
