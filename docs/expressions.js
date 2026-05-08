@@ -33,13 +33,13 @@ const QUESTIONS = [
   //{ difficulty:"easy", domain:"chimie", expr:"n = m/M", baseVars:["n","m","M"], targetPool:["m","M"], law:"Quantité de matière", image:"./images/quantite_matiere.jpg" },
 
   // 7. DILUTION
-   //{ difficulty:"medium", domain:"chimie", expr:"C1*V1 = C2*V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2","V1","V2"], law:"Dilution", image:"./images/dilution.jpg" },
+  //{ difficulty:"medium", domain:"chimie", expr:"C1*V1 = C2*V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2","V1","V2"], law:"Dilution", image:"./images/dilution.jpg" },
 
   // 8. POIDS
-   { difficulty:"easy", domain:"forces", expr:"P = m*g", baseVars:["P","m","g"], targetPool:["m","g"], law:"Poids", image:"./images/poids.jpg" },
+  //{ difficulty:"easy", domain:"forces", expr:"P = m*g", baseVars:["P","m","g"], targetPool:["m","g"], law:"Poids", image:"./images/poids.jpg" },
 
   // 9. FORCE GRAVITATIONNELLE
-  // { difficulty:"medium", domain:"gravitation", expr:"F = G \\frac{m1 m2}{r^2}", baseVars:["F","m1","m2","r"], targetPool:["r","m1"], law:"Newton gravitation", image:"./images/gravitation.jpg" },
+   { difficulty:"medium", domain:"gravitation", expr:"F = G*m1*m2/r^2", baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], law:"Gravitation de Newton", image:"./images/gravitation.jpg" },
 
   // 10. DOPPLER (simplifié)
   // { difficulty:"hard", domain:"ondes", expr:"f' = f \\frac{v+vr}{v+vs}", baseVars:["f'","f","v","vr","vs"], targetPool:["f"], law:"Effet Doppler", image:"./images/doppler.jpg" },
@@ -170,7 +170,9 @@ const LATEX_SYMBOLS = {
   C1: "C_1",
   C2: "C_2",
   V1: "V_1",
-  V2 :"V_2"
+  V2: "V_2",
+  m1: "m_1",
+  m2: "m_2"
 
 };
 
@@ -260,7 +262,7 @@ function toLatex(str) {
   let out = str;
 
   // =========================
-  // Remplacement symboles latex
+  // Symboles
   // =========================
   Object.entries(LATEX_SYMBOLS).forEach(([k, v]) => {
 
@@ -273,8 +275,34 @@ function toLatex(str) {
 
   });
 
+// =========================
+// Supprime parenthèses inutiles
+// ex : (a*b) -> a*b
+// mais garde (a+b)
+// =========================
+  out = out.replace(
+    /\(([a-zA-Z0-9_*\\{}]+)\)/g,
+    "$1"
+  );
+
   // =========================
-  // Multiplication explicite
+  // PUISSANCES AVANT FRACTIONS
+  // =========================
+  out = out.replace(
+    /\^([a-zA-Z0-9]+)/g,
+    "^{$1}"
+  );
+
+  // =========================
+  // Fractions
+  // =========================
+  out = out.replace(
+    /([a-zA-Z0-9_\\{}()*]+)\s*\/\s*([a-zA-Z0-9_\\{}^()*]+)/g,
+    "\\frac{$1}{$2}"
+  );
+
+  // =========================
+  // Multiplication
   // =========================
   out = out.replace(/\*/g, " \\times ");
 
@@ -282,25 +310,10 @@ function toLatex(str) {
   // Fractions complexes
   // ex : (C2*V2)/V1
   // =========================
-  out = out.replace(
+
+out = out.replace(
     /\(([^()]+)\)\s*\/\s*([a-zA-Z0-9_\\{}]+)/g,
     "\\frac{$1}{$2}"
-  );
-
-  // =========================
-  // Fractions simples
-  // =========================
-  out = out.replace(
-    /([a-zA-Z0-9_\\{}]+)\s*\/\s*([a-zA-Z0-9_\\{}]+)/g,
-    "\\frac{$1}{$2}"
-  );
-
-  // =========================
-  // Puissances
-  // =========================
-  out = out.replace(
-    /\^([a-zA-Z0-9]+)/g,
-    "^{$1}"
   );
 
   // =========================
@@ -539,7 +552,36 @@ function solveUniversal(q, target) {
 
       const a = frac[1].trim();
       const b = frac[2].trim();
+// =========================
+// CAS r^2 AU DENOMINATEUR
+// =========================
 
+const powDenom = b.match(/^([a-zA-Z0-9_\\]+)\^(\d+)$/);
+
+if (powDenom) {
+
+  const base = powDenom[1];
+  const n = parseInt(powDenom[2]);
+
+  if (clean(base) === targetC) {
+
+    // r^2 = a/L
+    // r = sqrt(a/L)
+
+    if (n === 2) {
+
+      return {
+        result: `${base} = sqrt(${a}/${L})`,
+        type: "sqrt_fraction"
+      };
+    }
+
+    return {
+      result: `${base} = (${a}/${L})^(1/${n})`,
+      type: "root_fraction"
+    };
+  }
+}
       if (clean(a) === targetC) {
 
         return {
@@ -1132,6 +1174,22 @@ function showFeedback() {
       On effectue donc un <b>produit en croix</b>, puis on divise par la grandeur qui multiplie la variable recherchée.
       `;
       break;
+
+    case "sqrt_fraction":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est au dénominateur ET au carré.<br>
+      On inverse d'abord la fraction puis on applique une <b>racine carrée</b>.
+      `;
+      break;
+
+    case "root_fraction":
+
+      explanation = `
+     👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est dans une puissance au dénominateur.<br>
+     On inverse la fraction puis on applique la racine correspondante.
+     `;
+     break;
 
     default:
 
