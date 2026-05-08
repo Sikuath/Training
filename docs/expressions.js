@@ -15,13 +15,13 @@ let currentQuestion = null;
 const QUESTIONS = [
 
   // 1. LOI D'OHM
-  { difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
+  //{ difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
 
   // 2. MASSE VOLUMIQUE
   //{ difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
 
   // 3. DENSITÉ
-  { difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
+  //{ difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
 
   // 4. CONCENTRATION MASSIQUE
   //{ difficulty:"easy", domain:"chimie", expr:"t = msolute/Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
@@ -33,10 +33,10 @@ const QUESTIONS = [
   //{ difficulty:"easy", domain:"chimie", expr:"n = m/M", baseVars:["n","m","M"], targetPool:["m","M"], law:"Quantité de matière", image:"./images/quantite_matiere.jpg" },
 
   // 7. DILUTION
-   { difficulty:"medium", domain:"chimie", expr:"C1*V1 = C2*V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2","V1","V2"], law:"Dilution", image:"./images/dilution.jpg" },
+   //{ difficulty:"medium", domain:"chimie", expr:"C1*V1 = C2*V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2","V1","V2"], law:"Dilution", image:"./images/dilution.jpg" },
 
   // 8. POIDS
-  // { difficulty:"easy", domain:"forces", expr:"P = m g", baseVars:["P","m","g"], targetPool:["m"], law:"Poids", image:"./images/poids.jpg" },
+   { difficulty:"easy", domain:"forces", expr:"P = m*g", baseVars:["P","m","g"], targetPool:["m","g"], law:"Poids", image:"./images/poids.jpg" },
 
   // 9. FORCE GRAVITATIONNELLE
   // { difficulty:"medium", domain:"gravitation", expr:"F = G \\frac{m1 m2}{r^2}", baseVars:["F","m1","m2","r"], targetPool:["r","m1"], law:"Newton gravitation", image:"./images/gravitation.jpg" },
@@ -201,19 +201,30 @@ function getDistractorVars(q, target) {
   };
 }
 
+function canonicalizeProducts(expr) {
+
+  // transforme a*b en ordre alphabétique
+  return expr.replace(
+    /([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g,
+    (_, a, b) => {
+      return [a, b].sort().join("*");
+    }
+  );
+}
+
 function normalizeExpr(str) {
 
   if (!str) return "";
 
   let out = str;
 
-  // grec latex -> texte
   Object.entries(LATEX_SYMBOLS).forEach(([k,v]) => {
 
     const escaped = v
       .replace(/\\/g, "\\\\")
       .replace(/{/g, "\\{")
       .replace(/}/g, "\\}");
+
     out = out.replace(
       new RegExp(escaped, "g"),
       k
@@ -221,12 +232,17 @@ function normalizeExpr(str) {
 
   });
 
-  return out
+  out = out
     .replace(/\\times/g, "*")
     .replace(/\\frac{([^}]*)}{([^}]*)}/g, "($1)/($2)")
     .replace(/\s+/g, "")
     .replace(/[{}]/g, "")
     .trim();
+
+  // 🔥 AJOUT IMPORTANT
+  out = canonicalizeProducts(out);
+
+  return out;
 }
 
 function normalizeLatex(str) {
