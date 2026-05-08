@@ -15,7 +15,7 @@ let currentQuestion = null;
 const QUESTIONS = [
 
   // 1. LOI D'OHM
-  // { difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
+  //{ difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
 
   // 2. MASSE VOLUMIQUE
   //{ difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
@@ -24,16 +24,16 @@ const QUESTIONS = [
   //{ difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
 
   // 4. CONCENTRATION MASSIQUE
-   { difficulty:"easy", domain:"chimie", expr:"t = msolute/Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
+  //{ difficulty:"easy", domain:"chimie", expr:"t = msolute/Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
 
   // 5. CONCENTRATION MOLAIRE
-  // { difficulty:"easy", domain:"chimie", expr:"C = n / V", baseVars:["C","n","V"], targetPool:["n","V"], law:"Concentration molaire", image:"./images/concentration_molaire.jpg" },
+  //{ difficulty:"easy", domain:"chimie", expr:"C = nsolute/Vsolution", baseVars:["C","nsolute","Vsolution"], targetPool:["nsolute","Vsolution"], law:"Concentration molaire", image:"./images/concentration_molaire.jpg" },
 
   // 6. QUANTITÉ DE MATIÈRE
-  // { difficulty:"easy", domain:"chimie", expr:"n = m / M", baseVars:["n","m","M"], targetPool:["m","M"], law:"Quantité de matière", image:"./images/quantite_matiere.jpg" },
+  //{ difficulty:"easy", domain:"chimie", expr:"n = m/M", baseVars:["n","m","M"], targetPool:["m","M"], law:"Quantité de matière", image:"./images/quantite_matiere.jpg" },
 
   // 7. DILUTION
-  // { difficulty:"medium", domain:"chimie", expr:"C1 V1 = C2 V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2"], law:"Dilution", image:"./images/dilution.jpg" },
+   { difficulty:"medium", domain:"chimie", expr:"C1*V1 = C2*V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2","V1","V2"], law:"Dilution", image:"./images/dilution.jpg" },
 
   // 8. POIDS
   // { difficulty:"easy", domain:"forces", expr:"P = m g", baseVars:["P","m","g"], targetPool:["m"], law:"Poids", image:"./images/poids.jpg" },
@@ -165,7 +165,12 @@ const LATEX_SYMBOLS = {
 
   // Variables indices
   msolute: "m_{solute}",
-  Vsolution: "V_{solution}"
+  nsolute: "n_{solute}",
+  Vsolution: "V_{solution}",
+  C1: "C_1",
+  C2: "C_2",
+  V1: "V_1",
+  V2 :"V_2"
 
 };
 
@@ -216,7 +221,6 @@ function toLatex(str) {
   // =========================
   Object.entries(LATEX_SYMBOLS).forEach(([k, v]) => {
 
-    // évite les remplacements partiels
     const regex = new RegExp(
       `(?<![a-zA-Z0-9_])${k}(?![a-zA-Z0-9_])`,
       "g"
@@ -227,23 +231,21 @@ function toLatex(str) {
   });
 
   // =========================
-  // Multiplication implicite
-  // ex: "m g" -> "m \\times g"
-  // =========================
-  out = out.replace(
-    /([a-zA-Z0-9\\}])\s+([a-zA-Z0-9\\])/g,
-    "$1 \\\\times $2"
-  );
-
-  // =========================
   // Multiplication explicite
   // =========================
   out = out.replace(/\*/g, " \\times ");
 
   // =========================
-  // Fractions robustes
-  // supporte :
-  // m_{solute}/V_{solution}
+  // Fractions complexes
+  // ex : (C2*V2)/V1
+  // =========================
+  out = out.replace(
+    /\(([^()]+)\)\s*\/\s*([a-zA-Z0-9_\\{}]+)/g,
+    "\\frac{$1}{$2}"
+  );
+
+  // =========================
+  // Fractions simples
   // =========================
   out = out.replace(
     /([a-zA-Z0-9_\\{}]+)\s*\/\s*([a-zA-Z0-9_\\{}]+)/g,
@@ -252,7 +254,6 @@ function toLatex(str) {
 
   // =========================
   // Puissances
-  // ex: x^2 -> x^{2}
   // =========================
   out = out.replace(
     /\^([a-zA-Z0-9]+)/g,
@@ -355,8 +356,58 @@ function solveUniversal(q, target) {
   const targetC = clean(target);
 
   // =========================
-  // PRODUIT
+  // PRODUIT DES DEUX CÔTÉS
+  // ex : C1*V1 = C2*V2
   // =========================
+
+  if (L.includes("*") && R.includes("*")) {
+
+    const leftParts = L.split("*").map(s => s.trim());
+    const rightParts = R.split("*").map(s => s.trim());
+
+    if (leftParts.length === 2 && rightParts.length === 2) {
+
+      const [a, b] = leftParts;
+      const [c, d] = rightParts;
+
+      // C1
+      if (clean(a) === targetC) {
+        return {
+          result: `${a} = (${c}*${d})/${b}`,
+          type: "cross_division"
+        };
+      }
+
+      // V1
+      if (clean(b) === targetC) {
+        return {
+          result: `${b} = (${c}*${d})/${a}`,
+          type: "cross_division"
+        };
+      }
+
+      // C2
+      if (clean(c) === targetC) {
+        return {
+          result: `${c} = (${a}*${b})/${d}`,
+          type: "cross_division"
+        };
+      }
+
+      // V2
+      if (clean(d) === targetC) {
+        return {
+          result: `${d} = (${a}*${b})/${c}`,
+          type: "cross_division"
+        };
+      }
+    }
+  }
+
+  // =========================
+  // PRODUIT SIMPLE
+  // =========================
+
   if (R.includes("*") && !R.includes("/")) {
 
     const parts = R.split("*");
@@ -387,6 +438,7 @@ function solveUniversal(q, target) {
   // =========================
   // FRACTION
   // =========================
+
   if (R.includes("/")) {
 
     const frac = R.match(/^(.+)\/(.+)$/);
@@ -417,6 +469,7 @@ function solveUniversal(q, target) {
   // =========================
   // PUISSANCE
   // =========================
+
   const pow = R.match(/([a-zA-Z0-9_\\]+)\^(\d+)/);
 
   if (pow) {
@@ -444,6 +497,7 @@ function solveUniversal(q, target) {
   // =========================
   // FALLBACK
   // =========================
+
   return {
     result: `${target} = ${L}`,
     type: "fallback"
@@ -462,11 +516,12 @@ function buildFeedback(type, q, target) {
     inverse: "On inverse la fraction",
     sqrt: "On élève au carré",
     root: "On applique une racine",
+    cross_division: "On effectue un produit en croix puis on divise",
     fallback: "Réarrangement algébrique"
   };
 
   return `
-    "🧠 Méthode : ${map[type] || "Étape algébrique"}<br>
+    🧠 Méthode : ${map[type] || "Étape algébrique"}<br>
     📌 On part de : \\(${toLatex(q.expr)}\\)<br>
     🎯 Variable isolée : \\(${toLatex(target)}\\)
   `;
@@ -774,8 +829,8 @@ document.getElementById("question").innerHTML =
   `
   D’après la relation : \\(${toLatex(q.expr)}\\)
   <br><br>
-  Quelle est la bonne expression pour la variable
-  <b>\\(${toLatex(q.target)}\\)</b> ?
+  Donner la bonne expression pour la variable
+  <b>\\(${toLatex(q.target)}\\)</b>
   `;
 
   renderChoices(q);
@@ -896,23 +951,120 @@ function showFeedback() {
 
   const q = currentQuestion;
   const solved = solveUniversal(q, q.target);
+
   const fb = document.getElementById("feedback");
 
+  // =========================
+  // Explication intelligente
+  // =========================
+
+  let explanation = "";
+
+  switch (solved.type) {
+
+    case "division":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est multipliée par une autre grandeur.<br>
+      Pour l’isoler, on doit donc <b>diviser</b> ce qu'il y a écrit à gauche du signe = par cette autre grandeur.
+      `;
+      break;
+
+    case "multiplication":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> se trouve au numérateur d'une fraction.<br>
+      Pour l’isoler, on doit donc <b>multiplier</b> ce qu'il y a écrit à gauche du signe = avec le dénominateur de la fraction.
+      `;
+      break;
+
+    case "inverse":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est au dénominateur.<br>
+      Pour l'isoler, on l'intervertit avec la variable à gauche du signe = sans toucher au numérateur de la fraction.
+      `;
+      break;
+
+    case "sqrt":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> apparaît au carré.<br>
+      Pour l’isoler, on applique une <b>racine carrée</b>.
+      `;
+      break;
+
+    case "root":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est élevée à une puissance.<br>
+      On applique donc la <b>racine correspondante</b>.
+      `;
+      break;
+
+    case "cross_division":
+
+      explanation = `
+      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> apparaît dans un produit.<br>
+      On effectue donc un <b>produit en croix</b>, puis on divise par la grandeur qui multiplie la variable recherchée.
+      `;
+      break;
+
+    default:
+
+      explanation = `
+      👉 On réorganise l’équation afin d’isoler la variable
+      <b>\\(${toLatex(q.target)}\\)</b>.
+      `;
+  }
+
+  // =========================
+  // AFFICHAGE
+  // =========================
+
   fb.innerHTML = `
-    ❌ Mauvaise réponse<br><br>
 
-    ✔ Bonne réponse : \\(${toLatex(solved.result)}\\)
+    ❌ <b>Mauvaise réponse</b><br><br>
 
-    🧠 Explication :<br><br>
+    Regardons ensemble la démarche 👇<br><br>
 
-    • Équation : \\(${toLatex(q.expr)}\\)
-    • Variable : <b>${q.target}</b><br>
-    • Méthode : ${solved.type}<br>
-    • Résultat : \\(${toLatex(solved.result)}\\)
+    🧠 À partir de l’expression :<br><br>
+
+    \\[
+      ${toLatex(q.expr)}
+    \\]
+
+    On cherche à isoler la variable :
+
+    <b>\\(${toLatex(q.target)}\\)</b><br><br>
+
+    ${explanation}
+
+    <br><br>
+
+    ✔ <b>Bonne réponse :</b><br><br>
+
+    \\[
+      ${toLatex(solved.result)}
+    \\]
+
   `;
 
+  // =========================
+  // MATHJAX
+  // =========================
+
   if (window.MathJax) {
-    setTimeout(() => MathJax.typeset(), 0);
+
+    setTimeout(() => {
+
+      if (MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      } else {
+        MathJax.typeset();
+      }
+
+    }, 0);
   }
 }
 
