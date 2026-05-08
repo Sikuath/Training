@@ -21,10 +21,10 @@ const QUESTIONS = [
   //{ difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
 
   // 3. DENSITÉ
-   { difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
+  //{ difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
 
   // 4. CONCENTRATION MASSIQUE
-  // { difficulty:"easy", domain:"chimie", expr:"Cm = m / V", baseVars:["Cm","m","V"], targetPool:["m","V"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
+   { difficulty:"easy", domain:"chimie", expr:"t = msolute/Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
 
   // 5. CONCENTRATION MOLAIRE
   // { difficulty:"easy", domain:"chimie", expr:"C = n / V", baseVars:["C","n","V"], targetPool:["n","V"], law:"Concentration molaire", image:"./images/concentration_molaire.jpg" },
@@ -144,7 +144,9 @@ const QUESTIONS = [
    SYSTÈME DE SYMBOLES UNIFIÉ
 ========================= */
 
-const GREEK_SYMBOLS = {
+const LATEX_SYMBOLS = {
+
+  // Grecs
   alpha: "\\alpha",
   beta: "\\beta",
   gamma: "\\gamma",
@@ -159,7 +161,12 @@ const GREEK_SYMBOLS = {
   sigma: "\\sigma",
   tau: "\\tau",
   phi: "\\phi",
-  omega: "\\omega"
+  omega: "\\omega",
+
+  // Variables indices
+  msolute: "m_{solute}",
+  Vsolution: "V_{solution}"
+
 };
 
 function normalizeExpr(str) {
@@ -169,10 +176,12 @@ function normalizeExpr(str) {
   let out = str;
 
   // grec latex -> texte
-  Object.entries(GREEK_SYMBOLS).forEach(([k,v]) => {
+  Object.entries(LATEX_SYMBOLS).forEach(([k,v]) => {
 
-    const escaped = v.replace("\\", "\\\\");
-
+    const escaped = v
+      .replace(/\\/g, "\\\\")
+      .replace(/{/g, "\\{")
+      .replace(/}/g, "\\}");
     out = out.replace(
       new RegExp(escaped, "g"),
       k
@@ -203,11 +212,16 @@ function toLatex(str) {
   let out = str;
 
   // =========================
-  // Grec
+  // Remplacement symboles latex
   // =========================
-  Object.entries(GREEK_SYMBOLS).forEach(([k,v]) => {
+  Object.entries(LATEX_SYMBOLS).forEach(([k, v]) => {
 
-    const regex = new RegExp(`\\b${k}\\b`, "g");
+    // évite les remplacements partiels
+    const regex = new RegExp(
+      `(?<![a-zA-Z0-9_])${k}(?![a-zA-Z0-9_])`,
+      "g"
+    );
+
     out = out.replace(regex, v);
 
   });
@@ -227,17 +241,23 @@ function toLatex(str) {
   out = out.replace(/\*/g, " \\times ");
 
   // =========================
-  // Fractions
+  // Fractions robustes
+  // supporte :
+  // m_{solute}/V_{solution}
   // =========================
   out = out.replace(
-    /([a-zA-Z0-9_\\]+)\s*\/\s*([a-zA-Z0-9_\\]+)/g,
+    /([a-zA-Z0-9_\\{}]+)\s*\/\s*([a-zA-Z0-9_\\{}]+)/g,
     "\\frac{$1}{$2}"
   );
 
   // =========================
   // Puissances
+  // ex: x^2 -> x^{2}
   // =========================
-  out = out.replace(/\^(\d+)/g, "^{$1}");
+  out = out.replace(
+    /\^([a-zA-Z0-9]+)/g,
+    "^{$1}"
+  );
 
   // =========================
   // sqrt(x)
@@ -482,77 +502,151 @@ function generateDistractors(q, target, correct, vars) {
   const wrong = [];
 
   // =========================
-  // Génération brute (logique pure)
+  // Génération brute
   // =========================
   const candidates = [
 
     `${t} = ${b}/${a}`,
     `${t} = ${a}*${b}`,
     `${t} = ${a}+${b}`,
+    `${t} = ${a}-${b}`,
 
-    `${a} = ${t}/${b}`,
-    `${b} = ${t}/${a}`
+    `${t} = ${a}/${b}`,
+    `${t} = ${b}*${a}`
 
   ];
 
   // =========================
-  // FILTRE INTELLIGENT (clé)
+  // VALIDATION
   // =========================
+  function isValid(expr) {
 
-function isValid(expr) {
+    const normExpr = normalizeLatex(expr);
+    const normCorrect = normalizeLatex(correct);
+    const normOriginal = normalizeLatex(q.expr);
 
-  const norm = normalizeLatex(expr);
+    // =========================
+    // 1. pas identique à la bonne réponse
+    // =========================
+    if (normExpr === normCorrect) return false;
 
-  // 1. pas identique à la bonne réponse
-  if (norm === normalizeLatex(correct)) return false;
+    // =========================
+    // 2. doit contenir une opération
+    // =========================
+    if (!/[*/+\-]/.test(expr)) return false;
 
-  // 2. doit contenir une opération
-  if (!/[*/+\-]/.test(expr)) return false;
+    // =========================
+    // 3. le membre gauche doit être target
+    // =========================
+    const eq = expr.split("=");
 
-  // 3. pas de forme triviale
-  const left = expr.split("=")[0].trim();
-  if (expr.includes(`${left}/`) || expr.includes(`${left}*`)) return false;
+    if (eq.length !== 2) return false;
 
-  // 4. éviter divisions absurdes
-  const parts = expr.split(/[*/]/);
-  if (parts.length === 2 && parts[0] === parts[1]) return false;
+    const left = eq[0].trim();
+    const right = eq[1].trim();
 
-  // 5. éviter la formule originale
-  if (
-    normalizeLatex(expr) === normalizeLatex(q.expr)
-  ) return false;
+    if (
+      normalizeLatex(left) !== normalizeLatex(target)
+    ) {
+      return false;
+    }
 
-  // 6. le membre de gauche doit être la cible
-  const leftSide = expr.split("=")[0].trim();
+    // =========================
+    // 4. éviter :
+    // rho = rho/x
+    // =========================
+    if (
+      normalizeLatex(right).includes(
+        normalizeLatex(target)
+      )
+    ) {
+      return false;
+    }
 
-  if (normalizeLatex(leftSide) !== normalizeLatex(target)) {
-    return false;
+    // =========================
+    // 5. éviter formule originale
+    // =========================
+    if (normExpr === normOriginal) return false;
+
+    // =========================
+    // 6. éviter inversion exacte
+    // ex:
+    // rho0/rho
+    // quand original = rho/rho0
+    // =========================
+    const originalEq = q.expr.split("=");
+
+    if (originalEq.length === 2) {
+
+      const originalRight =
+        normalizeLatex(originalEq[1]);
+
+      const reversed =
+        originalRight
+          .split("/")
+          .reverse()
+          .join("/");
+
+      if (
+        normalizeLatex(right) === reversed
+      ) {
+        return false;
+      }
+    }
+
+    // =========================
+    // 7. éviter divisions absurdes
+    // x/x
+    // =========================
+    const parts = right.split(/[*/]/);
+
+    if (
+      parts.length === 2 &&
+      normalizeLatex(parts[0]) ===
+      normalizeLatex(parts[1])
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
-  // 7. éviter inversion de formule
-  const originalRight = normalizeLatex(q.expr.split("=")[1]);
-  const exprRight = normalizeLatex(expr.split("=")[1]);
-
-  if (
-    exprRight === originalRight ||
-    exprRight === originalRight.split("/").reverse().join("/")
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
   // =========================
-  // Nettoyage final
+  // Nettoyage
   // =========================
   candidates.forEach(c => {
-    if (isValid(c)) wrong.push(c);
+
+    if (isValid(c)) {
+      wrong.push(c);
+    }
+
   });
 
-  // fallback sécurité
+  // =========================
+  // fallback sécurisé
+  // =========================
+  let fallbackIndex = 0;
+
   while (wrong.length < 3) {
-    wrong.push(`${t} = ${a}/${b}`);
+
+    const fallback = [
+      `${t} = ${a}+${b}`,
+      `${t} = ${a}-${b}`,
+      `${t} = ${a}*${b}`,
+      `${t} = ${a}/${b}`
+    ][fallbackIndex % 4];
+
+    if (
+      isValid(fallback) &&
+      !wrong.includes(fallback)
+    ) {
+      wrong.push(fallback);
+    }
+
+    fallbackIndex++;
+
+    // sécurité anti boucle infinie
+    if (fallbackIndex > 20) break;
   }
 
   return [...new Set(wrong)].slice(0, 3);
@@ -676,9 +770,13 @@ function load() {
   // =========================
   // QUESTION CENTRALE
   // =========================
-  document.getElementById("question").innerHTML =
-    `D’après la relation : \\(${toLatex(q.expr)}\\)<br><br>
-     Quelle est la bonne expression pour la variable <b>\\(${toLatex(q.target)}\\)</b> ?`;
+document.getElementById("question").innerHTML =
+  `
+  D’après la relation : \\(${toLatex(q.expr)}\\)
+  <br><br>
+  Quelle est la bonne expression pour la variable
+  <b>\\(${toLatex(q.target)}\\)</b> ?
+  `;
 
   renderChoices(q);
 
