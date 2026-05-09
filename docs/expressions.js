@@ -61,10 +61,10 @@ const EXPRESSION_TYPES = {
 
 const QUESTIONS = [
 
-{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
+//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
 
 // 2
-//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
+{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d = rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"] },
@@ -262,7 +262,11 @@ function toLatex(str) {
 
   let out = str;
 
-  Object.entries(LATEX_SYMBOLS).forEach(([k,v]) => {
+  /* =========================================================
+     SYMBOLS (rho, lambda, etc.)
+  ========================================================= */
+
+  Object.entries(LATEX_SYMBOLS).forEach(([k, v]) => {
 
     const regex = new RegExp(
       `(?<![a-zA-Z0-9_])${k}(?![a-zA-Z0-9_])`,
@@ -272,17 +276,40 @@ function toLatex(str) {
     out = out.replace(regex, v);
   });
 
-  out = out.replace(/\*/g," \\times ");
+  /* =========================================================
+     MULTIPLICATION
+  ========================================================= */
+
+  out = out.replace(/\*/g, " \\times ");
+
+  /* =========================================================
+     RACINES
+  ========================================================= */
 
   out = out.replace(
-    /sqrt\((.*?)\)/g,
+    /sqrt\(([^()]*)\)/g,
     "\\sqrt{$1}"
   );
 
-  out = out.replace(
-    /([a-zA-Z0-9_()+-]+)\/([a-zA-Z0-9_()+-]+)/g,
-    "\\frac{$1}{$2}"
-  );
+  /* =========================================================
+     FRACTIONS (SAFE)
+     -> évite double conversion \frac
+  ========================================================= */
+
+  // on protège les \frac déjà existants
+  const hasFrac = out.includes("\\frac");
+
+  if (!hasFrac) {
+
+    out = out.replace(
+      /([a-zA-Z0-9_()\\]+(?:\*[a-zA-Z0-9_()\\]+)*)\/([a-zA-Z0-9_()\\]+(?:\*[a-zA-Z0-9_()\\]+)*)/g,
+      "\\frac{$1}{$2}"
+    );
+  }
+
+  /* =========================================================
+     EXPOSANTS
+  ========================================================= */
 
   out = out.replace(
     /\^([0-9]+)/g,
@@ -692,28 +719,44 @@ function fractionDistractors(q, target, correct) {
 
   let raw = [];
 
+  /* =========================================================
+     CAS 1 : on cherche le NUMÉRATEUR
+  ========================================================= */
+
   if (target === q.numerator) {
 
     raw = [
-      `${target} = ${q.lhs}/${q.denominator}`,
-      `${target} = ${q.denominator}/${q.lhs}`,
+
       `${target} = ${q.lhs}*${q.denominator}`,
-      `${target} = ${q.lhs}+${q.denominator}`
-    ];
-
-  } else if (target === q.denominator) {
-
-    raw = [
-      `${target} = ${q.numerator}/${q.lhs}`,
-      `${target} = ${q.lhs}*${q.numerator}`,
-      `${target} = ${q.lhs}/${q.numerator}`,
-      `${target} = ${q.numerator}*${q.lhs}`
+      `${target} = ${q.denominator}/${q.lhs}`,
+      `${target} = ${q.lhs}/${q.denominator}`,
+      `${target} = ${q.lhs}+${q.denominator}`,
+      `${target} = ${q.lhs}-${q.denominator}`
     ];
   }
 
+  /* =========================================================
+     CAS 2 : on cherche le DÉNOMINATEUR
+  ========================================================= */
+
+  else if (target === q.denominator) {
+
+    raw = [
+
+      `${target} = ${q.numerator}/${q.lhs}`,
+      `${target} = ${q.lhs}/${q.numerator}`,
+      `${target} = ${q.lhs}*${q.numerator}`,
+      `${target} = ${q.lhs}-${q.numerator}`,
+      `${target} = ${q.lhs}+${q.numerator}`
+    ];
+  }
+
+  /* =========================================================
+     FILTRAGE UNIFORME
+  ========================================================= */
+
   return buildCleanDistractors(raw, correct, target);
 }
-
 
 /* =========================================================
    PRODUIT EN CROIX
@@ -953,22 +996,29 @@ function showFeedback() {
   switch(solved.type) {
 
     case "division":
-     explanation =`
-     <div style="text-align:left">
-     👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est multipliée par une autre grandeur.
+      explanation =`
+      <div style="text-align:left">
+      👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est multipliée par une autre grandeur.
       Pour l’isoler, on doit donc <b>diviser</b> ce qu'il y a écrit à gauche du signe = par cette autre grandeur.
       </div>
       `;
       break;
 
     case "multiply_fraction":
-      explanation =
-        "👉 La variable est au numérateur d’une fraction. On multiplie donc par le dénominateur.";
+      explanation =`
+      <div style="text-align:left">
+      👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est au numérateur d’une fraction.
+      Pour l'isoler, on doit <b>multiplier</b> ce qu'il y a écrit à gauche du signe = avec le dénominateur de la fraction.
+      `;
       break;
 
     case "inverse_fraction":
-      explanation =
-        "👉 La variable est au dénominateur. On inverse donc la fraction.";
+      explanation =`
+      <div style="text-align:left">
+      👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est au dénominateur d'une fraction.
+      Pour l'isoler, on <b>l'intervertit</b> avec la variable écrite à gauche du signe = sans toucher au numérateur de la fraction.
+      </div>
+      `;
       break;
 
     case "cross":
