@@ -61,10 +61,10 @@ const EXPRESSION_TYPES = {
 
 const QUESTIONS = [
 
-//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
+{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
 
 // 2
-//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
+{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d = rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"] },
@@ -76,7 +76,7 @@ const QUESTIONS = [
 //{ difficulty:"easy", domain:"chimie", law:"Concentration molaire", image:"./images/concentration_molaire.jpg", expr:"C = nsolute/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"C", numerator:"nsolute", denominator:"Vsolution", baseVars:["C","nsolute","Vsolution"], targetPool:["nsolute","Vsolution"] },
 
 // 6
-//{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n = m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"] },
+{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n = m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"] },
 
 // 7
 { difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1 = C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"] },
@@ -192,14 +192,26 @@ function cleanExpr(str) {
   if (!str) return "";
 
   return str
-    // enlève les parenthèses inutiles autour d’un seul bloc simple
+    .replace(/\s+/g, " ")
+
+    // enlève parenthèses inutiles autour d'expressions simples
     .replace(/\(([^()]+)\)/g, "$1")
 
-    // enlève les doubles parenthèses issues des joins
-    .replace(/\(\s*([a-zA-Z0-9_^*/+-]+)\s*\)/g, "$1")
+    // évite doubles espaces
+    .trim();
+}
 
-    // nettoie espaces
-    .replace(/\s+/g, " ");
+/* =========================================================
+   CANONICAL
+========================================================= */
+
+function canonical(expr) {
+
+  return expr
+    .replace(/\s+/g, "")
+    .split("*")
+    .sort()
+    .join("*");
 }
 
 /* =========================================================
@@ -382,7 +394,7 @@ function solveQuestion(q, target) {
 
     /* =========================================
        FRACTION
-    ========================================= */
+ "   ========================================= */
 
     case EXPRESSION_TYPES.FRACTION: {
 
@@ -416,37 +428,23 @@ function solveQuestion(q, target) {
       const left = q.left;
       const right = q.right;
 
-      // cible à gauche
-      if (left.includes(target)) {
-
-        const otherLeft =
-          left.find(x => x !== target);
-
-        return {
-          result:
-            cleanExpr(
-              `${target} = (${right.join("*")})/${otherLeft}`
-            ),
-          type:"cross"
-        };
+      if (!left || !right || left.length !== 2 || right.length !== 2) {
+        console.error("CROSS mal formé :", q);
+        return { result: `${target} = ?`, type: "cross_error" };
       }
 
-      // cible à droite
-      if (right.includes(target)) {
+      const all = [...left, ...right];
 
-        const otherRight =
-          right.find(x => x !== target);
+      if (!all.includes(target)) break;
 
-        return {
-          result:
-            cleanExpr(
-              `${target} = (${left.join("*")})/${otherRight}`
-            ),
-          type:"cross"
-        };
-      }
+      const others = all.filter(x => x !== target);
 
-      break;
+      return {
+        result: cleanExpr(
+          `${target} = (${others[0]}*${others[1]})/${others[2]}`
+        ),
+        type: "cross"
+      };
     }
 
     /* =========================================
@@ -660,26 +658,23 @@ function buildCleanDistractors(rawList, correct, target) {
   const set = new Set();
   const result = [];
 
-  const normCorrect = normalizeExpr(correct);
+  const normCorrect = canonical(correct);
 
   const shuffled = shuffle(rawList);
 
   for (const d of shuffled) {
 
-    const norm = normalizeExpr(d);
+    const norm = canonical(d);
 
     if (norm === normCorrect) continue;
     if (set.has(norm)) continue;
 
-    if (!isValidDistractor(d, correct, set)) continue;
-
     set.add(norm);
-    result.push(d);
+    result.push(cleanExpr(d));
 
     if (result.length === 3) break;
   }
 
-  // fallback sécurisé
   while (result.length < 3) {
     result.push(`${target} = ?`);
   }
@@ -795,19 +790,33 @@ function fractionDistractors(q, target, correct) {
    PRODUIT EN CROIX
 ========================================================= */
 
-function crossDistractors(q, target, a, b, c, correct) {
+function crossDistractors(q, target, correct) {
+
+  const left = q.left;
+  const right = q.right;
+
+  const isLeft = left.includes(target);
+
+  const otherSide = isLeft ? right : left;
+  const otherVar = isLeft
+    ? left.find(x => x !== target)
+    : right.find(x => x !== target);
+
+  const product = otherSide.join("*");
 
   const raw = [
-    `${target} = ${a}/${b}`,
-    `${target} = ${b}/${a}`,
-    `${target} = ${a}*${b}`,
-    `${target} = ${q.right?.[0]}/${q.left?.[0]}`,
-    `${target} = ${a}+${b}`
+
+    `${target} = ${otherVar}/${product}`,
+    `${target} = ${product}*${otherVar}`,
+    `${target} = ${product}`,
+    `${target} = ${otherVar}*${product}`,
+    `${target} = ${otherVar}+${product}`,
+    `${target} = ${product}-${otherVar}`,
+    `${target} = ${otherVar}/${otherSide[0]}*${otherSide[1]}`
   ];
 
   return buildCleanDistractors(raw, correct, target);
 }
-
 
 /* =========================================================
    PRODUIT / FRACTION COMPLEXE
@@ -1018,110 +1027,175 @@ function showFeedback() {
 
   const q = currentQuestion;
 
-  const solved =
-    solveQuestion(q,q.target);
-
   const fb =
     document.getElementById("feedback");
 
   let explanation = "";
 
-  switch(solved.type) {
+  switch (q.type) {
 
-    case "division":
-      explanation =`
+    /* =========================================================
+       PRODUIT
+    ========================================================= */
+
+    case EXPRESSION_TYPES.PRODUCT:
+      explanation = `
       <div style="text-align:left">
-      👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est multipliée par une autre grandeur.
-      Pour l’isoler, on doit donc <b>diviser</b> ce qu'il y a écrit à gauche du signe = par cette autre grandeur.
+      👉 L’expression <b>\\(${toLatex(q.expr)}\\)</b> est un produit.
+      <br><br>
+      Pour isoler la variable <b>\\(${toLatex(q.target)}\\)</b> on divise simplement les deux côtés du signe = par le produit des autres facteurs.
       </div>
       `;
       break;
 
-    case "multiply_fraction":
-      explanation =`
-      <div style="text-align:left">
-      👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est au numérateur d’une fraction.
-      Pour l'isoler, on doit <b>multiplier</b> ce qu'il y a écrit à gauche du signe = avec le dénominateur de la fraction.
-      `;
-      break;
+    /* =========================================================
+       FRACTION
+    ========================================================= */
 
-    case "inverse_fraction":
-      explanation =`
+    case EXPRESSION_TYPES.FRACTION:
+      explanation = `
       <div style="text-align:left">
-      👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est au dénominateur d'une fraction.
-      Pour l'isoler, on <b>l'intervertit</b> avec la variable écrite à gauche du signe = sans toucher au numérateur de la fraction.
+      👉 L’expression <b>\\(${toLatex(q.expr)}\\)</b> est une fraction.
+      <br><br>
+      - Si la variable <b>\\(${toLatex(q.target)}\\)</b> est au numérateur → on multiplie par le dénominateur
+      - Si elle est au dénominateur → on inverse la relation
       </div>
       `;
       break;
 
-    case "cross":
-      explanation =
-        "👉 On effectue un produit en croix.";
+    /* =========================================================
+       PRODUIT EN CROIX
+    ========================================================= */
+
+    case EXPRESSION_TYPES.CROSS:
+      explanation = `
+      <div style="text-align:left">
+      👉 L’expression <b>\\(${toLatex(q.expr)}\\)</b> est une égalité de deux produits.
+      Pour isoler la variable <b>\\(${toLatex(q.target)}\\)</b> on divise à gauche et à droite du signe = par la grandeur qui multiplie la variable recherchée.
+      </div>
+      `;
       break;
 
-    case "sqrt":
-      explanation =
-        "👉 La variable apparaît au carré. On applique une racine carrée.";
+    /* =========================================================
+       PRODUIT + PUISSANCE (JOULE / CINÉTIQUE etc.)
+    ========================================================= */
+
+    case EXPRESSION_TYPES.PRODUCT_POWER:
+      explanation = `
+      <div style="text-align:left">
+      👉 La variable apparaît dans un produit avec une puissance.
+      <br><br>
+      On isole d’abord la puissance puis on applique une racine.
+      </div>
+      `;
       break;
 
-    case "root":
-      explanation =
-        "👉 La variable apparaît dans une puissance. On applique la racine correspondante.";
+    /* =========================================================
+       PUISSANCE PURE (KEPLER / STEFAN etc.)
+    ========================================================= */
+
+    case EXPRESSION_TYPES.POWER:
+      explanation = `
+      <div style="text-align:left">
+      👉 La variable est dans une relation de puissance.
+      <br><br>
+      On applique l’opération inverse : racine ou exponentiation fractionnaire.
+      </div>
+      `;
       break;
 
-    case "log":
-      explanation =
-        "👉 On utilise les propriétés du logarithme.";
+    /* =========================================================
+       LOG
+    ========================================================= */
+
+    case EXPRESSION_TYPES.LOG:
+      explanation = `
+      <div style="text-align:left">
+      👉 La variable est dans un logarithme.
+      <br><br>
+      On utilise l’exponentielle pour inverser le log.
+      </div>
+      `;
       break;
 
-    case "exp":
-      explanation =
-        "👉 On applique le logarithme népérien.";
+    /* =========================================================
+       EXP
+    ========================================================= */
+
+    case EXPRESSION_TYPES.EXP:
+      explanation = `
+      <div style="text-align:left">
+      👉 La variable est dans une exponentielle.
+      <br><br>
+      On applique le logarithme pour l’isoler.
+      </div>
+      `;
       break;
 
-    case "sum":
-      explanation =
-        "👉 On isole d’abord le terme contenant la variable.";
+    /* =========================================================
+       SOMME (BERNOULLI / énergie etc.)
+    ========================================================= */
+
+    case EXPRESSION_TYPES.SUM:
+      explanation = `
+      <div style="text-align:left">
+      👉 L’expression est une somme avec une constante.
+      <br><br>
+      On isole le terme contenant la variable en réorganisant l’équation.
+      </div>
+      `;
       break;
+
+    /* =========================================================
+       FRACTION INVERSE (lentilles etc.)
+    ========================================================= */
+
+    case EXPRESSION_TYPES.RECIPROCAL_SUM:
+      explanation = `
+      <div style="text-align:left">
+      👉 La relation est une somme de fractions inverses.
+      <br><br>
+      On regroupe les inverses puis on inverse l’expression finale.
+      </div>
+      `;
+      break;
+
+    /* =========================================================
+       FALLBACK
+    ========================================================= */
 
     default:
-      explanation =
-        "👉 On réorganise l’équation.";
+      explanation = `
+      <div style="text-align:left">
+      👉 On utilise la structure de l’équation pour isoler la variable.
+      </div>
+      `;
   }
 
   fb.innerHTML = `
 
     ❌ <b>Mauvaise réponse</b><br><br>
 
-    Regardons ensemble la démarche 👇<br><br>
+    Regardons la méthode 👇<br><br>
 
-    🧠 À partir de l’expression : \\(${toLatex(q.expr)}\\)<br><br>
+    🧠 À partir de : \\(${toLatex(q.expr)}\\)<br><br>
 
     ${explanation}
 
     <br><br>
 
-    ✔ Bonne réponse :
-
-    <br><br>
+    ✔ Bonne réponse :<br><br>
 
     \\[
-      ${toLatex(solved.result)}
+      ${toLatex(solveQuestion(q, q.target).result)}
     \\]
 
   `;
 
   if (window.MathJax) {
-
     setTimeout(() => {
-
-      if (MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-      } else {
-        MathJax.typeset();
-      }
-
-    },0);
+      MathJax.typesetPromise?.() || MathJax.typeset();
+    }, 0);
   }
 }
 
@@ -1165,26 +1239,16 @@ function startTimer() {
 
   timer = setInterval(() => {
 
-    if (gameOver) {
-
-      clearInterval(timer);
-      return;
-    }
+    if (gameOver) return;
 
     timeLeft--;
 
-    const t =
-      document.getElementById("timer");
+    const t = document.getElementById("timer");
+    if (t) t.textContent = timeLeft + "s";
 
-    if (t)
-      t.textContent =
-        timeLeft + "s";
+    if (timeLeft <= 0) endGame();
 
-    if (timeLeft <= 0) {
-      endGame();
-    }
-
-  },1000);
+  }, 1000);
 }
 
 /* =========================================================
@@ -1195,24 +1259,21 @@ function startGame() {
 
   clearInterval(timer);
 
+  QUESTIONS.forEach(q => {
+    if (q.image) new Image().src = q.image;
+  });
+
   score = 0;
   current = 0;
-
   gameOver = false;
-
   timeLeft = 180;
-
-  const startBtn =
-    document.getElementById("startBtn");
-
-  if (startBtn)
-    startBtn.disabled = true;
 
   generateQuestion();
 
-  load();
-
-  updateUI();
+  requestAnimationFrame(() => {
+    load();
+    updateUI();
+  });
 
   startTimer();
 }
@@ -1224,37 +1285,21 @@ function startGame() {
 function endGame() {
 
   if (gameOver) return;
-
   gameOver = true;
 
   clearInterval(timer);
 
-  const startBtn =
-    document.getElementById("startBtn");
+  let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
 
-  if (startBtn)
-    startBtn.disabled = false;
-
-  let ranking =
-    JSON.parse(
-      localStorage.getItem("ranking") || "[]"
-    );
-
-  ranking.push({score});
+  ranking.push({ score });
 
   ranking.sort((a,b) => b.score - a.score);
 
-  localStorage.setItem(
-    "ranking",
-    JSON.stringify(ranking)
-  );
+  localStorage.setItem("ranking", JSON.stringify(ranking));
 
   setTimeout(() => {
-
-    window.location.href =
-      "gameover.html?score=" + score;
-
-  },5000);
+    window.location.href = "gameover.html?score=" + score;
+  }, 8000);
 }
 
 /* =========================================================
