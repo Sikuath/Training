@@ -416,18 +416,37 @@ function solveQuestion(q, target) {
       const left = q.left;
       const right = q.right;
 
-      const all = [...left, ...right];
+      // cible à gauche
+      if (left.includes(target)) {
 
-      if (!all.includes(target)) break;
+        const otherLeft =
+          left.find(x => x !== target);
 
-      const others =
-        all.filter(x => x !== target);
+        return {
+          result:
+            cleanExpr(
+              `${target} = (${right.join("*")})/${otherLeft}`
+            ),
+          type:"cross"
+        };
+      }
 
-      return {
-        result:
-          cleanExpr(`${target} = (${others[0]}*${others[1]})/${others[2]}`),
-        type:"cross"
-      };
+      // cible à droite
+      if (right.includes(target)) {
+
+        const otherRight =
+          right.find(x => x !== target);
+
+        return {
+          result:
+            cleanExpr(
+              `${target} = (${left.join("*")})/${otherRight}`
+            ),
+          type:"cross"
+        };
+      }
+
+      break;
     }
 
     /* =========================================
