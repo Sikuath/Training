@@ -1,3 +1,12 @@
+/* =========================================================
+   PHYSICS TRAINER - MOTEUR ALGÉBRIQUE PAR FAMILLES
+   VERSION REFAITE COMPLÈTEMENT
+========================================================= */
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
 let score = 0;
 let current = 0;
 
@@ -8,252 +17,244 @@ let gameOver = false;
 
 let currentQuestion = null;
 
-/* =========================
+/* =========================================================
+   TYPES D'EXPRESSIONS
+========================================================= */
+
+const EXPRESSION_TYPES = {
+
+  PRODUCT:
+    "product",
+
+  FRACTION:
+    "fraction",
+
+  PRODUCT_FRACTION:
+    "product_fraction",
+
+  CROSS:
+    "cross",
+
+  POWER:
+    "power",
+
+  PRODUCT_POWER:
+    "product_power",
+
+  SUM:
+    "sum",
+
+  LOG:
+    "log",
+
+  EXP:
+    "exp",
+
+  RECIPROCAL_SUM:
+    "reciprocal_sum"
+
+};
+
+/* =========================================================
    BASE DE DONNÉES
-========================= */
+========================================================= */
 
 const QUESTIONS = [
 
-  // 1. LOI D'OHM
-  //{ difficulty: "easy", domain: "electricite", expr: "U = R*I", baseVars: ["U", "R", "I"], targetPool: ["R", "I"], law: "Loi d’Ohm", image: "./images/ohm.jpg" },
+{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
 
-  // 2. MASSE VOLUMIQUE
-  //{ difficulty:"easy", domain:"chimie", expr:"rho = m/V", baseVars:["rho", "m","V"], targetPool:["m","V"], law:"Masse volumique", image:"./images/masse_volumique.jpg" },
+// 2
+//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
 
-  // 3. DENSITÉ
-  //{ difficulty:"easy", domain:"chimie", expr:"d = rho/rho0", baseVars:["d","rho","rho0"], targetPool:["rho", "rho0"], law:"Densité", image:"./images/densite.jpg" },
+// 3
+//{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d = rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"] },
 
-  // 4. CONCENTRATION MASSIQUE
-  //{ difficulty:"easy", domain:"chimie", expr:"t = msolute/Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], law:"Concentration massique", image:"./images/concentration_massique.jpg" },
+// 4
+//{ difficulty:"easy", domain:"chimie", law:"Concentration massique", image:"./images/concentration_massique.jpg", expr:"t = msolute/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"t", numerator:"msolute", denominator:"Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"] },
 
-  // 5. CONCENTRATION MOLAIRE
-  //{ difficulty:"easy", domain:"chimie", expr:"C = nsolute/Vsolution", baseVars:["C","nsolute","Vsolution"], targetPool:["nsolute","Vsolution"], law:"Concentration molaire", image:"./images/concentration_molaire.jpg" },
+// 5
+//{ difficulty:"easy", domain:"chimie", law:"Concentration molaire", image:"./images/concentration_molaire.jpg", expr:"C = nsolute/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"C", numerator:"nsolute", denominator:"Vsolution", baseVars:["C","nsolute","Vsolution"], targetPool:["nsolute","Vsolution"] },
 
-  // 6. QUANTITÉ DE MATIÈRE
-  //{ difficulty:"easy", domain:"chimie", expr:"n = m/M", baseVars:["n","m","M"], targetPool:["m","M"], law:"Quantité de matière", image:"./images/quantite_matiere.jpg" },
+// 6
+//{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n = m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"] },
 
-  // 7. DILUTION
-  //{ difficulty:"medium", domain:"chimie", expr:"C1*V1 = C2*V2", baseVars:["C1","V1","C2","V2"], targetPool:["C1","C2","V1","V2"], law:"Dilution", image:"./images/dilution.jpg" },
+// 7
+//{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1 = C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"] },
 
-  // 8. POIDS
-  //{ difficulty:"easy", domain:"forces", expr:"P = m*g", baseVars:["P","m","g"], targetPool:["m","g"], law:"Poids", image:"./images/poids.jpg" },
+// 8
+//{ difficulty:"easy", domain:"forces", law:"Poids", image:"./images/poids.jpg", expr:"P = m*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["m","g"], baseVars:["P","m","g"], targetPool:["m","g"] },
 
-  // 9. FORCE GRAVITATIONNELLE
-   { difficulty:"medium", domain:"gravitation", expr:"F = G*m1*m2/r^2", baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], law:"Gravitation de Newton", image:"./images/gravitation.jpg" },
+// 9
+//{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F = G*m1*m2/r^2", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"] },
 
-  // 10. DOPPLER (simplifié)
-  // { difficulty:"hard", domain:"ondes", expr:"f' = f \\frac{v+vr}{v+vs}", baseVars:["f'","f","v","vr","vs"], targetPool:["f"], law:"Effet Doppler", image:"./images/doppler.jpg" },
+// 10
+//{ difficulty:"hard", domain:"ondes", law:"Effet Doppler", image:"./images/doppler.jpg", expr:"f' = f*(v+vr)/(v+vs)", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"f'", numerator:["f","(v+vr)"], denominator:"(v+vs)", baseVars:["f'","f","v","vr","vs"], targetPool:["f"] },
 
-  // 11. SNELL DESCARTES
-  // { difficulty:"medium", domain:"ondes", expr:"n1 \\sin(i) = n2 \\sin(r)", baseVars:["n1","n2","i","r"], targetPool:["n1","n2"], law:"Réfraction", image:"./images/refraction.jpg" },
+// 11
+//{ difficulty:"medium", domain:"ondes", law:"Réfraction", image:"./images/refraction.jpg", expr:"n1*sin(i) = n2*sin(r)", type:EXPRESSION_TYPES.CROSS, left:["n1","sin(i)"], right:["n2","sin(r)"], baseVars:["n1","n2","sin(i)","sin(r)"], targetPool:["n2","sin(i)","sin(r)"] },
 
-  // 12. GRANDISSEMENT LENTILLE
-  // { difficulty:"medium", domain:"lentilles", expr:"G = A'B' / AB", baseVars:["G","A'B'","AB"], targetPool:["G"], law:"Grandissement", image:"./images/lens.jpg" },
+// 12
+//{ difficulty:"medium", domain:"lentilles", law:"Grandissement", image:"./images/lens.jpg", expr:"G = A1B1/AB", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"A1B1", denominator:"AB", baseVars:["G","A1B1","AB"], targetPool:["A1B1","AB"] },
 
-  // 13. BEER LAMBERT
-  // { difficulty:"hard", domain:"chimie", expr:"A = epsilon l C", baseVars:["A","epsilon","l","C"], targetPool:["C"], law:"Beer-Lambert", image:"./images/spectroscopie.jpg" },
+// 13
+//{ difficulty:"hard", domain:"chimie", law:"Beer-Lambert", image:"./images/spectroscopie.jpg", expr:"A = epsilon*l*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"A", factors:["epsilon","l","C"], baseVars:["A","epsilon","l","C"], targetPool:["C"] },
 
-  // 14. TITRAGE
-  // { difficulty:"medium", domain:"chimie", expr:"nA/a = nB/b", baseVars:["nA","nB","a","b"], targetPool:["nA","nB"], law:"Titrage", image:"./images/titrage.jpg" },
+// 14
+//{ difficulty:"medium", domain:"chimie", law:"Titrage", image:"./images/titrage.jpg", expr:"nA/a = nB/b", type:EXPRESSION_TYPES.CROSS, left:["nA","b"], right:["nB","a"], baseVars:["nA","nB","a","b"], targetPool:["nA","nB"] },
 
-  // 15. THERMIQUE
-  // { difficulty:"medium", domain:"energie", expr:"Q = m c (Tf - Ti)", baseVars:["Q","m","c","Tf","Ti"], targetPool:["m","Q"], law:"Chaleur", image:"./images/chaleur.jpg" },
+// 15
+//{ difficulty:"medium", domain:"energie", law:"Chaleur", image:"./images/chaleur.jpg", expr:"Q = m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT, lhs:"Q", factors:["m","c","(Tf-Ti)"], baseVars:["Q","m","c","Tf","Ti"], targetPool:["m"] },
 
-  // 16. COULOMB
-  // { difficulty:"medium", domain:"electricite", expr:"F = k \\frac{q1 q2}{r^2}", baseVars:["F","q1","q2","r"], targetPool:["r","q1"], law:"Coulomb", image:"./images/coulomb.jpg" },
+// 16
+//{ difficulty:"medium", domain:"electricite", law:"Coulomb", image:"./images/coulomb.jpg", expr:"F = k*q1*q2/r^2", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"] },
 
-  // 17. STATIQUE FLUIDES
-  // { difficulty:"medium", domain:"fluide", expr:"P = rho g h", baseVars:["P","rho","g","h"], targetPool:["h"], law:"Hydrostatique", image:"./images/hydrostatique.jpg" },
+// 17
+//{ difficulty:"medium", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P = rho*g*h", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["h","rho"] },
 
-  // 18. MARIOTTE
-  // { difficulty:"medium", domain:"thermodynamique", expr:"P V = cste", baseVars:["P","V"], targetPool:["P","V"], law:"Boyle-Mariotte", image:"./images/manometre.jpg" },
+// 18
+//{ difficulty:"medium", domain:"thermodynamique", law:"Boyle-Mariotte", image:"./images/manometre.jpg", expr:"P*V = k", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["k","1"], baseVars:["P","V","k"], targetPool:["P","V"] },
 
-  // 19. PUISSANCE
-  // { difficulty:"easy", domain:"energie", expr:"P = E / t", baseVars:["P","E","t"], targetPool:["E","t"], law:"Puissance", image:"./images/puissance.jpg" },
+// 19
+//{ difficulty:"easy", domain:"energie", law:"Puissance", image:"./images/puissance.jpg", expr:"P = E/deltat", type:EXPRESSION_TYPES.FRACTION, lhs:"P", numerator:"E", denominator:"deltat", baseVars:["P","E","deltat"], targetPool:["E","deltat"] },
 
-  // 20. JOULE
-  // { difficulty:"easy", domain:"electricite", expr:"E = R I^2 t", baseVars:["E","R","I","t"], targetPool:["E","R"], law:"Effet Joule", image:"./images/joule.jpg" },
+// 20
+//{ difficulty:"easy", domain:"electricite", law:"Effet Joule", image:"./images/joule.jpg", expr:"E = R*I^2*deltat", type:EXPRESSION_TYPES.PRODUCT_POWER, lhs:"E", factors:["R","deltat"], poweredVar:"I", power:2, baseVars:["E","R","I","deltat"], targetPool:["R","I","deltat"] },
 
-  // 21. CINÉTIQUE
-  // { difficulty:"easy", domain:"energie", expr:"Ec = 1/2 m v^2", baseVars:["Ec","m","v"], targetPool:["m","v"], law:"Énergie cinétique", image:"./images/energie_cinetique.jpg" },
+// 21
+//{ difficulty:"easy", domain:"energie", law:"Énergie cinétique", image:"./images/energie_cinetique.jpg", expr:"Ec = 1/2*m*v^2", type:EXPRESSION_TYPES.PRODUCT_POWER, lhs:"Ec", constant:"1/2", factors:["m"], poweredVar:"v", power:2, baseVars:["Ec","m","v"], targetPool:["m","v"] },
 
-  // 22. POTENTIEL PESANTEUR
-  // { difficulty:"easy", domain:"energie", expr:"Ep = m g h", baseVars:["Ep","m","h"], targetPool:["m","h"], law:"Énergie potentielle", image:"./images/energie_pot_pes.jpg" },
+// 22
+//{ difficulty:"easy", domain:"energie", law:"Énergie potentielle", image:"./images/energie_pot_pes.jpg", expr:"Ep = m*g*h", type:EXPRESSION_TYPES.PRODUCT, lhs:"Ep", factors:["m","g","h"], baseVars:["Ep","m","g","h"], targetPool:["m","h"] },
 
-  // 23. ONDE
-  // { difficulty:"easy", domain:"ondes", expr:"v = lambda f", baseVars:["v","lambda","f"], targetPool:["lambda","f"], law:"Célérité onde", image:"./images/celerite.jpg" },
+// 23
+//{ difficulty:"easy", domain:"ondes", law:"Célérité onde", image:"./images/celerite.jpg", expr:"v = lambda*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"v", factors:["lambda","f"], baseVars:["v","lambda","f"], targetPool:["lambda","f"] },
 
-  // 24. PHOTON
-  // { difficulty:"hard", domain:"quantique", expr:"E = h f", baseVars:["E","h","f"], targetPool:["E","f"], law:"Photon", image:"./images/energie_photon.jpg" },
+// 24
+//{ difficulty:"hard", domain:"quantique", law:"Photon", image:"./images/energie_photon.jpg", expr:"E = h*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"E", factors:["h","f"], baseVars:["E","h","f"], targetPool:["f"] },
 
-  // 25. RADIOACTIVITÉ
-  // { difficulty:"hard", domain:"quantique", expr:"N = N0 e^{-lambda t}", baseVars:["N","N0","t"], targetPool:["t"], law:"Radioactivité", image:"./images/radio.jpg" },
+// 25
+//{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N = N0*e^(-lambda*t)", type:EXPRESSION_TYPES.EXP, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t"] },
 
-  // 26. PH
-  // { difficulty:"medium", domain:"chimie", expr:"pH = -log(H+)", baseVars:["pH","H+"], targetPool:["H+"], law:"pH", image:"./images/acidite.jpg" },
+// 26
+//{ difficulty:"medium", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr:"pH = -log(H+)", type:EXPRESSION_TYPES.LOG, lhs:"pH", variable:"H+", baseVars:["pH","H+"], targetPool:["H+"] },
 
-  // 27. KEPLER 3
-  // { difficulty:"hard", domain:"gravitation", expr:"T^2 = k R^3", baseVars:["T","R"], targetPool:["R","T"], law:"Kepler III", image:"./images/kepler.jpg" },
+// 27
+//{ difficulty:"hard", domain:"gravitation", law:"Kepler III", image:"./images/kepler.jpg", expr:"T^2 = k*R^3", type:EXPRESSION_TYPES.POWER, leftVar:"T", leftPower:2, coefficient:"k", rightVar:"R", rightPower:3, baseVars:["T","R","k"], targetPool:["R","T"] },
 
-  // 28. BERNOULLI
-  // { difficulty:"hard", domain:"fluide", expr:"P + 1/2 rho v^2 = cste", baseVars:["P","v","rho"], targetPool:["v"], law:"Bernoulli", image:"./images/bernoulli.jpg" },
+// 28
+//{ difficulty:"hard", domain:"fluide", law:"Bernoulli", image:"./images/bernoulli.jpg", expr:"P + 1/2*rho*v^2 = k", type:EXPRESSION_TYPES.SUM, targetFormula:"v = sqrt((2*(k-P))/rho)", baseVars:["P","rho","v","k"], targetPool:["v"] },
 
-  // 29. ARCHIMEDE
-  // { difficulty:"medium", domain:"fluide", expr:"F = rho V g", baseVars:["F","rho","V"], targetPool:["V"], law:"Poussée Archimède", image:"./images/archimede.jpg" },
+// 29
+//{ difficulty:"medium", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa = rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"] },
 
-  // 30. VENTURI
-  // { difficulty:"hard", domain:"fluide", expr:"v1 S1 = v2 S2", baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2"], law:"Venturi", image:"./images/venturi.jpg" },
+// 30
+//{ difficulty:"hard", domain:"fluide", law:"Venturi", image:"./images/venturi.jpg", expr:"v1*S1 = v2*S2", type:EXPRESSION_TYPES.CROSS, left:["v1","S1"], right:["v2","S2"], baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2","S1","S2"] },
 
-  // 31. GAZ PARFAIT
-  // { difficulty:"hard", domain:"thermodynamique", expr:"PV = nRT", baseVars:["P","V","n","T"], targetPool:["n","T"], law:"Gaz parfait", image:"./images/gaz_parfait.jpg" },
+// 31
+//{ difficulty:"hard", domain:"thermodynamique", law:"Gaz parfait", image:"./images/gaz_parfait.jpg", expr:"P*V = n*R*T", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["n","R*T"], baseVars:["P","V","n","R","T"], targetPool:["P","V","n","T"] },
 
-  // 32. STEFAN BOLTZMANN
-  // { difficulty:"hard", domain:"energie", expr:"P = sigma T^4", baseVars:["P","T"], targetPool:["T"], law:"Rayonnement", image:"./images/stefan.jpg" },
+// 32
+//{ difficulty:"hard", domain:"energie", law:"Rayonnement", image:"./images/stefan.jpg", expr:"P = sigma*T^4", type:EXPRESSION_TYPES.POWER, lhs:"P", coefficient:"sigma", variable:"T", power:4, baseVars:["P","sigma","T"], targetPool:["T"] },
 
-  // 33. RC
-  // { difficulty:"hard", domain:"electricite", expr:"tau = R C", baseVars:["tau","R","C"], targetPool:["R","C"], law:"Circuit RC", image:"./images/rc.jpg" },
+// 33
+//{ difficulty:"hard", domain:"electricite", law:"Circuit RC", image:"./images/rc.jpg", expr:"tau = R*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"tau", factors:["R","C"], baseVars:["tau","R","C"], targetPool:["R","C"] },
 
-  // 34. DIFFRACTION
-  // { difficulty:"hard", domain:"ondes", expr:"theta = lambda / a", baseVars:["theta","lambda","a"], targetPool:["a"], law:"Diffraction", image:"./images/diffraction.jpg" },
+// 34
+//{ difficulty:"hard", domain:"ondes", law:"Diffraction", image:"./images/diffraction.jpg", expr:"theta = lambda/a", type:EXPRESSION_TYPES.FRACTION, lhs:"theta", numerator:"lambda", denominator:"a", baseVars:["theta","lambda","a"], targetPool:["lambda","a"] },
 
-  // 35. INTERFÉRENCE
-  // { difficulty:"hard", domain:"ondes", expr:"i = lambda D / a", baseVars:["i","lambda","D","a"], targetPool:["a"], law:"Interférences", image:"./images/interference.jpg" },
+// 35
+//{ difficulty:"hard", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i = lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", numerator:["lambda","D"], denominator:"b", baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"] },
 
-  // 36. SON
-  // { difficulty:"medium", domain:"ondes", expr:"L = 10 log(I/I0)", baseVars:["L","I"], targetPool:["I"], law:"Intensité sonore", image:"./images/son.jpg" },
+// 36
+//{ difficulty:"medium", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L = 10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"] },
 
-  // 37. ACCÉLÉRATION NORMALE
-  // { difficulty:"medium", domain:"mouvement", expr:"a = v^2 / R", baseVars:["a","v","R"], targetPool:["R"], law:"Mouvement circulaire", image:"/.images/acceleration_normale.jpg" },
+// 37
+//{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a = v^2/R", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"a", numerator:["v"], numeratorPower:2, denominator:"R", baseVars:["a","v","R"], targetPool:["v","R"] },
 
-  // 38. CHARGE ÉLECTRIQUE
-  // { difficulty:"easy", domain:"electricite", expr:"q = n e", baseVars:["q","n"], targetPool:["n"], law:"Charge électrique", image:"./images/quantite_elec.jpg" },
+// 38
+//{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q = n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"] },
 
-  // 39. LENTILLE
-  // { difficulty:"hard", domain:"lentilles", expr:"1/f = 1/d0 + 1/di", baseVars:["f","d0","di"], targetPool:["d0","di"], law:"Conjugaison", image:"./images/lens1.jpg" },
+// 39
+//{ difficulty:"hard", domain:"lentilles", law:"Conjugaison", image:"./images/lens1.jpg", expr:"1/f = 1/d0 + 1/di", type:EXPRESSION_TYPES.RECIPROCAL_SUM, baseVars:["f","d0","di"], targetPool:["f"] },
 
-  // 40. GROSSISSEMENT LUNETTE
-  // { difficulty:"hard", domain:"optique", expr:"G = fo / fe", baseVars:["G","fo","fe"], targetPool:["G"], law:"Lunette astronomique", image:"./images/lunette.jpg" },
+// 40
+//{ difficulty:"hard", domain:"optique", law:"Lunette astronomique", image:"./images/lunette.jpg", expr:"G = fo/fe", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"fo", denominator:"fe", baseVars:["G","fo","fe"], targetPool:["fo","fe"]}
+
 
 ];
 
-/* =========================
-   SYMBOLES GRECS CENTRALISÉS
-========================= */
-
-/* =========================
-   SYSTÈME DE SYMBOLES UNIFIÉ
-========================= */
+/* =========================================================
+   SYMBOLS
+========================================================= */
 
 const LATEX_SYMBOLS = {
 
-  // Grecs
-  alpha: "\\alpha",
-  beta: "\\beta",
-  gamma: "\\gamma",
-  delta: "\\delta",
-  epsilon: "\\epsilon",
-  theta: "\\theta",
-  lambda: "\\lambda",
-  mu: "\\mu",
-  pi: "\\pi",
   rho: "\\rho",
   rho0: "\\rho_0",
+
+  lambda: "\\lambda",
+  theta: "\\theta",
   sigma: "\\sigma",
   tau: "\\tau",
-  phi: "\\phi",
-  omega: "\\omega",
+  epsilon: "\\epsilon",
+  deltat: "\\Delta t",
 
-  // Variables indices
+  m1: "m_1",
+  m2: "m_2",
   msolute: "m_{solute}",
   nsolute: "n_{solute}",
   Vsolution: "V_{solution}",
+  q1: "q_1",
+  q2: "q_2",
   C1: "C_1",
   C2: "C_2",
   V1: "V_1",
   V2: "V_2",
-  m1: "m_1",
-  m2: "m_2"
+  S1: "S_1",
+  S2: "S_2",
+  v1: "v_1",
+  v2: "v_2",
+  I0: "I_0"
 
 };
 
-/* =========================
-   EXTRACTEUR DE NOMBRE DE VARIABLES
-========================= */
+/* =========================================================
+   CLEAN
+========================================================= */
 
-function getDistractorVars(q, target) {
+function cleanExpr(str) {
 
-  const vars = q.baseVars.filter(v => v !== target);
+  if (!str) return "";
 
-  // Cas spécial 4 variables (type dilution)
-  if (q.baseVars.length === 4) {
-    return {
-      a: q.baseVars[0],
-      b: q.baseVars[1],
-      c: q.baseVars[2],
-      d: q.baseVars[3],
-      mode: "quad"
-    };
-  }
+  return str
+    // enlève les parenthèses inutiles autour d’un seul bloc simple
+    .replace(/\(([^()]+)\)/g, "$1")
 
-  // Cas standard (2 variables utiles)
-  return {
-    a: vars[0] || "x",
-    b: vars[1] || "y",
-    mode: "simple"
-  };
+    // enlève les doubles parenthèses issues des joins
+    .replace(/\(\s*([a-zA-Z0-9_^*/+-]+)\s*\)/g, "$1")
+
+    // nettoie espaces
+    .replace(/\s+/g, " ");
 }
 
-function canonicalizeProducts(expr) {
-
-  // transforme a*b en ordre alphabétique
-  return expr.replace(
-    /([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g,
-    (_, a, b) => {
-      return [a, b].sort().join("*");
-    }
-  );
-}
+/* =========================================================
+   NORMALIZE
+========================================================= */
 
 function normalizeExpr(str) {
 
   if (!str) return "";
 
-  let out = str;
-
-  Object.entries(LATEX_SYMBOLS).forEach(([k,v]) => {
-
-    const escaped = v
-      .replace(/\\/g, "\\\\")
-      .replace(/{/g, "\\{")
-      .replace(/}/g, "\\}");
-
-    out = out.replace(
-      new RegExp(escaped, "g"),
-      k
-    );
-
-  });
-
-  out = out
-    .replace(/\\times/g, "*")
-    .replace(/\\frac{([^}]*)}{([^}]*)}/g, "($1)/($2)")
-    .replace(/\s+/g, "")
-    .replace(/[{}]/g, "")
-    .trim();
-
-  // 🔥 AJOUT IMPORTANT
-  out = canonicalizeProducts(out);
-
-  return out;
+  return str
+    .replace(/\s+/g,"")
+    .replace(/\\times/g,"*")
+    .replace(/[{}]/g,"")
+    .toLowerCase();
 }
 
-function normalizeLatex(str) {
-  return normalizeExpr(str);
-}
-
-/* =========================
+/* =========================================================
    LATEX
-========================= */
+========================================================= */
 
 function toLatex(str) {
 
@@ -261,10 +262,7 @@ function toLatex(str) {
 
   let out = str;
 
-  // =========================
-  // Symboles
-  // =========================
-  Object.entries(LATEX_SYMBOLS).forEach(([k, v]) => {
+  Object.entries(LATEX_SYMBOLS).forEach(([k,v]) => {
 
     const regex = new RegExp(
       `(?<![a-zA-Z0-9_])${k}(?![a-zA-Z0-9_])`,
@@ -272,817 +270,781 @@ function toLatex(str) {
     );
 
     out = out.replace(regex, v);
-
   });
 
-// =========================
-// Supprime parenthèses inutiles
-// ex : (a*b) -> a*b
-// mais garde (a+b)
-// =========================
+  out = out.replace(/\*/g," \\times ");
+
   out = out.replace(
-    /\(([a-zA-Z0-9_*\\{}]+)\)/g,
-    "$1"
-  );
-
-  // =========================
-  // PUISSANCES AVANT FRACTIONS
-  // =========================
-  out = out.replace(
-    /\^([a-zA-Z0-9]+)/g,
-    "^{$1}"
-  );
-
-  // =========================
-  // Fractions
-  // =========================
-  out = out.replace(
-    /([a-zA-Z0-9_\\{}()*]+)\s*\/\s*([a-zA-Z0-9_\\{}^()*]+)/g,
-    "\\frac{$1}{$2}"
-  );
-
-  // =========================
-  // Multiplication
-  // =========================
-  out = out.replace(/\*/g, " \\times ");
-
-  // =========================
-  // Fractions complexes
-  // ex : (C2*V2)/V1
-  // =========================
-
-out = out.replace(
-    /\(([^()]+)\)\s*\/\s*([a-zA-Z0-9_\\{}]+)/g,
-    "\\frac{$1}{$2}"
-  );
-
-  // =========================
-  // sqrt(x)
-  // =========================
-  out = out.replace(
-    /sqrt\(([^)]+)\)/g,
+    /sqrt\((.*?)\)/g,
     "\\sqrt{$1}"
+  );
+
+  out = out.replace(
+    /([a-zA-Z0-9_()+-]+)\/([a-zA-Z0-9_()+-]+)/g,
+    "\\frac{$1}{$2}"
+  );
+
+  out = out.replace(
+    /\^([0-9]+)/g,
+    "^{$1}"
   );
 
   return out;
 }
 
-/* =========================
-   PARSER
-========================= */
-
-function parseExpr(expr) {
-
-  return normalizeExpr(expr)
-    .replace(/\\times/g, "*");
-
-}
-
-/* =========================
-   UTIL VARIABLES
-========================= */
-
-function getVars(q, target) {
-  const clean = v => v.replace(/\\/g, "");
-  return q.baseVars.filter(v => clean(v) !== clean(target));
-}
-
-function generateFractions(vars) {
-
-  const res = [];
-
-  if (!vars || vars.length < 3) return res;
-
-  const n = vars.length;
-
-  for (let i = 0; i < n; i++) {
-
-    const denom = vars[i];
-
-    const numerators = vars.filter((_, j) => j !== i);
-
-    for (let a = 0; a < numerators.length; a++) {
-      for (let b = a + 1; b < numerators.length; b++) {
-
-        res.push(`(${numerators[a]}*${numerators[b]})/${denom}`);
-
-      }
-    }
-  }
-
-  return res;
-}
+/* =========================================================
+   SHUFFLE
+========================================================= */
 
 function shuffle(array) {
-  const arr = [...array]; // évite de modifier l’original
+
+  const arr = [...array];
 
   for (let i = arr.length - 1; i > 0; i--) {
+
     const j = Math.floor(Math.random() * (i + 1));
+
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 
   return arr;
 }
-function pushUnique(arr, expr) {
 
-  const norm = normalizeLatex(expr);
+/* =========================================================
+   SOLVER CENTRAL
+========================================================= */
 
-  const exists = arr.some(
-    e => normalizeLatex(e) === norm
-  );
+function solveQuestion(q, target) {
 
-  if (!exists) {
-    arr.push(expr);
-  }
-}
+  switch(q.type) {
 
-/* =========================
-   ICONES
-========================= */
+    /* =========================================
+       PRODUIT
+    ========================================= */
 
-function formatDomain(domain) {
+    case EXPRESSION_TYPES.PRODUCT: {
 
-  const d = domain.toLowerCase();
+      const others =
+        q.factors.filter(f => f !== target);
 
-  if (d.includes("chimie")) return "⚗️ Chimie";
-  if (d.includes("atomistique")) return "⚛️ Atomistique";
-  if (d.includes("synthese")) return "🧬 Synthèse chimique";
+      if (q.factors.includes(target)) {
 
-  if (d.includes("mouvement")) return "🏃 Mouvement";
-  if (d.includes("forces")) return "💪 Forces";
-
-  if (d.includes("onde")) return "🌊 Ondes";
-  if (d.includes("lentilles")) return "🔭 Lentilles";
-
-  if (d.includes("electricite")) return "⚡ Électricité";
-  if (d.includes("gravitation")) return "🌍 Gravitation";
-
-  if (d.includes("fluide")) return "💧 Fluides";
-
-  if (d.includes("thermodynam")) return "🔥 Thermodynamique";
-
-  if (d.includes("quantique")) return "🧠 Quantique";
-
-  if (d.includes("energie")) return "⚙️ Énergie";
-
-  return "📚 Physique";
-}
-
-/* =========================
-   SOLVEUR
-========================= */
-
-function solveUniversal(q, target) {
-
-  const clean = v => {
-
-    if (!v) return "";
-
-    return normalizeExpr(v)
-      .replace(/[()]/g, "")
-      .trim();
-  };
-
-  const e = parseExpr(q.expr);
-
-  const partsEq = e.split("=");
-
-  if (partsEq.length !== 2) {
-
-    return {
-      result: `${target} = ?`,
-      type: "parse_error"
-    };
-  }
-
-  const L = partsEq[0].trim();
-  const R = partsEq[1].trim();
-
-  const targetC = clean(target);
-
-  // =========================
-  // PRODUIT DES DEUX CÔTÉS
-  // ex : C1*V1 = C2*V2
-  // =========================
-
-  if (L.includes("*") && R.includes("*")) {
-
-    const leftParts = L.split("*").map(s => s.trim());
-    const rightParts = R.split("*").map(s => s.trim());
-
-    if (leftParts.length === 2 && rightParts.length === 2) {
-
-      const [a, b] = leftParts;
-      const [c, d] = rightParts;
-
-      // C1
-      if (clean(a) === targetC) {
         return {
-          result: `${a} = (${c}*${d})/${b}`,
-          type: "cross_division"
+          result:
+            cleanExpr(`${target} = ${q.lhs}/${others.join("*")}`),
+          type:"division"
         };
       }
 
-      // V1
-      if (clean(b) === targetC) {
-        return {
-          result: `${b} = (${c}*${d})/${a}`,
-          type: "cross_division"
-        };
-      }
-
-      // C2
-      if (clean(c) === targetC) {
-        return {
-          result: `${c} = (${a}*${b})/${d}`,
-          type: "cross_division"
-        };
-      }
-
-      // V2
-      if (clean(d) === targetC) {
-        return {
-          result: `${d} = (${a}*${b})/${c}`,
-          type: "cross_division"
-        };
-      }
+      break;
     }
-  }
 
-  // =========================
-  // PRODUIT SIMPLE
-  // =========================
+    /* =========================================
+       FRACTION
+    ========================================= */
 
-  if (R.includes("*") && !R.includes("/")) {
+    case EXPRESSION_TYPES.FRACTION: {
 
-    const parts = R.split("*");
-
-    if (parts.length === 2) {
-
-      const a = parts[0].trim();
-      const b = parts[1].trim();
-
-      if (clean(a) === targetC) {
+      if (target === q.numerator) {
 
         return {
-          result: `${a} = ${L}/${b}`,
-          type: "division"
+          result:
+            `${target} = ${q.lhs}*${q.denominator}`,
+          type:"multiply_fraction"
         };
       }
 
-      if (clean(b) === targetC) {
+      if (target === q.denominator) {
 
         return {
-          result: `${b} = ${L}/${a}`,
-          type: "division"
+          result:
+            `${target} = ${q.numerator}/${q.lhs}`,
+          type:"inverse_fraction"
         };
       }
+
+      break;
     }
-  }
 
-  // =========================
-  // FRACTION
-  // =========================
+    /* =========================================
+       CROSS
+    ========================================= */
 
-  if (R.includes("/")) {
+    case EXPRESSION_TYPES.CROSS: {
 
-    const frac = R.match(/^(.+)\/(.+)$/);
+      const left = q.left;
+      const right = q.right;
 
-    if (frac) {
+      const all = [...left, ...right];
 
-      const a = frac[1].trim();
-      const b = frac[2].trim();
-// =========================
-// CAS r^2 AU DENOMINATEUR
-// =========================
+      if (!all.includes(target)) break;
 
-const powDenom = b.match(/^([a-zA-Z0-9_\\]+)\^(\d+)$/);
-
-if (powDenom) {
-
-  const base = powDenom[1];
-  const n = parseInt(powDenom[2]);
-
-  if (clean(base) === targetC) {
-
-    // r^2 = a/L
-    // r = sqrt(a/L)
-
-    if (n === 2) {
+      const others =
+        all.filter(x => x !== target);
 
       return {
-        result: `${base} = sqrt(${a}/${L})`,
-        type: "sqrt_fraction"
+        result:
+          cleanExpr(`${target} = (${others[0]}*${others[1]})/${others[2]}`),
+        type:"cross"
       };
     }
 
-    return {
-      result: `${base} = (${a}/${L})^(1/${n})`,
-      type: "root_fraction"
-    };
-  }
-}
-      if (clean(a) === targetC) {
+    /* =========================================
+       PRODUCT FRACTION
+    ========================================= */
+
+    case EXPRESSION_TYPES.PRODUCT_FRACTION: {
+
+      if (q.numerator.includes(target)) {
+
+        const others =
+          q.numerator.filter(x => x !== target);
+
+        const denom =
+          q.denominatorPower
+            ? `${q.denominator}^${q.denominatorPower}`
+            : q.denominator;
 
         return {
-          result: `${a} = ${L}*${b}`,
-          type: "multiplication"
+          result:
+            cleanExpr(`${target} = (${q.lhs}*${denom})/(${others.join("*")})`),
+          type:"fraction_product"
         };
       }
 
-      if (clean(b) === targetC) {
+      if (target === q.denominator) {
+
+        if (q.denominatorPower === 2) {
+
+          return {
+            result:
+              cleanExpr(`${target} = sqrt((${q.numerator.join("*")})/${q.lhs})`),
+            type:"sqrt_fraction"
+          };
+        }
 
         return {
-          result: `${b} = ${a}/${L}`,
-          type: "inverse"
+          result:
+            cleanExpr(`${target} = (${q.numerator.join("*")})/${q.lhs}`),
+          type:"inverse_fraction"
         };
       }
+
+      break;
     }
-  }
 
-  // =========================
-  // PUISSANCE
-  // =========================
+    /* =========================================
+       PRODUCT POWER
+    ========================================= */
 
-  const pow = R.match(/([a-zA-Z0-9_\\]+)\^(\d+)/);
+    case EXPRESSION_TYPES.PRODUCT_POWER: {
 
-  if (pow) {
+      if (target === q.poweredVar) {
 
-    const base = pow[1];
-    const n = parseInt(pow[2]);
+        const constPart =
+          q.constant ? q.constant + "*" : "";
 
-    if (clean(base) === targetC) {
-
-      if (n === 2) {
+        const denom =
+          [...q.factors].join("*");
 
         return {
-          result: `${base} = sqrt(${L})`,
-          type: "sqrt"
+          result:
+            cleanExpr(`${target} = sqrt(${q.lhs}/(${constPart}${denom}))`),
+          type:"sqrt"
         };
       }
+
+      if (q.factors.includes(target)) {
+
+        return {
+          result:
+            cleanExpr(`${target} = ${q.lhs}/(${q.poweredVar}^${q.power}*${q.factors.filter(f=>f!==target).join("*")})`),
+          type:"division"
+        };
+      }
+
+      break;
+    }
+
+    /* =========================================
+       POWER
+    ========================================= */
+
+    case EXPRESSION_TYPES.POWER: {
+
+      if (target === q.variable) {
+
+        return {
+          result:
+            `${target} = (${q.lhs}/${q.coefficient})^(1/${q.power})`,
+          type:"root"
+        };
+      }
+
+      if (target === q.rightVar) {
+
+        return {
+          result:
+            `${target} = (${q.leftVar}^${q.leftPower}/${q.coefficient})^(1/${q.rightPower})`,
+          type:"root"
+        };
+      }
+
+      if (target === q.leftVar) {
+
+        return {
+          result:
+            `${target} = sqrt(${q.coefficient}*${q.rightVar}^${q.rightPower})`,
+          type:"sqrt"
+        };
+      }
+
+      break;
+    }
+
+    /* =========================================
+       LOG
+    ========================================= */
+
+    case EXPRESSION_TYPES.LOG: {
+
+      if (target === "H+") {
+
+        return {
+          result:
+            "H+ = 10^(-pH)",
+          type:"log"
+        };
+      }
+
+      if (target === "I") {
+
+        return {
+          result:
+            "I = I0*10^(L/10)",
+          type:"log"
+        };
+      }
+
+      break;
+    }
+
+    /* =========================================
+       EXP
+    ========================================= */
+
+    case EXPRESSION_TYPES.EXP: {
+
+      if (target === "t") {
+
+        return {
+          result:
+            "t = -ln(N/N0)/lambda",
+          type:"exp"
+        };
+      }
+
+      break;
+    }
+
+    /* =========================================
+       SUM
+    ========================================= */
+
+    case EXPRESSION_TYPES.SUM: {
 
       return {
-        result: `${base} = (${L})^(1/${n})`,
-        type: "root"
+        result:q.targetFormula,
+        type:"sum"
       };
     }
-  }
 
-  // =========================
-  // FALLBACK
-  // =========================
+    /* =========================================
+       RECIPROCAL
+    ========================================= */
+
+    case EXPRESSION_TYPES.RECIPROCAL_SUM: {
+
+      return {
+        result:
+          "f = 1/(1/d0 + 1/di)",
+        type:"reciprocal"
+      };
+    }
+
+  }
 
   return {
-    result: `${target} = ${L}`,
-    type: "fallback"
+    result:`${target} = ?`,
+    type:"fallback"
   };
 }
 
-/* =========================
-   FEEDBACK TYPE
-========================= */
+/* =========================================================
+   DISTRACTORS - ENGINE PAR TYPE D'EXPRESSION
+========================================================= */
 
-function buildFeedback(type, q, target) {
+function isValidDistractor(candidate, correct, set) {
 
-  const map = {
-    division: "On divise les deux côtés de l’équation",
-    multiplication: "On multiplie pour isoler la variable",
-    inverse: "On inverse la fraction",
-    sqrt: "On élève au carré",
-    root: "On applique une racine",
-    cross_division: "On effectue un produit en croix puis on divise",
-    fallback: "Réarrangement algébrique"
-  };
+  const normCandidate = normalizeExpr(candidate);
+  const normCorrect = normalizeExpr(correct);
 
-  return `
-    🧠 Méthode : ${map[type] || "Étape algébrique"}<br>
-    📌 On part de : \\(${toLatex(q.expr)}\\)<br>
-    🎯 Variable isolée : \\(${toLatex(target)}\\)
-  `;
+  if (normCandidate === normCorrect) return false;
+  if (set.has(normCandidate)) return false;
+
+  return true;
 }
 
-/* =========================
-   EXPLICATION
-========================= */
+function buildCleanDistractors(rawList, correct, target) {
 
-function explainSolve(q, target) {
+  const set = new Set();
+  const result = [];
 
-  const s = solveUniversal(q, target);
+  const normCorrect = normalizeExpr(correct);
 
-  return [
-    `Équation : ${q.expr}`,
-    `Variable : ${target}`,
-    `Méthode : ${s.type}`,
-    `Résultat : ${s.result}`
-  ];
-}
+  const shuffled = shuffle(rawList);
 
-/* =========================
-   DISTRACTEURS INTELLIGENTS
-========================= */
+  for (const d of shuffled) {
 
-function generateDistractors(q, target, correct, vars) {
+    const norm = normalizeExpr(d);
 
-  const t = target;
+    if (norm === normCorrect) continue;
+    if (set.has(norm)) continue;
 
-  const v = getDistractorVars(q, target);
+    if (!isValidDistractor(d, correct, set)) continue;
 
-  const wrong = [];
+    set.add(norm);
+    result.push(d);
 
-  let candidates = [];
-
-  // =========================
-  // MODE QUAD
-  // =========================
-  if (v.mode === "quad") {
-
-    const fractions = generateFractions(
-      q.baseVars.filter(x => x !== target)
-    ) || [];
-
-    if (!fractions.length) {
-
-      candidates = [
-        `${t} = x/y`,
-        `${t} = x-y`,
-        `${t} = x*y`,
-        `${t} = y/x`,
-        `${t} = y-x`
-      ];
-
-    } else {
-
-      const shuffled = shuffle(fractions);
-
-      candidates = shuffled
-        .slice(0, 6)
-        .map(f => `${t} = ${f}`);
-    }
-
+    if (result.length === 3) break;
   }
-  // =========================
-  // MODE SIMPLE
-  // =========================
-  else {
 
-    const { a = "x", b = "y" } = v;
+  // fallback sécurisé
+  while (result.length < 3) {
+    result.push(`${target} = ?`);
+  }
 
-    const pool = [
+  return result;
+}
 
-      `${t} = ${b}/${a}`,
-      `${t} = ${a}/${b}`,
-      `${t} = ${a}*${b}`,
-      `${t} = ${b}*${a}`,
+/* =========================================================
+   DISPATCHER PRINCIPAL
+========================================================= */
 
-      `${t} = ${a}+${b}`,
-      `${t} = ${a}-${b}`
+function generateDistractors(q, target, correct) {
 
+  const base = q.baseVars.filter(v => v !== target);
+  const a = base[0] || "x";
+  const b = base[1] || "y";
+  const c = base[2] || "z";
+
+  switch (q.type) {
+
+    case EXPRESSION_TYPES.PRODUCT:
+      return productDistractors(q, target, a, b, correct);
+
+    case EXPRESSION_TYPES.FRACTION:
+      return fractionDistractors(q, target, correct);
+
+    case EXPRESSION_TYPES.CROSS:
+      return crossDistractors(q, target, a, b, c, correct);
+
+    case EXPRESSION_TYPES.PRODUCT_FRACTION:
+      return productFractionDistractors(q, target, a, b, c, correct);
+
+    case EXPRESSION_TYPES.LOG:
+      return logDistractors(q, target, correct);
+
+    case EXPRESSION_TYPES.POWER:
+    case EXPRESSION_TYPES.PRODUCT_POWER:
+    case EXPRESSION_TYPES.EXP:
+      return powerDistractors(q, target, a, b, correct);
+
+    default:
+      return genericDistractors(q, target, a, b, correct);
+  }
+}
+
+/* =========================================================
+   PRODUIT
+========================================================= */
+
+function productDistractors(q, target, a, b, correct) {
+
+  const raw = [
+    `${target} = ${a}/${b}`,
+    `${target} = ${b}/${a}`,
+    `${target} = ${a}*${b}`,
+    `${target} = ${b}*${a}`,
+    `${target} = ${b}-${a}`,
+    `${target} = ${a}-${b}`,
+    `${target} = ${a}+${b}`
+  ];
+
+  return buildCleanDistractors(raw, correct, target);
+}
+
+/* =========================================================
+   FRACTION
+========================================================= */
+
+function fractionDistractors(q, target, correct) {
+
+  let raw = [];
+
+  if (target === q.numerator) {
+
+    raw = [
+      `${target} = ${q.lhs}/${q.denominator}`,
+      `${target} = ${q.denominator}/${q.lhs}`,
+      `${target} = ${q.lhs}*${q.denominator}`,
+      `${target} = ${q.lhs}+${q.denominator}`
     ];
 
-    candidates = shuffle(pool).slice(0, 5);
+  } else if (target === q.denominator) {
+
+    raw = [
+      `${target} = ${q.numerator}/${q.lhs}`,
+      `${target} = ${q.lhs}*${q.numerator}`,
+      `${target} = ${q.lhs}/${q.numerator}`,
+      `${target} = ${q.numerator}*${q.lhs}`
+    ];
   }
 
-  // =========================
-  // VALIDATION
-  // =========================
-  function isValid(expr) {
-
-    const normExpr = normalizeLatex(expr);
-    const normCorrect = normalizeLatex(correct);
-    const normOriginal = normalizeLatex(q.expr);
-
-    // 1. pas identique bonne réponse
-    if (normExpr === normCorrect) return false;
-
-    // 2. doit contenir une opération
-    if (!/[*/+\-]/.test(expr)) return false;
-
-    const eq = expr.split("=");
-
-    if (eq.length !== 2) return false;
-
-    const left = eq[0].trim();
-    const right = eq[1].trim();
-
-    // 3. côté gauche doit être target
-    if (normalizeLatex(left) !== normalizeLatex(target)) {
-      return false;
-    }
-
-    // 4. éviter réutilisation directe target
-    if (normalizeLatex(right).includes(normalizeLatex(target))) {
-      return false;
-    }
-
-    // 5. éviter formule originale
-    if (normExpr === normOriginal) return false;
-
-    // 6. inversion inutile
-    const originalEq = q.expr.split("=");
-
-    if (originalEq.length === 2) {
-
-      const originalRight = normalizeLatex(originalEq[1]);
-
-      const reversed = originalRight
-        .split("/")
-        .reverse()
-        .join("/");
-
-      if (normalizeLatex(right) === reversed) {
-        return false;
-      }
-    }
-
-    // 7. éviter x/x
-    const parts = right.split(/[*/]/);
-
-    if (
-      parts.length === 2 &&
-      normalizeLatex(parts[0]) === normalizeLatex(parts[1])
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
-  // =========================
-  // FILTRAGE
-  // =========================
-  candidates.forEach(c => {
-
-    try {
-      if (c && isValid(c)) {
-        wrong.push(c);
-      }
-    } catch (e) {
-      // sécurité anti crash silencieux
-      console.warn("Distracteur invalide ignoré:", c);
-    }
-
-  });
-
-  // =========================
-  // FALLBACK
-  // =========================
-  let fallbackIndex = 0;
-
-  while (wrong.length < 3) {
-
-    const { a = "x", b = "y" } = v;
-
-    const fallback = [
-      `${t} = ${a}+${b}`,
-      `${t} = ${a}-${b}`,
-      `${t} = ${a}*${b}`,
-      `${t} = ${a}/${b}`
-    ][fallbackIndex % 4];
-
-    if (
-      fallback &&
-      isValid(fallback) &&
-      !wrong.includes(fallback)
-    ) {
-      wrong.push(fallback);
-    }
-
-    fallbackIndex++;
-
-    if (fallbackIndex > 20) break;
-  }
-
-  // =========================
-  // RETURN FINAL
-  // =========================
-  return [...new Set(wrong)].slice(0, 3);
+  return buildCleanDistractors(raw, correct, target);
 }
 
-/* =========================
-   QUESTION GENERATION
-========================= */
+
+/* =========================================================
+   PRODUIT EN CROIX
+========================================================= */
+
+function crossDistractors(q, target, a, b, c, correct) {
+
+  const raw = [
+    `${target} = ${a}/${b}`,
+    `${target} = ${b}/${a}`,
+    `${target} = ${a}*${b}`,
+    `${target} = ${q.right?.[0]}/${q.left?.[0]}`,
+    `${target} = ${a}+${b}`
+  ];
+
+  return buildCleanDistractors(raw, correct, target);
+}
+
+
+/* =========================================================
+   PRODUIT / FRACTION COMPLEXE
+========================================================= */
+
+function productFractionDistractors(q, target, a, b, c, correct) {
+
+  const raw = [
+    `${target} = ${q.lhs}/${q.denominator}`,
+    `${target} = ${q.denominator}/${q.lhs}`,
+    `${target} = sqrt(${q.lhs})`,
+    `${target} = ${q.lhs}*${a}`
+  ];
+
+  return buildCleanDistractors(raw, correct, target);
+}
+
+
+/* =========================================================
+   LOG / EXP
+========================================================= */
+
+function logDistractors(q, target, correct) {
+
+  const raw = [
+    `H+ = log(${q.lhs})`,
+    `H+ = 10^${q.lhs}`,
+    `H+ = -${q.lhs}`,
+    `H+ = ${q.lhs}/10`
+  ];
+
+  return buildCleanDistractors(raw, correct, target);
+}
+
+
+/* =========================================================
+   PUISSANCES / EXP
+========================================================= */
+
+function powerDistractors(q, target, a, b, correct) {
+
+  const raw = [
+    `${target} = ${q.lhs}/${q.coefficient || 1}`,
+    `${target} = sqrt(${q.lhs})`,
+    `${target} = ${q.lhs}^${q.power || 2}`,
+    `${target} = ${q.coefficient || 1}*${q.variable || a}`
+  ];
+
+  return buildCleanDistractors(raw, correct, target);
+}
+
+
+/* =========================================================
+   FALLBACK
+========================================================= */
+
+function genericDistractors(q, target, a, b, correct) {
+
+  const raw = [
+    `${target} = ${a}*${b}`,
+    `${target} = ${a}/${b}`,
+    `${target} = ${b}/${a}`,
+    `${target} = ${a}+${b}`,
+    `${target} = ${b}-${a}`
+  ];
+
+  return buildCleanDistractors(raw, correct, target);
+}
+
+/* =========================================================
+   GENERATE QUESTION
+========================================================= */
 
 function generateQuestion() {
 
-  const q = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
-  const target = q.targetPool[Math.floor(Math.random() * q.targetPool.length)];
+  const q =
+    QUESTIONS[
+      Math.floor(Math.random()*QUESTIONS.length)
+    ];
 
-  const solved = solveUniversal(q, target);
-  const correctRaw = solved.result;
+  const target =
+    q.targetPool[
+      Math.floor(Math.random()*q.targetPool.length)
+    ];
 
-  const vars = getVars(q, target);
-  const distractors = generateDistractors(q, target, correctRaw, vars);
+  const solved =
+    solveQuestion(q,target);
 
-  // =========================
-  // Fusion
-  // =========================
-const all = [];
+  const correct =
+    solved.result;
 
-pushUnique(all, correctRaw);
+  let choices = [
+    correct,
+    ...generateDistractors(q,target,correct)
+  ];
 
-distractors.forEach(d => {
-  pushUnique(all, d);
-});
+  choices = shuffle(choices);
 
-  // =========================
-  // Déduplication robuste
-  // =========================
-  const seen = new Set();
-  let unique = [];
+  const answer =
+    choices.findIndex(
+      c =>
+        normalizeExpr(c) ===
+        normalizeExpr(correct)
+    );
 
-  all.forEach(item => {
-    const norm = normalizeLatex(item);
-
-    if (!seen.has(norm)) {
-      seen.add(norm);
-      unique.push(item);
-    }
-  });
-
-  // =========================
-  // 🔥 FILTRE ANTI-RÉPONSES DÉBILES
-  // (genre V = rho)
-  // =========================
-  unique = unique.filter(expr => {
-
-    const parts = expr.split("=");
-    if (parts.length !== 2) return false;
-
-    const right = parts[1];
-
-    // doit contenir une opération
-    if (!/[*/+\-]/.test(right)) return false;
-
-    // évite V = V / ...
-    const left = parts[0].trim();
-    if (right.includes(left)) return false;
-
-    return true;
-  });
-
-  // =========================
-  // 🔥 GARANTIE bonne réponse
-  // =========================
-  if (!unique.some(c => normalizeLatex(c) === normalizeLatex(correctRaw))) {
-    unique.unshift(correctRaw);
-  }
-
-  // =========================
-  // Complétion si manque
-  // =========================
-const fallbackPool = [
-  `${target} = ${vars[0] || "x"}/${vars[1] || "y"}`,
-  `${target} = ${vars[1] || "y"}/${vars[0] || "x"}`,
-  `${target} = ${vars[0] || "x"}*${vars[1] || "y"}`,
-  `${target} = ${vars[0] || "x"}+${vars[1] || "y"}`
-];
-
-let idx = 0;
-
-while (unique.length < 4 && idx < fallbackPool.length) {
-
-  pushUnique(unique, fallbackPool[idx]);
-
-  idx++;
-}
-  // =========================
-  // Mélange
-  // =========================
-  const choices = shuffle(unique.slice(0, 4));
-  // =========================
-  // Index bonne réponse (FIABLE)
-  // =========================
-  const answer = choices.findIndex(
-    c => normalizeLatex(c) === normalizeLatex(correctRaw)
-  );
-
-  // sécurité ultime
-  const safeAnswer = answer !== -1 ? answer : 0;
-
-  // =========================
-  // Objet final
-  // =========================
   currentQuestion = {
+
     ...q,
+
     target,
+
     choices,
-    answer: safeAnswer,
-    solveType: solved.type,
-    domain: q.domain || "Physique",
-    law: q.law || "Relation fondamentale",
-    image: q.image || ""
+
+    answer,
+
+    solveType: solved.type
   };
 }
 
-/* =========================
+/* =========================================================
    LOAD
-========================= */
+========================================================= */
 
 function load() {
 
   const q = currentQuestion;
 
-  if (!q) {
-    console.warn("⚠️ Aucune question chargée");
-    return;
-  }
+  document.getElementById("question").innerHTML = `
 
-  // =========================
-  // QUESTION CENTRALE
-  // =========================
-document.getElementById("question").innerHTML =
-  `
-  D’après la relation : \\(${toLatex(q.expr)}\\)
-  <br><br>
-  Donner la bonne expression pour la variable
-  <b>\\(${toLatex(q.target)}\\)</b>
+    D’après la relation : \\(${toLatex(q.expr)}\\)<br><br>
+
+    Donner la bonne expression pour la variable  <b>\\(${toLatex(q.target)}\\)</b>
+
   `;
 
   renderChoices(q);
 
-  // =========================
-  // FEEDBACK RESET
-  // =========================
-  const fb = document.getElementById("feedback");
+  const fb =
+    document.getElementById("feedback");
+
   if (fb) fb.innerHTML = "";
 
-  // =========================
-  // BOX GAUCHE
-  // =========================
-  const dom = document.getElementById("imageDomain");
-  const law = document.getElementById("imageTitle");
+  const dom =
+    document.getElementById("imageDomain");
 
-  if (dom) dom.innerHTML = formatDomain(q?.domain || "");
-  if (law) law.innerHTML = q?.law ? `🔬 ${q.law}` : "";
+  if (dom)
+    dom.innerHTML =
+      formatDomain(q.domain);
 
-  // =========================
-  // IMAGE
-  // =========================
+  const law =
+    document.getElementById("imageTitle");
+
+  if (law)
+    law.innerHTML =
+      `🔬 ${q.law}`;
+
   showImage(q);
 
-  // =========================
-  // MATHJAX
-  // =========================
   if (window.MathJax) {
+
     setTimeout(() => {
-      MathJax.typesetPromise?.() || MathJax.typeset();
-    }, 50);
+
+      if (MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      } else {
+        MathJax.typeset();
+      }
+
+    },50);
   }
 }
 
-/* =========================
+/* =========================================================
    CHOICES
-========================= */
+========================================================= */
 
 function renderChoices(q) {
 
-  const container = document.getElementById("choices");
+  const container =
+    document.getElementById("choices");
+
   container.innerHTML = "";
 
-  q.choices.forEach((c, i) => {
+  q.choices.forEach((c,i) => {
 
-    const btn = document.createElement("button");
+    const btn =
+      document.createElement("button");
 
-    const latex = toLatex(c);
+    btn.innerHTML =
+      `\\(${toLatex(c)}\\)`;
 
-    btn.innerHTML = `\\(${latex}\\)`;
+    btn.onclick =
+      () => submitAnswer(i);
 
-    btn.onclick = () => submitAnswer(i);
     container.appendChild(btn);
   });
 
-  if (window.MathJax) MathJax.typeset();
+  if (window.MathJax) {
+    MathJax.typeset();
+  }
 }
 
-/* =========================
-   IMAGE
-========================= */
+/* =========================================================
+   FEEDBACK
+========================================================= */
 
-function showImage(q) {
+function showFeedback() {
 
-  const img = document.getElementById("illustration");
-  if (!img) return;
+  const q = currentQuestion;
 
-  if (!q?.image) {
-    img.style.display = "none";
-    return;
+  const solved =
+    solveQuestion(q,q.target);
+
+  const fb =
+    document.getElementById("feedback");
+
+  let explanation = "";
+
+  switch(solved.type) {
+
+    case "division":
+     explanation =`
+     <div style="text-align:left">
+     👉 La variable <b>\\(${toLatex(currentQuestion.target)}\\)</b> est multipliée par une autre grandeur.
+      Pour l’isoler, on doit donc <b>diviser</b> ce qu'il y a écrit à gauche du signe = par cette autre grandeur.
+      </div>
+      `;
+      break;
+
+    case "multiply_fraction":
+      explanation =
+        "👉 La variable est au numérateur d’une fraction. On multiplie donc par le dénominateur.";
+      break;
+
+    case "inverse_fraction":
+      explanation =
+        "👉 La variable est au dénominateur. On inverse donc la fraction.";
+      break;
+
+    case "cross":
+      explanation =
+        "👉 On effectue un produit en croix.";
+      break;
+
+    case "sqrt":
+      explanation =
+        "👉 La variable apparaît au carré. On applique une racine carrée.";
+      break;
+
+    case "root":
+      explanation =
+        "👉 La variable apparaît dans une puissance. On applique la racine correspondante.";
+      break;
+
+    case "log":
+      explanation =
+        "👉 On utilise les propriétés du logarithme.";
+      break;
+
+    case "exp":
+      explanation =
+        "👉 On applique le logarithme népérien.";
+      break;
+
+    case "sum":
+      explanation =
+        "👉 On isole d’abord le terme contenant la variable.";
+      break;
+
+    default:
+      explanation =
+        "👉 On réorganise l’équation.";
   }
 
-  img.onload = () => {
-    img.style.display = "block";
-  };
+  fb.innerHTML = `
 
-  img.onerror = () => {
-    console.warn("Image introuvable :", q.image);
-    img.style.display = "none";
-  };
+    ❌ <b>Mauvaise réponse</b><br><br>
 
-  img.src = q.image;
+    Regardons ensemble la démarche 👇<br><br>
+
+    🧠 À partir de l’expression : \\(${toLatex(q.expr)}\\)<br><br>
+
+    ${explanation}
+
+    <br><br>
+
+    ✔ Bonne réponse :
+
+    <br><br>
+
+    \\[
+      ${toLatex(solved.result)}
+    \\]
+
+  `;
+
+  if (window.MathJax) {
+
+    setTimeout(() => {
+
+      if (MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      } else {
+        MathJax.typeset();
+      }
+
+    },0);
+  }
 }
 
-/* =========================
+/* =========================================================
    SUBMIT
-========================= */
+========================================================= */
 
 function submitAnswer(i) {
 
@@ -1103,155 +1065,16 @@ function submitAnswer(i) {
   } else {
 
     playBadSound();
+
     showFeedback();
-    setTimeout(endGame, 2000);
+
+    setTimeout(endGame,2000);
   }
 }
 
-/* =========================
-   FEEDBACK FINAL
-========================= */
-
-function showFeedback() {
-
-  const q = currentQuestion;
-  const solved = solveUniversal(q, q.target);
-
-  const fb = document.getElementById("feedback");
-
-  // =========================
-  // Explication intelligente
-  // =========================
-
-  let explanation = "";
-
-  switch (solved.type) {
-
-    case "division":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est multipliée par une autre grandeur.<br>
-      Pour l’isoler, on doit donc <b>diviser</b> ce qu'il y a écrit à gauche du signe = par cette autre grandeur.
-      `;
-      break;
-
-    case "multiplication":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> se trouve au numérateur d'une fraction.<br>
-      Pour l’isoler, on doit donc <b>multiplier</b> ce qu'il y a écrit à gauche du signe = avec le dénominateur de la fraction.
-      `;
-      break;
-
-    case "inverse":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est au dénominateur.<br>
-      Pour l'isoler, on l'intervertit avec la variable à gauche du signe = sans toucher au numérateur de la fraction.
-      `;
-      break;
-
-    case "sqrt":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> apparaît au carré.<br>
-      Pour l’isoler, on applique une <b>racine carrée</b>.
-      `;
-      break;
-
-    case "root":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est élevée à une puissance.<br>
-      On applique donc la <b>racine correspondante</b>.
-      `;
-      break;
-
-    case "cross_division":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> apparaît dans un produit.<br>
-      On effectue donc un <b>produit en croix</b>, puis on divise par la grandeur qui multiplie la variable recherchée.
-      `;
-      break;
-
-    case "sqrt_fraction":
-
-      explanation = `
-      👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est au dénominateur ET au carré.<br>
-      On inverse d'abord la fraction puis on applique une <b>racine carrée</b>.
-      `;
-      break;
-
-    case "root_fraction":
-
-      explanation = `
-     👉 La variable <b>\\(${toLatex(q.target)}\\)</b> est dans une puissance au dénominateur.<br>
-     On inverse la fraction puis on applique la racine correspondante.
-     `;
-     break;
-
-    default:
-
-      explanation = `
-      👉 On réorganise l’équation afin d’isoler la variable
-      <b>\\(${toLatex(q.target)}\\)</b>.
-      `;
-  }
-
-  // =========================
-  // AFFICHAGE
-  // =========================
-
-  fb.innerHTML = `
-
-    ❌ <b>Mauvaise réponse</b><br><br>
-
-    Regardons ensemble la démarche 👇<br><br>
-
-    🧠 À partir de l’expression :<br><br>
-
-    \\[
-      ${toLatex(q.expr)}
-    \\]
-
-    On cherche à isoler la variable :
-
-    <b>\\(${toLatex(q.target)}\\)</b><br><br>
-
-    ${explanation}
-
-    <br><br>
-
-    ✔ <b>Bonne réponse :</b><br><br>
-
-    \\[
-      ${toLatex(solved.result)}
-    \\]
-
-  `;
-
-  // =========================
-  // MATHJAX
-  // =========================
-
-  if (window.MathJax) {
-
-    setTimeout(() => {
-
-      if (MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-      } else {
-        MathJax.typeset();
-      }
-
-    }, 0);
-  }
-}
-
-/* =========================
-   TIMER / GAME (inchangé)
-========================= */
+/* =========================================================
+   TIMER
+========================================================= */
 
 function startTimer() {
 
@@ -1259,89 +1082,201 @@ function startTimer() {
 
   timer = setInterval(() => {
 
-    if (gameOver) return clearInterval(timer);
+    if (gameOver) {
+
+      clearInterval(timer);
+      return;
+    }
 
     timeLeft--;
 
-    const t = document.getElementById("timer");
-    if (t) t.textContent = timeLeft + "s";
+    const t =
+      document.getElementById("timer");
 
-    if (timeLeft <= 0) endGame();
+    if (t)
+      t.textContent =
+        timeLeft + "s";
 
-  }, 1000);
+    if (timeLeft <= 0) {
+      endGame();
+    }
+
+  },1000);
 }
 
-function startGame() {
+/* =========================================================
+   START
+========================================================= */
 
-  // 🔒 Empêche de relancer pendant une partie
-  if (!gameOver && current > 0) {
-    console.warn("Partie déjà en cours");
-    return;
-  }
+function startGame() {
 
   clearInterval(timer);
 
   score = 0;
   current = 0;
+
   gameOver = false;
+
   timeLeft = 180;
 
-  // 🔒 Désactive le bouton
-  const startBtn = document.getElementById("startBtn");
-  if (startBtn) startBtn.disabled = true;
+  const startBtn =
+    document.getElementById("startBtn");
+
+  if (startBtn)
+    startBtn.disabled = true;
 
   generateQuestion();
 
-  if (!currentQuestion) {
-    console.error("❌ generateQuestion a échoué");
-    return;
-  }
-
   load();
+
   updateUI();
+
   startTimer();
 }
+
+/* =========================================================
+   END
+========================================================= */
 
 function endGame() {
 
   if (gameOver) return;
+
   gameOver = true;
 
   clearInterval(timer);
 
-  // 🔓 Réactive le bouton Démarrer
-  const startBtn = document.getElementById("startBtn");
-  if (startBtn) startBtn.disabled = false;
+  const startBtn =
+    document.getElementById("startBtn");
 
-  let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+  if (startBtn)
+    startBtn.disabled = false;
 
-  ranking.push({ score });
+  let ranking =
+    JSON.parse(
+      localStorage.getItem("ranking") || "[]"
+    );
+
+  ranking.push({score});
+
   ranking.sort((a,b) => b.score - a.score);
 
-  localStorage.setItem("ranking", JSON.stringify(ranking));
+  localStorage.setItem(
+    "ranking",
+    JSON.stringify(ranking)
+  );
 
   setTimeout(() => {
-    window.location.href = "gameover.html?score=" + score;
-  }, 8000);
+
+    window.location.href =
+      "gameover.html?score=" + score;
+
+  },5000);
 }
+
+/* =========================================================
+   UI
+========================================================= */
 
 function updateUI() {
-  document.getElementById("score").textContent = score;
+
+  document.getElementById("score")
+    .textContent = score;
 
   const mode =
-    score > 5 ? "hard" :
-    score > 2 ? "medium" : "easy";
 
-  const m = document.getElementById("mode");
-  m.textContent = mode;
+    score > 10
+      ? "hard"
+
+      : score > 4
+        ? "medium"
+
+        : "easy";
+
+  const m =
+    document.getElementById("mode");
+
+  if (m)
+    m.textContent = mode;
 }
 
+/* =========================================================
+   IMAGE
+========================================================= */
+
+function showImage(q) {
+
+  const img =
+    document.getElementById("illustration");
+
+  if (!img) return;
+
+  if (!q.image) {
+
+    img.style.display = "none";
+    return;
+  }
+
+  img.src = q.image;
+
+  img.style.display = "block";
+}
+
+/* =========================================================
+   DOMAIN
+========================================================= */
+
+function formatDomain(domain) {
+
+  const d = domain.toLowerCase();
+
+  if (d.includes("chimie"))
+    return "⚗️ Chimie";
+
+  if (d.includes("electric"))
+    return "⚡ Électricité";
+
+  if (d.includes("onde"))
+    return "🌊 Ondes";
+
+  if (d.includes("grav"))
+    return "🌍 Gravitation";
+
+  if (d.includes("energie"))
+    return "⚙️ Énergie";
+
+  if (d.includes("fluide"))
+    return "💧 Fluides";
+
+  if (d.includes("thermo"))
+    return "🔥 Thermodynamique";
+
+  if (d.includes("lent"))
+    return "🔭 Optique";
+
+  return "📚 Physique";
+}
+
+/* =========================================================
+   SOUNDS
+========================================================= */
+
 function playSound(id) {
-  const s = document.getElementById(id);
+
+  const s =
+    document.getElementById(id);
+
   if (!s) return;
+
   s.currentTime = 0;
+
   s.play().catch(()=>{});
 }
 
-function playGoodSound() { playSound("goodSound"); }
-function playBadSound() { playSound("badLight"); }
+function playGoodSound() {
+  playSound("goodSound");
+}
+
+function playBadSound() {
+  playSound("badLight");
+}
