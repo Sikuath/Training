@@ -64,7 +64,7 @@ const QUESTIONS = [
 //{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
 
 // 2
-{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
+//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d = rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"] },
@@ -79,7 +79,7 @@ const QUESTIONS = [
 //{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n = m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"] },
 
 // 7
-//{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1 = C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"] },
+{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1 = C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"] },
 
 // 8
 //{ difficulty:"easy", domain:"forces", law:"Poids", image:"./images/poids.jpg", expr:"P = m*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["m","g"], baseVars:["P","m","g"], targetPool:["m","g"] },
@@ -184,41 +184,6 @@ const QUESTIONS = [
 ];
 
 /* =========================================================
-   SYMBOLS
-========================================================= */
-
-const LATEX_SYMBOLS = {
-
-  rho: "\\rho",
-  rho0: "\\rho_0",
-
-  lambda: "\\lambda",
-  theta: "\\theta",
-  sigma: "\\sigma",
-  tau: "\\tau",
-  epsilon: "\\epsilon",
-  deltat: "\\Delta t",
-
-  m1: "m_1",
-  m2: "m_2",
-  msolute: "m_{solute}",
-  nsolute: "n_{solute}",
-  Vsolution: "V_{solution}",
-  q1: "q_1",
-  q2: "q_2",
-  C1: "C_1",
-  C2: "C_2",
-  V1: "V_1",
-  V2: "V_2",
-  S1: "S_1",
-  S2: "S_2",
-  v1: "v_1",
-  v2: "v_2",
-  I0: "I_0"
-
-};
-
-/* =========================================================
    CLEAN
 ========================================================= */
 
@@ -263,27 +228,68 @@ function toLatex(str) {
   let out = str;
 
   /* =========================================================
-     SYMBOLS (rho, lambda, etc.)
+     SYMBOLS
   ========================================================= */
 
-  Object.entries(LATEX_SYMBOLS).forEach(([k, v]) => {
+  const symbols = {
 
-    const regex = new RegExp(
-      `(?<![a-zA-Z0-9_])${k}(?![a-zA-Z0-9_])`,
-      "g"
-    );
+    rho0: "\\rho_{0}",
+    rho: "\\rho",
 
-    out = out.replace(regex, v);
-  });
+    lambda: "\\lambda",
+    theta: "\\theta",
+    sigma: "\\sigma",
+    tau: "\\tau",
+    epsilon: "\\epsilon",
+
+    deltat: "\\Delta t",
+
+    m1: "m_{1}",
+    m2: "m_{2}",
+
+    q1: "q_{1}",
+    q2: "q_{2}",
+
+    C1: "C_{1}",
+    C2: "C_{2}",
+
+    V1: "V_{1}",
+    V2: "V_{2}",
+
+    S1: "S_{1}",
+    S2: "S_{2}",
+
+    v1: "v_{1}",
+    v2: "v_{2}",
+
+    I0: "I_{0}",
+
+    msolute: "m_{solute}",
+    nsolute: "n_{solute}",
+    Vsolution: "V_{solution}"
+  };
 
   /* =========================================================
-     MULTIPLICATION
+     IMPORTANT :
+     remplacer les plus longs d'abord
   ========================================================= */
 
-  out = out.replace(/\*/g, " \\times ");
+  Object.keys(symbols)
+    .sort((a,b) => b.length - a.length)
+    .forEach(key => {
+
+      const value = symbols[key];
+
+      const regex = new RegExp(
+        `\\b${key}\\b`,
+        "g"
+      );
+
+      out = out.replace(regex, value);
+    });
 
   /* =========================================================
-     RACINES
+     SQRT
   ========================================================= */
 
   out = out.replace(
@@ -292,29 +298,37 @@ function toLatex(str) {
   );
 
   /* =========================================================
-     FRACTIONS (SAFE)
-     -> évite double conversion \frac
-  ========================================================= */
-
-  // on protège les \frac déjà existants
-  const hasFrac = out.includes("\\frac");
-
-  if (!hasFrac) {
-
-    out = out.replace(
-      /([a-zA-Z0-9_()\\]+(?:\*[a-zA-Z0-9_()\\]+)*)\/([a-zA-Z0-9_()\\]+(?:\*[a-zA-Z0-9_()\\]+)*)/g,
-      "\\frac{$1}{$2}"
-    );
-  }
-
-  /* =========================================================
      EXPOSANTS
   ========================================================= */
 
   out = out.replace(
-    /\^([0-9]+)/g,
+    /\^([a-zA-Z0-9+\-]+)/g,
     "^{$1}"
   );
+
+  /* =========================================================
+     FRACTIONS
+  ========================================================= */
+
+  out = out.replace(
+    /([a-zA-Z0-9\\{}_^()+-]+)\/([a-zA-Z0-9\\{}_^()+-]+)/g,
+    "\\frac{$1}{$2}"
+  );
+
+  /* =========================================================
+     MULTIPLICATIONS
+  ========================================================= */
+
+  out = out.replace(
+    /\*/g,
+    " \\times "
+  );
+
+  /* =========================================================
+     ESPACES
+  ========================================================= */
+
+  out = out.replace(/\s+/g, " ").trim();
 
   return out;
 }
