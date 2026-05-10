@@ -71,7 +71,7 @@ const QUESTIONS = [
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d=rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"], answers:{rho:"d*rho0", rho0:"rho/d"} },
 
 // 4
-{ difficulty:"easy", domain:"chimie", law:"Concentration massique", image:"./images/concentration_massique.jpg", expr:"t=msolute/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"t", numerator:"msolute", denominator:"Vsolution", baseVars:["t","msolution","Vsolution"], targetPool:["msolute","Vsolution"], answers:{msolution:"t*Vsolution", Vsolution:"msolute/t"} },
+{ difficulty:"easy", domain:"chimie", law:"Concentration massique", image:"./images/concentration_massique.jpg", expr:"t=msolute/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"t", numerator:"msolute", denominator:"Vsolution", baseVars:["t","msolute","Vsolution"], targetPool:["msolute","Vsolution"], answers:{msolute:"t*Vsolution", Vsolution:"msolute/t"} },
 
 // 5
 //{ difficulty:"easy", domain:"chimie", law:"Concentration molaire", image:"./images/concentration_molaire.jpg", expr:"C=nsolution/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"C", numerator:"nsolution", denominator:"Vsolution", baseVars:["C","nsolution","Vsolution"], targetPool:["nsolution","Vsolution"], answers:{nsolution:"C*Vsolution", Vsolution:"nsolution/C"} },
