@@ -54,6 +54,403 @@ const EXPRESSION_TYPES = {
     "reciprocal_sum"
 
 };
+const TYPE_ENGINE = {
+
+  product: {
+    solve: solveProduct,
+    distractors: productDistractors
+  },
+
+  fraction: {
+    solve: solveFraction,
+    distractors: fractionDistractors
+  },
+
+  cross: {
+    solve: solveCross,
+    distractors: crossDistractors
+  },
+
+  product_fraction: {
+    solve: solveProductFraction,
+    distractors: productFractionDistractors
+  },
+
+  power: {
+    solve: solvePower,
+    distractors: powerDistractors
+  },
+
+  log: {
+    solve: solveLog,
+    distractors: logDistractors
+  },
+
+  exp: {
+    solve: solveExp,
+    distractors: logDistractors
+  },
+
+  sum: {
+    solve: solveSum,
+    distractors: genericDistractors
+  },
+
+  reciprocal_sum: {
+    solve: solveReciprocal,
+    distractors: genericDistractors
+  }
+};
+
+const NORMALIZERS = {
+
+  product: normalizeProduct,
+  fraction: normalizeFraction,
+  cross: normalizeCross,
+  product_fraction: normalizeProductFraction,
+  power: normalizePower,
+  log: normalizeLog,
+  exp: normalizeExp,
+  sum: normalizeSum,
+  reciprocal_sum: normalizeReciprocal
+};
+
+/* =========================================================
+   SOLVER PAR TYPE
+========================================================= */
+
+function solveProduct(q, target) {
+
+  const others =
+    q.factors.filter(f => f !== target);
+
+  if (q.factors.includes(target)) {
+
+    const denom =
+      others.length > 1
+        ? `(${others.join("*")})`
+        : others[0];
+
+    return {
+      result: `${target} = ${q.lhs}/${denom}`,
+      type: "division"
+    };
+  }
+
+  return {
+    result: `${target} = ?`,
+    type: "fallback"
+  };
+}
+function solveFraction(q, target) {
+
+  // NUMÉRATEUR
+  if (target === q.numerator) {
+
+    return {
+      result: `${target} = ${q.lhs}*${q.denominator}`,
+      type: "multiply_fraction"
+    };
+  }
+
+  // DÉNOMINATEUR
+  if (target === q.denominator) {
+
+    return {
+      result: `${target} = ${q.numerator}/${q.lhs}`,
+      type: "inverse_fraction"
+    };
+  }
+
+  return {
+    result: `${target} = ?`,
+    type: "fallback"
+  };
+}
+function solveCross(q, target) {
+
+  const left = q.left;
+  const right = q.right;
+
+  const isLeft = left.includes(target);
+
+  const numSide = isLeft ? right : left;
+  const denomSide = isLeft ? left : right;
+
+  const numerator = numSide.join("*");
+
+  const denominator =
+    denomSide.length > 2
+      ? `(${denomSide.filter(x => x !== target).join("*")})`
+      : denomSide.filter(x => x !== target).join("*");
+
+  return {
+    result: `${target} = ${numerator}/${denominator}`,
+    type: "cross"
+  };
+}
+function solveProductFraction(q, target) {
+
+  const num = q.numerator.join("*");
+  const lhs = q.lhs;
+
+  // CAS 1 : variable dans numérateur
+  if (Array.isArray(q.numerator) && q.numerator.includes(target)) {
+
+    const others =
+      q.numerator.filter(x => x !== target);
+
+    const numOther =
+      others.length ? others.join("*") : "1";
+
+    const denom =
+      q.denominatorPower
+        ? `(${q.denominator}^${q.denominatorPower})`
+        : `(${q.denominator})`;
+
+    return {
+      result: `${target} = (${lhs}*${denom})/(${numOther})`,
+      type: "fraction_product"
+    };
+  }
+
+  // CAS 2 : dénominateur
+  if (target === q.denominator) {
+
+    const inside = `(${num})/${lhs}`;
+
+    if (q.denominatorPower === 2) {
+
+      return {
+        result: `${target} = sqrt(${inside})`,
+        type: "sqrt_fraction"
+      };
+    }
+
+    return {
+      result: `${target} = ${inside}`,
+      type: "inverse_fraction"
+    };
+  }
+
+  return {
+    result: `${target} = ?`,
+    type: "fallback"
+  };
+}
+function solvePower(q, target) {
+
+  // variable principale (ex: T dans Kepler)
+  if (target === q.variable) {
+
+    return {
+      result: `${target} = (${q.lhs}/${q.coefficient})^(1/${q.power})`,
+      type: "root"
+    };
+  }
+
+  // variable droite (ex: R)
+  if (target === q.rightVar) {
+
+    return {
+      result: `${target} = (${q.leftVar}^${q.leftPower}/${q.coefficient})^(1/${q.rightPower})`,
+      type: "root"
+    };
+  }
+
+  // variable gauche
+  if (target === q.leftVar) {
+
+    return {
+      result: `${target} = sqrt(${q.coefficient}*${q.rightVar}^${q.rightPower})`,
+      type: "sqrt"
+    };
+  }
+
+  return {
+    result: `${target} = ?`,
+    type: "fallback"
+  };
+}
+function solveLog(q, target) {
+
+  if (target === "H+") {
+
+    return {
+      result: "H+ = 10^(-pH)",
+      type: "log"
+    };
+  }
+
+  if (target === "I") {
+
+    return {
+      result: "I = I0*10^(L/10)",
+      type: "log"
+    };
+  }
+
+  return {
+    result: `${target} = ?`,
+    type: "fallback"
+  };
+}
+function solveExp(q, target) {
+
+  if (target === "t") {
+
+    return {
+      result: "t = -ln(N/N0)/lambda",
+      type: "exp"
+    };
+  }
+
+  return {
+    result: `${target} = ?`,
+    type: "fallback"
+  };
+}
+function solveSum(q, target) {
+
+  return {
+    result: q.targetFormula || `${target} = ?`,
+    type: "sum"
+  };
+}
+function solveReciprocal(q, target) {
+
+  return {
+    result: "f = 1/(1/d0 + 1/di)",
+    type: "reciprocal"
+  };
+}
+
+/* =========================================================
+   DISTRACTORS - BASE
+========================================================= */
+
+function genericDistractors(q, target, correct = "", type = "", answer = "") {
+
+  const pool = q.targetPool || [];
+
+  const fake = [];
+
+  for (let i = 0; i < pool.length; i++) {
+
+    if (pool[i] !== target) {
+
+      fake.push(`${pool[i]} = ?`);
+    }
+  }
+
+  while (fake.length < 3) {
+    fake.push(`${target} = ?`);
+  }
+
+  return fake.slice(0, 3);
+}
+
+/* =========================================================
+   PRODUCT
+========================================================= */
+
+function productDistractors(q, target, correct) {
+
+  return buildCleanDistractors(
+    [
+      `${q.lhs}/${target}`,
+      `${q.lhs}*${target}`,
+      `${target}=${q.lhs}`
+    ],
+    correct,
+    target
+  );
+}
+
+/* =========================================================
+   FRACTION
+========================================================= */
+
+function fractionDistractors(q, target, correct) {
+
+  return buildCleanDistractors(
+    [
+      `${q.numerator}/${q.denominator}`,
+      `${q.lhs}*${q.denominator}`,
+      `${q.numerator}*${q.lhs}`
+    ],
+    correct,
+    target
+  );
+}
+
+/* =========================================================
+   CROSS PRODUCT
+========================================================= */
+
+function crossDistractors(q, target, correct) {
+
+  return buildCleanDistractors(
+    [
+      `${q.right.join("*")}/${q.left.join("*")}`,
+      `${q.left.join("*")}/${q.right.join("*")}`,
+      `${q.lhs}/(${target})`
+    ],
+    correct,
+    target
+  );
+}
+
+/* =========================================================
+   PRODUCT FRACTION
+========================================================= */
+
+function productFractionDistractors(q, target, correct) {
+
+  return buildCleanDistractors(
+    [
+      `${q.lhs}*${q.denominator}`,
+      `${q.numerator.join("*")}/${q.lhs}`,
+      `${q.lhs}/${q.numerator?.[0] || target}`
+    ],
+    correct,
+    target
+  );
+}
+
+/* =========================================================
+   POWER
+========================================================= */
+
+function powerDistractors(q, target, correct) {
+
+  return buildCleanDistractors(
+    [
+      `${q.lhs}^(1/${q.power || 2})`,
+      `${q.lhs}/${target}`,
+      `${target}^2`
+    ],
+    correct,
+    target
+  );
+}
+
+/* =========================================================
+   LOG
+========================================================= */
+
+function logDistractors(q, target, correct) {
+
+  return buildCleanDistractors(
+    [
+      `10^(-${target})`,
+      `log(${target})`,
+      `${target}^10`
+    ],
+    correct,
+    target
+  );
+}
 
 /* =========================================================
    BASE DE DONNÉES
@@ -184,22 +581,22 @@ const QUESTIONS = [
 ];
 
 /* =========================================================
+   COMPARAISON
+========================================================= */
+
+function isEqual(a, b, type) {
+  return normalize(a, type) === normalize(b, type);
+}
+
+/* =========================================================
    CLEAN
 ========================================================= */
 
-function cleanExpr(str) {
-
-  if (!str) return "";
-
-  return str
-
-    .replace(/\s+/g, " ")
-
-    // enlève seulement les doubles parenthèses inutiles
-    .replace(/\(\(([^()]+)\)\)/g, "($1)")
-
-    .trim();
+function cleanExpr(expr) {
+  if (!expr) return "";
+  return expr.replace(/\s+/g, "").trim();
 }
+
 
 /* =========================================================
    CANONICAL
@@ -274,14 +671,54 @@ function canonicalDisplay(expr) {
    NORMALIZE
 ========================================================= */
 
-function normalizeExpr(str) {
+function normalize(expr, type) {
+  if (!expr) return "";
 
-  if (!str) return "";
+  let e = expr;
 
-  return str
-    .replace(/\s+/g,"")
-    .replace(/\\times/g,"*")
-    .replace(/[{}]/g,"");
+  // base cleaning
+  e = e.replace(/\s+/g, "");
+
+  switch (type) {
+
+    case "fraction":
+    case "product_fraction":
+    case "reciprocal_sum":
+
+      // normalisation fraction stricte
+      e = e.replace(/\(([^()]+)\)/g, "$1");
+
+      // tri interne produit
+      e = e.replace(/([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g, (_, a, b) =>
+        [a, b].sort().join("*")
+      );
+
+      // normalisation fraction
+      e = e.replace(/([^\/]+)\/([^\/]+)/g, (_, a, b) => {
+        return `${a}/${b}`;
+      });
+
+      break;
+
+    case "product":
+    case "power":
+    case "exp":
+    case "log":
+    case "sum":
+    case "cross":
+
+      // suppression parenthèses inutiles
+      e = e.replace(/\(([^()]+)\)/g, "$1");
+
+      // tri produit global
+      e = e.replace(/([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g, (_, a, b) =>
+        [a, b].sort().join("*")
+      );
+
+      break;
+  }
+
+  return e;
 }
 
 /* =========================================================
@@ -300,7 +737,7 @@ function isSimple(expr) {
 function makeFraction(num, den) {
 
   const n = isSimple(num) ? num : wrap(num);
-  const d = isSimple(den) ? den : wrap(den);
+  const d = (/[+*\-]/.test(den)) ? wrap(den) : den;
 
   return `${n}/${d}`;
 }
@@ -417,20 +854,32 @@ function toLatex(str) {
 
   /* Cas 1 : numérateur simple / (dénominateur complexe) */
   out = out.replace(
-    /([a-zA-Z0-9\\{}_^()*+\-]+)\/\(([^()]+)\)/g,
+    /([^\/()]+|\([^()]+\))\s*\/\s*\(([^()]+)\)/g,
     "\\frac{$1}{$2}"
   );
 
-  /* Cas 2 : fraction générale (avec protection des opérateurs) */
+  /* Cas 2 : fraction générale (évite les faux positifs) */
   out = out.replace(
-    /([a-zA-Z0-9\\{}_^()*+\-]+)\/([a-zA-Z0-9\\{}_^()*+\-]+)/g,
-  "\\frac{$1}{$2}"
+    /([^\/()]+|\([^()]+\))\s*\/\s*([^\/()]+|\([^\/()]+\))/g,
+    (match, num, den) => {
+
+      // sécurité : éviter de re-transformer une fraction déjà LaTeX
+      if (match.includes("\\frac")) return match;
+
+      return `\\frac{${num}}{${den}}`;
+    }
   );
 
-  /* Cas 3 : évite les doubles fractions déjà converties */
+  /* Cas 3 : nettoyage des doubles fractions cassées */
   out = out.replace(
     /\\frac\{([^{}]+)\}\/\{([^{}]+)\}/g,
     "\\frac{$1}{$2}"
+  );
+
+  /* Cas 4 : sécurité finale (anti fractions vides) */
+  out = out.replace(
+    /\\frac\{\s*\}\s*\/\s*\{\s*\}/g,
+    ""
   );
 
   /* =========================================================
@@ -475,297 +924,13 @@ function shuffle(array) {
 
 function solveQuestion(q, target) {
 
-  switch(q.type) {
+  const engine = TYPE_ENGINE[q.type];
 
-    /* =========================================
-       PRODUIT
-    ========================================= */
-
-    case EXPRESSION_TYPES.PRODUCT: {
-
-      const others =
-        q.factors.filter(f => f !== target);
-
-      if (q.factors.includes(target)) {
-
-      const denom = others.length > 1 ? `(${others.join("*")})` : others[0];
-
-      return {
-        result: `${target} = ${q.lhs}/${denom}`,
-        type: "division"
-      };
-      }
-
-      break;
-    }
-
-    /* =========================================
-       FRACTION
- "   ========================================= */
-
-    case EXPRESSION_TYPES.FRACTION: {
-
-      if (target === q.numerator) {
-
-        return {
-          result:
-            `${target} = ${q.lhs}*${q.denominator}`,
-          type:"multiply_fraction"
-        };
-      }
-
-      if (target === q.denominator) {
-
-        return {
-          result:
-            `${target} = ${q.numerator}/${q.lhs}`,
-          type:"inverse_fraction"
-        };
-      }
-
-      break;
-    }
-
-    /* =========================================
-       CROSS
-    ========================================= */
-
-    case EXPRESSION_TYPES.CROSS: {
-
-      const left = q.left;
-      const right = q.right;
-
-      const isLeft = left.includes(target);
-
-      const numSide = isLeft ? right : left;
-      const denomSide = isLeft ? left : right;
-
-      const companion = denomSide.find(x => x !== target);
-
-      const numerator = numSide.join("*");
-
-      const denominator =
-        denomSide.length > 2
-          ? `(${denomSide.filter(x => x !== target).join("*")})`
-          : denomSide.filter(x => x !== target).join("*");
-
-      return {
-        result: `${target} = ${numerator}/${denominator}`,
-        type: "cross"
-      };
-    }
-
-    /* =========================================
-       PRODUCT FRACTION
-    ========================================= */
-
-    case EXPRESSION_TYPES.PRODUCT_FRACTION: {
-
-      const num = q.numerator.join("*");
-      const den = q.denominator;
-      const lhs = q.lhs;
-
-      /* =========================================
-         CAS 1 : on isole un facteur du NUMÉRATEUR
-      ========================================= */
-
-      if (Array.isArray(q.numerator) && q.numerator.includes(target)) {
-
-        const others = q.numerator.filter(x => x !== target);
-
-        const numOther = others.length ? others.join("*") : "1";
-
-        const denom = q.denominatorPower
-          ? `${q.denominator}^${q.denominatorPower}`
-          : q.denominator;
-
-        const denomSafe = q.denominatorPower
-          ? `(${q.denominator}^${q.denominatorPower})`
-          : `(${q.denominator})`;
-
-        return {
-          result: `${target} = (${q.lhs}*${denomSafe})/(${numOther})`,
-          type: "fraction_product"
-        };
-      }
-
-      /* =========================================
-         CAS 2 : on isole le DÉNOMINATEUR
-         ex: F = G*m1*m2 / r^2  → r = sqrt((G*m1*m2)/F)
-      ========================================= */
-
-      if (target === q.denominator) {
-
-        const numerator = num;
-
-        // IMPORTANT : parenthèses obligatoires pour éviter erreurs LaTeX / parsing
-        const inside = `(${numerator})/${lhs}`;
-
-        if (q.denominatorPower === 2) {
-
-          return {
-            result: `${target} = sqrt(${inside})`,
-            type: "sqrt_fraction"
-          };
-        }
-
-        return {
-          result: `${target} = ${inside}`,
-          type: "inverse_fraction"
-        };
-      }
-
-      return {
-        result: `${target} = ?`,
-        type: "fallback"
-      };
-    }
-
-    /* =========================================
-       PRODUCT POWER
-    ========================================= */
-
-    case EXPRESSION_TYPES.PRODUCT_POWER: {
-
-      if (target === q.poweredVar) {
-
-        const constPart =
-          q.constant ? q.constant + "*" : "";
-
-        const denom =
-          [...q.factors].join("*");
-
-        return {
-          result:
-            cleanExpr(`${target} = sqrt(${q.lhs}/(${constPart}${denom}))`),
-          type:"sqrt"
-        };
-      }
-
-      if (q.factors.includes(target)) {
-
-        return {
-          result:
-            cleanExpr(`${target} = ${q.lhs}/(${q.poweredVar}^${q.power}*${q.factors.filter(f=>f!==target).join("*")})`),
-          type:"division"
-        };
-      }
-
-      break;
-    }
-
-    /* =========================================
-       POWER
-    ========================================= */
-
-    case EXPRESSION_TYPES.POWER: {
-
-      if (target === q.variable) {
-
-        return {
-          result:
-            `${target} = (${q.lhs}/${q.coefficient})^(1/${q.power})`,
-          type:"root"
-        };
-      }
-
-      if (target === q.rightVar) {
-
-        return {
-          result:
-            `${target} = (${q.leftVar}^${q.leftPower}/${q.coefficient})^(1/${q.rightPower})`,
-          type:"root"
-        };
-      }
-
-      if (target === q.leftVar) {
-
-        return {
-          result:
-            `${target} = sqrt(${q.coefficient}*${q.rightVar}^${q.rightPower})`,
-          type:"sqrt"
-        };
-      }
-
-      break;
-    }
-
-    /* =========================================
-       LOG
-    ========================================= */
-
-    case EXPRESSION_TYPES.LOG: {
-
-      if (target === "H+") {
-
-        return {
-          result:
-            "H+ = 10^(-pH)",
-          type:"log"
-        };
-      }
-
-      if (target === "I") {
-
-        return {
-          result:
-            "I = I0*10^(L/10)",
-          type:"log"
-        };
-      }
-
-      break;
-    }
-
-    /* =========================================
-       EXP
-    ========================================= */
-
-    case EXPRESSION_TYPES.EXP: {
-
-      if (target === "t") {
-
-        return {
-          result:
-            "t = -ln(N/N0)/lambda",
-          type:"exp"
-        };
-      }
-
-      break;
-    }
-
-    /* =========================================
-       SUM
-    ========================================= */
-
-    case EXPRESSION_TYPES.SUM: {
-
-      return {
-        result:q.targetFormula,
-        type:"sum"
-      };
-    }
-
-    /* =========================================
-       RECIPROCAL
-    ========================================= */
-
-    case EXPRESSION_TYPES.RECIPROCAL_SUM: {
-
-      return {
-        result:
-          "f = 1/(1/d0 + 1/di)",
-        type:"reciprocal"
-      };
-    }
-
+  if (!engine || !engine.solve) {
+    return { result: `${target} = ?`, type: "fallback" };
   }
 
-  return {
-    result:`${target} = ?`,
-    type:"fallback"
-  };
+  return engine.solve(q, target);
 }
 
 /* =========================================================
@@ -875,217 +1040,13 @@ function buildCleanDistractors(rawList, correct, target) {
 
 function generateDistractors(q, target, correct) {
 
-  const base = q.baseVars.filter(v => v !== target);
-  const a = base[0] || "x";
-  const b = base[1] || "y";
-  const c = base[2] || "z";
+  const engine = TYPE_ENGINE[q.type];
 
-  switch (q.type) {
-
-    case EXPRESSION_TYPES.PRODUCT:
-      return productDistractors(q, target, a, b, correct);
-
-    case EXPRESSION_TYPES.FRACTION:
-      return fractionDistractors(q, target, correct);
-
-    case EXPRESSION_TYPES.CROSS:
-      return crossDistractors(q, target, a, b, c, correct);
-
-    case EXPRESSION_TYPES.PRODUCT_FRACTION:
-      return productFractionDistractors(q, target, a, b, c, correct);
-
-    case EXPRESSION_TYPES.LOG:
-      return logDistractors(q, target, correct);
-
-    case EXPRESSION_TYPES.POWER:
-    case EXPRESSION_TYPES.PRODUCT_POWER:
-    case EXPRESSION_TYPES.EXP:
-      return powerDistractors(q, target, a, b, correct);
-
-    default:
-      return genericDistractors(q, target, a, b, correct);
-  }
-}
-
-/* =========================================================
-   PRODUIT
-========================================================= */
-
-function productDistractors(q, target, a, b, correct) {
-
-  const raw = [
-    `${target} = ${a}/${b}`,
-    `${target} = ${b}/${a}`,
-    `${target} = ${a}*${b}`,
-    `${target} = ${b}*${a}`,
-    `${target} = ${b}-${a}`,
-    `${target} = ${a}-${b}`,
-    `${target} = ${a}+${b}`
-  ];
-
-  return buildCleanDistractors(raw, correct, target);
-}
-
-/* =========================================================
-   FRACTION
-========================================================= */
-
-function fractionDistractors(q, target, correct) {
-
-  let raw = [];
-
-  /* =========================================================
-     CAS 1 : on cherche le NUMÉRATEUR
-  ========================================================= */
-
-  if (target === q.numerator) {
-
-    raw = [
-
-      `${target} = ${q.lhs}*${q.denominator}`,
-      `${target} = ${q.denominator}/${q.lhs}`,
-      `${target} = ${q.lhs}/${q.denominator}`,
-      `${target} = ${q.lhs}+${q.denominator}`,
-      `${target} = ${q.lhs}-${q.denominator}`
-    ];
+  if (!engine || !engine.distractors) {
+    return genericDistractors(q, target, "", "", correct);
   }
 
-  /* =========================================================
-     CAS 2 : on cherche le DÉNOMINATEUR
-  ========================================================= */
-
-  else if (target === q.denominator) {
-
-    raw = [
-
-      `${target} = ${q.numerator}/${q.lhs}`,
-      `${target} = ${q.lhs}/${q.numerator}`,
-      `${target} = ${q.lhs}*${q.numerator}`,
-      `${target} = ${q.lhs}-${q.numerator}`,
-      `${target} = ${q.lhs}+${q.numerator}`
-    ];
-  }
-
-  /* =========================================================
-     FILTRAGE UNIFORME
-  ========================================================= */
-
-  return buildCleanDistractors(raw, correct, target);
-}
-
-/* =========================================================
-   PRODUIT EN CROIX
-========================================================= */
-
-function crossDistractors(q, target, correct) {
-
-  const left = q.left;
-  const right = q.right;
-
-  const isLeft = left.includes(target);
-
-  const otherSide = isLeft ? right : left;
-
-  const companion = isLeft
-    ? left.find(x => x !== target)
-    : right.find(x => x !== target);
-
-  const product = makeProduct(...otherSide);
-
-  const raw = [
-
-    `${target} = ${makeFraction(companion, product)}`,
-
-    `${target} = ${makeProduct(companion, product)}`,
-
-    `${target} = ${makeProduct(
-      makeFraction(companion, otherSide[0]),
-      otherSide[1]
-    )}`,
-
-    `${target} = ${companion}+${product}`,
-
-    `${target} = ${product}-${companion}`
-  ];
-
-  // 🚨 FILTRE CRITIQUE ICI
-  const filtered = raw.filter(expr => {
-
-    const normExpr = normalizeExpr(expr);
-    const normCorrect = normalizeExpr(correct);
-
-    return normExpr !== normCorrect;
-  });
-
-  return buildCleanDistractors(filtered, correct, target);
-}
-
-/* =========================================================
-   PRODUIT / FRACTION COMPLEXE
-========================================================= */
-
-function productFractionDistractors(q, target, a, b, c, correct) {
-
-  const raw = [
-    `${target} = ${q.lhs}/${q.denominator}`,
-    `${target} = ${q.denominator}/${q.lhs}`,
-    `${target} = sqrt(${q.lhs})`,
-    `${target} = ${q.lhs}*${a}`
-  ];
-
-  return buildCleanDistractors(raw, correct, target);
-}
-
-
-/* =========================================================
-   LOG / EXP
-========================================================= */
-
-function logDistractors(q, target, correct) {
-
-  const raw = [
-    `H+ = log(${q.lhs})`,
-    `H+ = 10^${q.lhs}`,
-    `H+ = -${q.lhs}`,
-    `H+ = ${q.lhs}/10`
-  ];
-
-  return buildCleanDistractors(raw, correct, target);
-}
-
-
-/* =========================================================
-   PUISSANCES / EXP
-========================================================= */
-
-function powerDistractors(q, target, a, b, correct) {
-
-  const raw = [
-    `${target} = ${q.lhs}/${q.coefficient || 1}`,
-    `${target} = sqrt(${q.lhs})`,
-    `${target} = ${q.lhs}^${q.power || 2}`,
-    `${target} = ${q.coefficient || 1}*${q.variable || a}`
-  ];
-
-  return buildCleanDistractors(raw, correct, target);
-}
-
-
-/* =========================================================
-   FALLBACK
-========================================================= */
-
-function genericDistractors(q, target, a, b, correct) {
-
-  const raw = [
-    `${target} = ${a}*${b}`,
-    `${target} = ${a}/${b}`,
-    `${target} = ${b}/${a}`,
-    `${target} = ${a}+${b}`,
-    `${target} = ${b}-${a}`
-  ];
-
-  return buildCleanDistractors(raw, correct, target);
+  return engine.distractors(q, target, correct);
 }
 
 /* =========================================================
