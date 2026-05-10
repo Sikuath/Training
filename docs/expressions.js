@@ -184,6 +184,125 @@ const QUESTIONS = [
 ];
 
 /* =========================================================
+   TABLE DISTRACTORS
+========================================================= */
+
+const DISTRACTOR_PATTERNS = {
+
+  // =========================
+  // FRACTION (rho = m/V, etc.)
+  // =========================
+  FRACTION_NUM: [
+    (L, A, B) => `${B}/${L}`,
+    (L, A, B) => `${L}/${B}`,
+    (L, A, B) => `${B}-${L}`,
+    (L, A, B) => `${B}+${L}`,
+    (L, A, B) => `${L}-${B}`
+  ],
+
+  FRACTION_DEN: [
+    (L, A, B) => `${L}/${A}`,
+    (L, A, B) => `${L}*${A}`,
+    (L, A, B) => `${A}+${L}`,
+    (L, A, B) => `${A}-${L}`,
+    (L, A, B) => `${L}-${A}`
+  ],
+
+  // =========================
+  // PRODUCT (P=m*g, U=R*I)
+  // =========================
+  PRODUCT: [
+    (L, A, B, t, other) => `${L}*${other}`,
+    (L, A, B, t, other) => `${other}/${L}`,
+    (L, A, B, t, other) => `${L}+${other}`,
+    (L, A, B, t, other) => `${L}-${other}`,
+    (L, A, B, t, other) => `${L}+${other}`,
+    (L, A, B, t, other) => `${other}-${L}`
+  ],
+
+  // =========================
+  // CROSS (C1V1 = C2V2)
+  // =========================
+  CROSS: [
+    (L, A, B, t) => `${L}/${t}`,
+    (L, A, B, t) => `${t}/${L}`,
+    (L, A, B, t) => `${L}*${t}`,
+    (L, A, B, t) => `${L}+${t}`,
+    (L, A, B, t) => `${t}*2`
+  ],
+
+  // =========================
+  // POWER (Kepler, Stefan, etc.)
+  // =========================
+  POWER: [
+    (L, A, B, t) => `${L}^(1/${t})`,
+    (L, A, B, t) => `(${t})^2`,
+    (L, A, B, t) => `${L}*${t}`,
+    (L, A, B, t) => `${L}^(1/2)`
+  ],
+
+  // =========================
+  // PRODUCT + POWER (Ec = 1/2 m v^2)
+  // =========================
+  PRODUCT_POWER: [
+    (L, A, B, t, other) => `${L}/(${other}*${t}^2)`,
+    (L, A, B, t, other) => `${L}/${other}`,
+    (L, A, B, t, other) => `${t}^2`,
+    (L, A, B, t, other) => `${other}*${t}`
+  ],
+
+  // =========================
+  // LOG (pH, son, etc.)
+  // =========================
+  LOG: [
+    (L, A, B, t) => `10^${t}`,
+    (L, A, B, t) => `e^${t}`,
+    (L, A, B, t) => `10^(-${t})`,
+    (L, A, B, t) => `${t}^2`
+  ],
+
+  // =========================
+  // EXP (radioactivité)
+  // =========================
+  EXP: [
+    (L, A, B, t) => `ln(${t})`,
+    (L, A, B, t) => `log(${t})`,
+    (L, A, B, t) => `-ln(${t})`,
+    (L, A, B, t) => `e^${t}`
+  ],
+
+  // =========================
+  // SUM (Bernoulli etc.)
+  // =========================
+  SUM: [
+    (L, A, B, t) => `${L}+${t}`,
+    (L, A, B, t) => `${L}-${t}`,
+    (L, A, B, t) => `${t}+1`,
+    (L, A, B, t) => `${t}*2`
+  ],
+
+  // =========================
+  // RECIPROCAL SUM (lentilles)
+  // =========================
+  RECIPROCAL_SUM: [
+    (L, A, B, t) => `1/(${L}+${t})`,
+    (L, A, B, t) => `${L}+${t}`,
+    (L, A, B, t) => `(${t})^(-1)`
+  ],
+
+  // =========================
+  // FALLBACK
+  // =========================
+  DEFAULT: [
+    (L, A, B, t) => `${L}/${t}`,
+    (L, A, B, t) => `${t}*2`,
+    (L, A, B, t) => `${t}/2`,
+    (L, A, B, t) => `${L}+${t}`,
+    (L, A, B, t) => `${L}-${t}`
+  ]
+};
+
+/* =========================================================
    DISPLAY
 ========================================================= */
 
@@ -406,99 +525,51 @@ function generateDistractors(q, target, correct) {
   const A = q.numerator;
   const B = q.denominator;
 
-  const pool = new Set();
+  let table;
 
   // =========================
-  // FRACTION
+  // CAS FRACTION AVEC CONTEXTE
   // =========================
   if (q.type === EXPRESSION_TYPES.FRACTION) {
 
-    if (target === A) {
-      pool.add(`${B}/${L}`);
-      pool.add(`${L}/${B}`);
-      pool.add(`${L}-${B}`);
-      pool.add(`${B}+${L}`);
-      pool.add(`${L}+${B}`);
-    }
-
-    if (target === B) {
-      pool.add(`${L}/${A}`);
-      pool.add(`${L}*${A}`);
-      pool.add(`${A}+${L}`);
-      pool.add(`${A}-${L}`);
-      pool.add(`${L}-${A}`);
-    }
+    table =
+      (target === A)
+        ? DISTRACTOR_PATTERNS.FRACTION_NUM
+        : DISTRACTOR_PATTERNS.FRACTION_DEN;
   }
 
   // =========================
-  // PRODUCT
+  // AUTRES CAS
   // =========================
   else if (q.type === EXPRESSION_TYPES.PRODUCT) {
 
-    const factors = q.factors || [];
-    const other = factors.find(f => f !== target) || "x";
-
-    pool.add(`${L}*${other}`);
-    pool.add(`${other}/${L}`);
-    pool.add(`${L}+${other}`);
-    pool.add(`${L}-${other}`);
-    pool.add(`${other}-${L}`);
+    table = DISTRACTOR_PATTERNS.PRODUCT;
   }
 
-  // =========================
-  // CROSS PRODUCT
-  // =========================
-  else if (q.type === EXPRESSION_TYPES.CROSS) {
-
-    pool.add(`${L}/${target}`);
-    pool.add(`${target}/${L}`);
-    pool.add(`${L}*2`);
-    pool.add(`${target}*2`);
-  }
-
-  // =========================
-  // POWER
-  // =========================
-  else if (q.type === EXPRESSION_TYPES.POWER) {
-
-    pool.add(`${L}^(1/${target})`);
-    pool.add(`(${target})^2`);
-    pool.add(`${L}*${target}`);
-  }
-
-  // =========================
-  // LOG
-  // =========================
-  else if (q.type === EXPRESSION_TYPES.LOG) {
-
-    pool.add(`10^${target}`);
-    pool.add(`e^${target}`);
-    pool.add(`${target}^2`);
-  }
-
-  // =========================
-  // EXP
-  // =========================
-  else if (q.type === EXPRESSION_TYPES.EXP) {
-
-    pool.add(`ln(${target})`);
-    pool.add(`log(${target})`);
-  }
-
-  // =========================
-  // DEFAULT
-  // =========================
   else {
 
-    pool.add(`${L}/${target}`);
-    pool.add(`${target}*2`);
-    pool.add(`${target}/2`);
-    pool.add(`${L}+${target}`);
-    pool.add(`${L}-${target}`);
+    table = DISTRACTOR_PATTERNS.DEFAULT;
   }
 
-  // nettoyage final
-  return [...pool].filter(x => x !== correct);
+  const other =
+    (q.factors || []).find(f => f !== target);
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    const val =
+      fn(L, A, B, target, other);
+
+    if (val && val !== correct) {
+      pool.add(val);
+    }
+  }
+
+  return [...pool];
 }
 
 /* =========================================================
