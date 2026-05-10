@@ -61,10 +61,10 @@ const EXPRESSION_TYPES = {
 
 const QUESTIONS = [
 
-{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
+//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U = R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"] },
 
 // 2
-{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
+//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho = m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"] },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d = rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"] },
@@ -76,16 +76,16 @@ const QUESTIONS = [
 //{ difficulty:"easy", domain:"chimie", law:"Concentration molaire", image:"./images/concentration_molaire.jpg", expr:"C = nsolute/Vsolution", type:EXPRESSION_TYPES.FRACTION, lhs:"C", numerator:"nsolute", denominator:"Vsolution", baseVars:["C","nsolute","Vsolution"], targetPool:["nsolute","Vsolution"] },
 
 // 6
-{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n = m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"] },
+//{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n = m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"] },
 
 // 7
-{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1 = C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"] },
+//{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1 = C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"] },
 
 // 8
 //{ difficulty:"easy", domain:"forces", law:"Poids", image:"./images/poids.jpg", expr:"P = m*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["m","g"], baseVars:["P","m","g"], targetPool:["m","g"] },
 
 // 9
-//{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F = G*m1*m2/r^2", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"] },
+{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F = G*m1*m2/r^2", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"] },
 
 // 10
 //{ difficulty:"hard", domain:"ondes", law:"Effet Doppler", image:"./images/doppler.jpg", expr:"f' = f*(v+vr)/(v+vs)", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"f'", numerator:["f","(v+vr)"], denominator:"(v+vs)", baseVars:["f'","f","v","vr","vs"], targetPool:["f"] },
@@ -192,12 +192,12 @@ function cleanExpr(str) {
   if (!str) return "";
 
   return str
+
     .replace(/\s+/g, " ")
 
-    // enlève parenthèses inutiles autour d'expressions simples
-    .replace(/\(([^()]+)\)/g, "$1")
+    // enlève seulement les doubles parenthèses inutiles
+    .replace(/\(\(([^()]+)\)\)/g, "($1)")
 
-    // évite doubles espaces
     .trim();
 }
 
@@ -207,11 +207,67 @@ function cleanExpr(str) {
 
 function canonical(expr) {
 
+  if (!expr) return "";
+
   return expr
     .replace(/\s+/g, "")
-    .split("*")
-    .sort()
-    .join("*");
+
+    // enlève parenthèses inutiles simples
+    .replace(/\(([^()]+)\)/g, "$1")
+
+    // normalise *
+    .replace(/\*+/g, "*");
+}
+
+function canonicalFraction(expr) {
+
+  return expr
+
+    .replace(/\s+/g, "")
+
+    // enlève parenthèses inutiles
+    .replace(/\(([^()]+)\)/g, "$1")
+
+    // trie les produits
+    .replace(
+      /([A-Za-z0-9_*]+)\/([A-Za-z0-9_*]+)/g,
+      (_, num, den) => {
+
+        const n = num.split("*").sort().join("*");
+        const d = den.split("*").sort().join("*");
+
+        return `${n}/${d}`;
+      }
+    );
+}
+function canonicalStrong(expr) {
+
+  return expr
+    .replace(/\s+/g, "")
+    .replace(/[{}]/g, "")
+    .replace(/\*/g, "*")
+    .replace(/\(([^()]+)\)/g, "$1")
+
+    // normalisation des fractions (ordre stable)
+    .replace(/([a-zA-Z0-9_]+)\/([a-zA-Z0-9_]+)/g, (_, a, b) => {
+      return `${a}/${b}`;
+    })
+
+    // tri multiplicatif dans produits simples
+    .replace(/([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g, (_, a, b) => {
+      return [a, b].sort().join("*");
+    })
+
+    .toLowerCase();
+}
+function canonicalDisplay(expr) {
+
+  if (!expr) return "";
+
+  return expr
+    .replace(/\s+/g, "")
+    .replace(/\(([^()]+)\)/g, "$1")
+    .replace(/\*+/g, "*");
 }
 
 /* =========================================================
@@ -225,8 +281,45 @@ function normalizeExpr(str) {
   return str
     .replace(/\s+/g,"")
     .replace(/\\times/g,"*")
-    .replace(/[{}]/g,"")
-    .toLowerCase();
+    .replace(/[{}]/g,"");
+}
+
+/* =========================================================
+   EXPRESSION BUILDER (SAFE FRACTIONS)
+========================================================= */
+
+function wrap(expr) {
+  if (!expr) return "";
+  return `(${expr})`;
+}
+
+function isSimple(expr) {
+  return /^[a-zA-Z0-9_]+$/.test(expr);
+}
+
+function makeFraction(num, den) {
+
+  const n = isSimple(num) ? num : wrap(num);
+  const d = isSimple(den) ? den : wrap(den);
+
+  return `${n}/${d}`;
+}
+
+function makeProduct(...terms) {
+
+  return terms
+    .filter(Boolean)
+    .map(t => {
+
+      // parenthèses UNIQUEMENT
+      // si somme ou différence
+
+      if (/[+\-]/.test(t))
+        return `(${t})`;
+
+      return t;
+    })
+    .join("*");
 }
 
 /* =========================================================
@@ -319,11 +412,24 @@ function toLatex(str) {
   );
 
   /* =========================================================
-     FRACTIONS
+       FRACTIONS
   ========================================================= */
 
+  /* Cas 1 : numérateur simple / (dénominateur complexe) */
   out = out.replace(
-    /([a-zA-Z0-9\\{}_^()+-]+)\/([a-zA-Z0-9\\{}_^()+-]+)/g,
+    /([a-zA-Z0-9\\{}_^()*+\-]+)\/\(([^()]+)\)/g,
+    "\\frac{$1}{$2}"
+  );
+
+  /* Cas 2 : fraction générale (avec protection des opérateurs) */
+  out = out.replace(
+    /([a-zA-Z0-9\\{}_^()*+\-]+)\/([a-zA-Z0-9\\{}_^()*+\-]+)/g,
+  "\\frac{$1}{$2}"
+  );
+
+  /* Cas 3 : évite les doubles fractions déjà converties */
+  out = out.replace(
+    /\\frac\{([^{}]+)\}\/\{([^{}]+)\}/g,
     "\\frac{$1}{$2}"
   );
 
@@ -382,11 +488,12 @@ function solveQuestion(q, target) {
 
       if (q.factors.includes(target)) {
 
-        return {
-          result:
-            cleanExpr(`${target} = ${q.lhs}/${others.join("*")}`),
-          type:"division"
-        };
+      const denom = others.length > 1 ? `(${others.join("*")})` : others[0];
+
+      return {
+        result: `${target} = ${q.lhs}/${denom}`,
+        type: "division"
+      };
       }
 
       break;
@@ -428,21 +535,22 @@ function solveQuestion(q, target) {
       const left = q.left;
       const right = q.right;
 
-      if (!left || !right || left.length !== 2 || right.length !== 2) {
-        console.error("CROSS mal formé :", q);
-        return { result: `${target} = ?`, type: "cross_error" };
-      }
+      const isLeft = left.includes(target);
 
-      const all = [...left, ...right];
+      const numSide = isLeft ? right : left;
+      const denomSide = isLeft ? left : right;
 
-      if (!all.includes(target)) break;
+      const companion = denomSide.find(x => x !== target);
 
-      const others = all.filter(x => x !== target);
+      const numerator = numSide.join("*");
+
+      const denominator =
+        denomSide.length > 2
+          ? `(${denomSide.filter(x => x !== target).join("*")})`
+          : denomSide.filter(x => x !== target).join("*");
 
       return {
-        result: cleanExpr(
-          `${target} = (${others[0]}*${others[1]})/${others[2]}`
-        ),
+        result: `${target} = ${numerator}/${denominator}`,
         type: "cross"
       };
     }
@@ -453,42 +561,64 @@ function solveQuestion(q, target) {
 
     case EXPRESSION_TYPES.PRODUCT_FRACTION: {
 
-      if (q.numerator.includes(target)) {
+      const num = q.numerator.join("*");
+      const den = q.denominator;
+      const lhs = q.lhs;
 
-        const others =
-          q.numerator.filter(x => x !== target);
+      /* =========================================
+         CAS 1 : on isole un facteur du NUMÉRATEUR
+      ========================================= */
 
-        const denom =
-          q.denominatorPower
-            ? `${q.denominator}^${q.denominatorPower}`
-            : q.denominator;
+      if (Array.isArray(q.numerator) && q.numerator.includes(target)) {
+
+        const others = q.numerator.filter(x => x !== target);
+
+        const numOther = others.length ? others.join("*") : "1";
+
+        const denom = q.denominatorPower
+          ? `${q.denominator}^${q.denominatorPower}`
+          : q.denominator;
+
+        const denomSafe = q.denominatorPower
+          ? `(${q.denominator}^${q.denominatorPower})`
+          : `(${q.denominator})`;
 
         return {
-          result:
-            cleanExpr(`${target} = (${q.lhs}*${denom})/(${others.join("*")})`),
-          type:"fraction_product"
+          result: `${target} = (${q.lhs}*${denomSafe})/(${numOther})`,
+          type: "fraction_product"
         };
       }
 
+      /* =========================================
+         CAS 2 : on isole le DÉNOMINATEUR
+         ex: F = G*m1*m2 / r^2  → r = sqrt((G*m1*m2)/F)
+      ========================================= */
+
       if (target === q.denominator) {
+
+        const numerator = num;
+
+        // IMPORTANT : parenthèses obligatoires pour éviter erreurs LaTeX / parsing
+        const inside = `(${numerator})/${lhs}`;
 
         if (q.denominatorPower === 2) {
 
           return {
-            result:
-              cleanExpr(`${target} = sqrt((${q.numerator.join("*")})/${q.lhs})`),
-            type:"sqrt_fraction"
+            result: `${target} = sqrt(${inside})`,
+            type: "sqrt_fraction"
           };
         }
 
         return {
-          result:
-            cleanExpr(`${target} = (${q.numerator.join("*")})/${q.lhs}`),
-          type:"inverse_fraction"
+          result: `${target} = ${inside}`,
+          type: "inverse_fraction"
         };
       }
 
-      break;
+      return {
+        result: `${target} = ?`,
+        type: "fallback"
+      };
     }
 
     /* =========================================
@@ -655,25 +785,82 @@ function isValidDistractor(candidate, correct, set) {
 
 function buildCleanDistractors(rawList, correct, target) {
 
-  const set = new Set();
+  const rawSet = new Set();       // comparaison brute
+  const displaySet = new Set();   // comparaison affichée après clean
+
   const result = [];
 
-  const normCorrect = canonical(correct);
+  // Bonne réponse normalisée BRUTE
+  const normCorrect =
+    normalizeExpr(correct);
+
+  // Bonne réponse APRES clean
+  const cleanCorrect =
+    normalizeExpr(cleanExpr(correct));
 
   const shuffled = shuffle(rawList);
 
   for (const d of shuffled) {
 
-    const norm = canonical(d);
+    /* =========================================
+       1) COMPARAISON BRUTE
+    ========================================= */
 
-    if (norm === normCorrect) continue;
-    if (set.has(norm)) continue;
+    const rawNorm =
+      normalizeExpr(d);
 
-    set.add(norm);
-    result.push(cleanExpr(d));
+    // distracteur == bonne réponse brute
+    if (rawNorm === normCorrect)
+      continue;
 
-    if (result.length === 3) break;
+    // doublon brut
+    if (rawSet.has(rawNorm))
+      continue;
+
+    /* =========================================
+       2) CLEAN POUR AFFICHAGE
+    ========================================= */
+
+    const cleaned =
+      cleanExpr(d);
+
+    const cleanNorm =
+      normalizeExpr(cleaned);
+
+    /* =========================================
+       3) SÉCURITÉ APRÈS CLEAN
+       IMPORTANT :
+       cleanExpr peut transformer :
+       (C2*V2)/V1
+       en
+       C2*V2/V1
+       => équivalent à la bonne réponse
+    ========================================= */
+
+    // devient la bonne réponse après clean
+    if (cleanNorm === cleanCorrect)
+      continue;
+
+    // doublon visuel après clean
+    if (displaySet.has(cleanNorm))
+      continue;
+
+    /* =========================================
+       4) VALIDATION
+    ========================================= */
+
+    rawSet.add(rawNorm);
+    displaySet.add(cleanNorm);
+
+    result.push(cleaned);
+
+    if (result.length === 3)
+      break;
   }
+
+  /* =========================================
+     FALLBACK
+  ========================================= */
 
   while (result.length < 3) {
     result.push(`${target} = ?`);
@@ -798,24 +985,39 @@ function crossDistractors(q, target, correct) {
   const isLeft = left.includes(target);
 
   const otherSide = isLeft ? right : left;
-  const otherVar = isLeft
+
+  const companion = isLeft
     ? left.find(x => x !== target)
     : right.find(x => x !== target);
 
-  const product = otherSide.join("*");
+  const product = makeProduct(...otherSide);
 
   const raw = [
 
-    `${target} = ${otherVar}/${product}`,
-    `${target} = ${product}*${otherVar}`,
-    `${target} = ${product}`,
-    `${target} = ${otherVar}*${product}`,
-    `${target} = ${otherVar}+${product}`,
-    `${target} = ${product}-${otherVar}`,
-    `${target} = ${otherVar}/${otherSide[0]}*${otherSide[1]}`
+    `${target} = ${makeFraction(companion, product)}`,
+
+    `${target} = ${makeProduct(companion, product)}`,
+
+    `${target} = ${makeProduct(
+      makeFraction(companion, otherSide[0]),
+      otherSide[1]
+    )}`,
+
+    `${target} = ${companion}+${product}`,
+
+    `${target} = ${product}-${companion}`
   ];
 
-  return buildCleanDistractors(raw, correct, target);
+  // 🚨 FILTRE CRITIQUE ICI
+  const filtered = raw.filter(expr => {
+
+    const normExpr = normalizeExpr(expr);
+    const normCorrect = normalizeExpr(correct);
+
+    return normExpr !== normCorrect;
+  });
+
+  return buildCleanDistractors(filtered, correct, target);
 }
 
 /* =========================================================
@@ -906,7 +1108,7 @@ function generateQuestion() {
     solveQuestion(q,target);
 
   const correct =
-    solved.result;
+    canonicalDisplay(solved.result);
 
   let choices = [
     correct,
@@ -1300,6 +1502,23 @@ function endGame() {
   setTimeout(() => {
     window.location.href = "gameover.html?score=" + score;
   }, 8000);
+}
+/* =========================================================
+   QUITGAME
+========================================================= */
+
+function quitGame() {
+
+  if (gameOver) return;
+
+  const confirmQuit = confirm("Êtes-vous sûr de vouloir quitter la partie ?");
+
+  if (!confirmQuit) return;
+
+  gameOver = true;
+  clearInterval(timer);
+
+  window.location.href = "index.html";
 }
 
 /* =========================================================
