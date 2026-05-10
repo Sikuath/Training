@@ -62,10 +62,10 @@ const EXPRESSION_TYPES = {
 const QUESTIONS = [
 
 // 1
-//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
+{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
 
 // 2
-{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
+//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d=rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"], answers:{rho:"rho=d*rho0", rho0:"rho0=rho/d"} },
@@ -438,11 +438,11 @@ function generateDistractors(q, target, correct) {
     const factors = q.factors || [];
     const other = factors.find(f => f !== target) || "x";
 
-    pool.add(`${L}/${other}`);
-    pool.add(`${target}*${other}`);
+    pool.add(`${L}*${other}`);
+    pool.add(`${other}/${L}`);
     pool.add(`${L}+${other}`);
     pool.add(`${L}-${other}`);
-    pool.add(`${target}/${other}`);
+    pool.add(`${other}-${L}`);
   }
 
   // =========================
