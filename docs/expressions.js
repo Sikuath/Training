@@ -56,153 +56,6 @@ const EXPRESSION_TYPES = {
 };
 
 /* =========================================================
-   DISTRACTORS
-========================================================= */
-
-const DISTRACTOR_CONSTANTS = {
-
-  product: {
-
-    invert_fraction: (lhs, A, B, target) => {
-
-      const other =
-        target === A ? B : A;
-
-      return `${target}=${other}/${lhs}`;
-    },
-
-    add: (lhs, A, B, target) => {
-
-      const other =
-        target === A ? B : A;
-
-      return `${target}=${lhs}+${other}`;
-    },
-
-    subtract_lhs_rhs: (lhs, A, B, target) => {
-
-      const other =
-        target === A ? B : A;
-
-      return `${target}=${lhs}-${other}`;
-    },
-
-    subtract_rhs_lhs: (lhs, A, B, target) => {
-
-      const other =
-        target === A ? B : A;
-
-      return `${target}=${other}-${lhs}`;
-    },
-
-    multiply: (lhs, A, B, target) => {
-
-      const other =
-        target === A ? B : A;
-
-      return `${target}=${lhs}*${other}`;
-    }
-
-  },
-
-  fraction: {
-
-    invert_fraction: (
-      lhs,
-      numerator,
-      denominator,
-      target
-    ) => {
-
-      const other =
-        target === numerator
-          ? denominator
-          : numerator;
-
-      return `${target}=${other}/${lhs}`;
-    },
-
-    multiply_all: (
-      lhs,
-      numerator,
-      denominator,
-      target
-    ) => {
-
-      const other =
-        target === numerator
-          ? denominator
-          : numerator;
-
-      return `${target}=${lhs}*${other}`;
-    },
-
-    divide_all: (
-      lhs,
-      numerator,
-      denominator,
-      target
-    ) => {
-
-      const other =
-        target === numerator
-          ? denominator
-          : numerator;
-
-      return `${target}=${lhs}/${other}`;
-    },
-
-    add: (
-      lhs,
-      numerator,
-      denominator,
-      target
-    ) => {
-
-      const other =
-        target === numerator
-          ? denominator
-          : numerator;
-
-      return `${target}=${lhs}+${other}`;
-    },
-
-    subtract: (
-      lhs,
-      numerator,
-      denominator,
-      target
-    ) => {
-
-      const other =
-        target === numerator
-          ? denominator
-          : numerator;
-
-      return `${target}=${lhs}-${other}`;
-    }
-
-  }
-
-};
-
-function genericDistractors(q, target) {
-
-  const base = [
-    `${target}=0`,
-    `${target}=1`,
-    `${target}=-1`
-  ];
-
-  // ajoute un faux isolement “structurel”
-  if (q.lhs && q.factors) {
-    base.push(`${q.lhs}/${target}`);
-  }
-
-  return base;
-}
-
-/* =========================================================
    BASE DE DONNÉES
 ========================================================= */
 
@@ -481,22 +334,20 @@ function toLatex(str) {
 
   /* Cas 1 : numérateur simple / (dénominateur complexe) */
   out = out.replace(
-    /([^\/()]+|\([^()]+\))\s*\/\s*\(([^()]+)\)/g,
+    /([^=\/()]+|\([^()]+\))\s*\/\s*\(([^()]+)\)/g,
     "\\frac{$1}{$2}"
   );
 
-  /* Cas 2 : fraction générale (UNIQUEMENT si pas déjà LaTeX) */
+  /* Cas 2 : fraction générale */
   out = out.replace(
-    /([^\/()]+|\([^()]+\))\s*\/\s*([^\/()]+|\([^\/()]+\))/g,
+    /([^=\/()]+|\([^()]+\))\s*\/\s*([^\/()]+|\([^\/()]+\))/g,
     (match, num, den) => {
 
-      // 🔥 protection réelle : ne pas toucher si déjà LaTeX
       if (match.includes("\\frac")) return match;
 
       return `\\frac{${num}}{${den}}`;
     }
   );
-
   /* Cas 3 : nettoyage des doubles fractions cassées */
   out = out.replace(
     /\\frac\{([^{}]+)\}\/\{([^{}]+)\}/g,
@@ -551,85 +402,103 @@ function shuffle(array) {
 
 function generateDistractors(q, target, correct) {
 
-  let rules = [];
+  const L = q.lhs;
+  const A = q.numerator;
+  const B = q.denominator;
 
-  let args = [];
+  const pool = new Set();
 
-  /* =========================================================
-     PRODUCT
-  ========================================================= */
+  // =========================
+  // FRACTION
+  // =========================
+  if (q.type === EXPRESSION_TYPES.FRACTION) {
 
-  if (q.type === EXPRESSION_TYPES.PRODUCT) {
+    if (target === A) {
+      pool.add(`${B}/${L}`);
+      pool.add(`${L}/${B}`);
+      pool.add(`${L}-${B}`);
+      pool.add(`${B}+${L}`);
+      pool.add(`${L}+${B}`);
+    }
 
-    const [A, B] = q.factors;
-
-    rules =
-      Object.values(
-        DISTRACTOR_CONSTANTS.product
-      );
-
-    args = [q.lhs, A, B, target];
+    if (target === B) {
+      pool.add(`${L}/${A}`);
+      pool.add(`${L}*${A}`);
+      pool.add(`${A}+${L}`);
+      pool.add(`${A}-${L}`);
+      pool.add(`${L}-${A}`);
+    }
   }
 
-  /* =========================================================
-     FRACTION
-  ========================================================= */
+  // =========================
+  // PRODUCT
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.PRODUCT) {
 
-  else if (q.type === EXPRESSION_TYPES.FRACTION) {
+    const factors = q.factors || [];
+    const other = factors.find(f => f !== target) || "x";
 
-    rules =
-      Object.values(
-        DISTRACTOR_CONSTANTS.fraction
-      );
-
-    args = [
-      q.lhs,
-      q.numerator,
-      q.denominator,
-      target
-    ];
+    pool.add(`${L}/${other}`);
+    pool.add(`${target}*${other}`);
+    pool.add(`${L}+${other}`);
+    pool.add(`${L}-${other}`);
+    pool.add(`${target}/${other}`);
   }
 
+  // =========================
+  // CROSS PRODUCT
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.CROSS) {
+
+    pool.add(`${L}/${target}`);
+    pool.add(`${target}/${L}`);
+    pool.add(`${L}*2`);
+    pool.add(`${target}*2`);
+  }
+
+  // =========================
+  // POWER
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.POWER) {
+
+    pool.add(`${L}^(1/${target})`);
+    pool.add(`(${target})^2`);
+    pool.add(`${L}*${target}`);
+  }
+
+  // =========================
+  // LOG
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.LOG) {
+
+    pool.add(`10^${target}`);
+    pool.add(`e^${target}`);
+    pool.add(`${target}^2`);
+  }
+
+  // =========================
+  // EXP
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.EXP) {
+
+    pool.add(`ln(${target})`);
+    pool.add(`log(${target})`);
+  }
+
+  // =========================
+  // DEFAULT
+  // =========================
   else {
-    return [];
+
+    pool.add(`${L}/${target}`);
+    pool.add(`${target}*2`);
+    pool.add(`${target}/2`);
+    pool.add(`${L}+${target}`);
+    pool.add(`${L}-${target}`);
   }
 
-  rules = shuffle(rules);
-
-  const result = [];
-
-  const seen = new Set();
-
-  const cleanCorrect =
-    cleanExpr(correct);
-
-  for (const rule of rules) {
-
-    const candidate =
-      cleanExpr(
-        rule(...args)
-      );
-
-    if (!candidate)
-      continue;
-
-    // pas la bonne réponse
-    if (candidate === cleanCorrect)
-      continue;
-
-    // pas de doublon
-    if (seen.has(candidate))
-      continue;
-
-    seen.add(candidate);
-
-    result.push(candidate);
-
-    if (result.length >= 3)
-      break;
-  }
-
-  return result;
+  // nettoyage final
+  return [...pool].filter(x => x !== correct);
 }
 
 /* =========================================================
