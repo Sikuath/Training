@@ -56,150 +56,150 @@ const EXPRESSION_TYPES = {
 };
 
 /* =========================================================
-   SOLVER PAR TYPE
+   DISTRACTORS
 ========================================================= */
+
+const DISTRACTOR_CONSTANTS = {
+
+  product: {
+
+    invert_fraction: (lhs, A, B, target) => {
+
+      const other =
+        target === A ? B : A;
+
+      return `${target}=${other}/${lhs}`;
+    },
+
+    add: (lhs, A, B, target) => {
+
+      const other =
+        target === A ? B : A;
+
+      return `${target}=${lhs}+${other}`;
+    },
+
+    subtract_lhs_rhs: (lhs, A, B, target) => {
+
+      const other =
+        target === A ? B : A;
+
+      return `${target}=${lhs}-${other}`;
+    },
+
+    subtract_rhs_lhs: (lhs, A, B, target) => {
+
+      const other =
+        target === A ? B : A;
+
+      return `${target}=${other}-${lhs}`;
+    },
+
+    multiply: (lhs, A, B, target) => {
+
+      const other =
+        target === A ? B : A;
+
+      return `${target}=${lhs}*${other}`;
+    }
+
+  },
+
+  fraction: {
+
+    invert_fraction: (
+      lhs,
+      numerator,
+      denominator,
+      target
+    ) => {
+
+      const other =
+        target === numerator
+          ? denominator
+          : numerator;
+
+      return `${target}=${other}/${lhs}`;
+    },
+
+    multiply_all: (
+      lhs,
+      numerator,
+      denominator,
+      target
+    ) => {
+
+      const other =
+        target === numerator
+          ? denominator
+          : numerator;
+
+      return `${target}=${lhs}*${other}`;
+    },
+
+    divide_all: (
+      lhs,
+      numerator,
+      denominator,
+      target
+    ) => {
+
+      const other =
+        target === numerator
+          ? denominator
+          : numerator;
+
+      return `${target}=${lhs}/${other}`;
+    },
+
+    add: (
+      lhs,
+      numerator,
+      denominator,
+      target
+    ) => {
+
+      const other =
+        target === numerator
+          ? denominator
+          : numerator;
+
+      return `${target}=${lhs}+${other}`;
+    },
+
+    subtract: (
+      lhs,
+      numerator,
+      denominator,
+      target
+    ) => {
+
+      const other =
+        target === numerator
+          ? denominator
+          : numerator;
+
+      return `${target}=${lhs}-${other}`;
+    }
+
+  }
+
+};
 
 function genericDistractors(q, target) {
 
-  return [
-
-    `${target} = ?`,
-    `${target} = ?`,
-    `${target} = ?`
+  const base = [
+    `${target}=0`,
+    `${target}=1`,
+    `${target}=-1`
   ];
-}
 
-/* =========================================================
-   PRODUCT
-========================================================= */
-
-function productDistractors(q, target, correct) {
-
-  return shuffle([
-
-    `${target} = ${q.lhs}*${target}`,
-
-    `${target} = ${q.lhs}/${target}`,
-
-    `${target} = ${q.lhs}`
-
-  ]).slice(0,3);
-}
-
-/* =========================================================
-   FRACTION
-========================================================= */
-
-function fractionDistractors(q, target, correct) {
-
-  const out = [];
-
-  // variable au numérateur
-  if (target === q.numerator) {
-
-    out.push(
-      `${target} = ${q.lhs}/${q.denominator}`
-    );
-
-    out.push(
-      `${target} = ${q.denominator}/${q.lhs}`
-    );
-
-    out.push(
-      `${target} = ${q.numerator}/${q.lhs}`
-    );
+  // ajoute un faux isolement “structurel”
+  if (q.lhs && q.factors) {
+    base.push(`${q.lhs}/${target}`);
   }
 
-  // variable au dénominateur
-  else {
-
-    out.push(
-      `${target} = ${q.lhs}/${q.numerator}`
-    );
-
-    out.push(
-      `${target} = ${q.numerator}*${q.lhs}`
-    );
-
-    out.push(
-      `${target} = ${q.denominator}/${q.lhs}`
-    );
-  }
-
-  return shuffle(out).slice(0,3);
-}
-
-/* =========================================================
-   CROSS PRODUCT
-========================================================= */
-
-function crossDistractors(q, target, correct) {
-
-  return shuffle([
-
-    `${target} = ${q.left.join("*")}/${q.right.join("*")}`,
-
-    `${target} = ${q.right.join("*")}/${q.left.join("*")}`,
-
-    `${target} = ${q.lhs || "k"}`
-
-  ]).slice(0,3);
-}
-
-/* =========================================================
-   PRODUCT FRACTION
-========================================================= */
-
-function productFractionDistractors(q, target, correct) {
-
-  const numerator =
-    q.numerator.join("*");
-
-  return shuffle([
-
-    `${target} = (${numerator})/${q.lhs}`,
-
-    `${target} = ${q.lhs}/(${numerator})`,
-
-    `${target} = sqrt(${numerator}/${q.lhs})`
-
-  ]).slice(0,3);
-}
-
-/* =========================================================
-   POWER
-========================================================= */
-
-function powerDistractors(q, target, correct) {
-
-  return buildCleanDistractors(
-    q,
-    [
-      `${q.lhs}^(1/${q.power || 2})`,
-      `${q.lhs}/${target}`,
-      `${target}^2`
-    ],
-    correct,
-    target
-  );
-}
-
-/* =========================================================
-   LOG
-========================================================= */
-
-function logDistractors(q, target, correct) {
-
-  return buildCleanDistractors(
-    q,
-    [
-      `10^(-${target})`,
-      `log(${target})`,
-      `${target}^10`
-    ],
-    correct,
-    target
-  );
+  return base;
 }
 
 /* =========================================================
@@ -209,10 +209,10 @@ function logDistractors(q, target, correct) {
 const QUESTIONS = [
 
 // 1
-{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
+//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
 
 // 2
-//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
+{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d=rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"], answers:{rho:"rho=d*rho0", rho0:"rho0=rho/d"} },
@@ -546,34 +546,90 @@ function shuffle(array) {
 }
 
 /* =========================================================
-   SOLVER CENTRAL
-========================================================= */
-
-
-
-/* =========================================================
    DISPATCHER PRINCIPAL
 ========================================================= */
 
 function generateDistractors(q, target, correct) {
 
-  switch(q.type) {
+  let rules = [];
 
-    case EXPRESSION_TYPES.PRODUCT:
-      return productDistractors(q, target, correct);
+  let args = [];
 
-    case EXPRESSION_TYPES.FRACTION:
-      return fractionDistractors(q, target, correct);
+  /* =========================================================
+     PRODUCT
+  ========================================================= */
 
-    case EXPRESSION_TYPES.CROSS:
-      return crossDistractors(q, target, correct);
+  if (q.type === EXPRESSION_TYPES.PRODUCT) {
 
-    case EXPRESSION_TYPES.PRODUCT_FRACTION:
-      return productFractionDistractors(q, target, correct);
+    const [A, B] = q.factors;
 
-    default:
-      return genericDistractors(q, target);
+    rules =
+      Object.values(
+        DISTRACTOR_CONSTANTS.product
+      );
+
+    args = [q.lhs, A, B, target];
   }
+
+  /* =========================================================
+     FRACTION
+  ========================================================= */
+
+  else if (q.type === EXPRESSION_TYPES.FRACTION) {
+
+    rules =
+      Object.values(
+        DISTRACTOR_CONSTANTS.fraction
+      );
+
+    args = [
+      q.lhs,
+      q.numerator,
+      q.denominator,
+      target
+    ];
+  }
+
+  else {
+    return [];
+  }
+
+  rules = shuffle(rules);
+
+  const result = [];
+
+  const seen = new Set();
+
+  const cleanCorrect =
+    cleanExpr(correct);
+
+  for (const rule of rules) {
+
+    const candidate =
+      cleanExpr(
+        rule(...args)
+      );
+
+    if (!candidate)
+      continue;
+
+    // pas la bonne réponse
+    if (candidate === cleanCorrect)
+      continue;
+
+    // pas de doublon
+    if (seen.has(candidate))
+      continue;
+
+    seen.add(candidate);
+
+    result.push(candidate);
+
+    if (result.length >= 3)
+      break;
+  }
+
+  return result;
 }
 
 /* =========================================================
@@ -596,18 +652,43 @@ function generateQuestion() {
   const target =
     q.targetPool[Math.floor(Math.random() * q.targetPool.length)];
 
-  // 🔥 nettoyage du correct (source du bug)
+  // 🔥 vraie réponse brute
   const rawCorrect =
     q.answers[target];
 
+  // 🔥 normalisation unique (CRITIQUE)
   const correct =
-    cleanChoice(rawCorrect);
+    cleanExpr(cleanChoice(rawCorrect));
 
+  // 🔥 génération des distracteurs
+  let distractors =
+    generateDistractors(q, target, correct)
+      .map(cleanExpr);
+
+  // 🔥 sécurité absolue : on retire toute collision avec la bonne réponse
+  distractors =
+    distractors.filter(d => d !== correct);
+
+  // 🔥 on supprime doublons
+  distractors =
+    [...new Set(distractors)];
+
+  // 🔥 on s’assure qu’on a 3 choix
+  while (distractors.length < 3) {
+    const fallback =
+      genericDistractors(q, target)
+        .map(cleanExpr)
+        .find(d => d !== correct && !distractors.includes(d));
+
+    if (!fallback) break;
+
+    distractors.push(fallback);
+  }
+
+  // 🔥 assemblage final
   let choices = [
-
     correct,
-
-    ...generateDistractors(q, target, correct)
+    ...distractors.slice(0, 3)
   ];
 
   choices = shuffle(choices);
