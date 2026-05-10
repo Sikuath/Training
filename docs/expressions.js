@@ -357,6 +357,7 @@ function genericDistractors(q, target, correct = "", type = "", answer = "") {
 function productDistractors(q, target, correct) {
 
   return buildCleanDistractors(
+    q,
     [
       `${q.lhs}/${target}`,
       `${q.lhs}*${target}`,
@@ -374,6 +375,7 @@ function productDistractors(q, target, correct) {
 function fractionDistractors(q, target, correct) {
 
   return buildCleanDistractors(
+    q,
     [
       `${q.numerator}/${q.denominator}`,
       `${q.lhs}*${q.denominator}`,
@@ -391,6 +393,7 @@ function fractionDistractors(q, target, correct) {
 function crossDistractors(q, target, correct) {
 
   return buildCleanDistractors(
+    q,
     [
       `${q.right.join("*")}/${q.left.join("*")}`,
       `${q.left.join("*")}/${q.right.join("*")}`,
@@ -408,6 +411,7 @@ function crossDistractors(q, target, correct) {
 function productFractionDistractors(q, target, correct) {
 
   return buildCleanDistractors(
+    q,
     [
       `${q.lhs}*${q.denominator}`,
       `${q.numerator.join("*")}/${q.lhs}`,
@@ -425,6 +429,7 @@ function productFractionDistractors(q, target, correct) {
 function powerDistractors(q, target, correct) {
 
   return buildCleanDistractors(
+    q,
     [
       `${q.lhs}^(1/${q.power || 2})`,
       `${q.lhs}/${target}`,
@@ -442,6 +447,7 @@ function powerDistractors(q, target, correct) {
 function logDistractors(q, target, correct) {
 
   return buildCleanDistractors(
+    q,
     [
       `10^(-${target})`,
       `log(${target})`,
@@ -581,6 +587,25 @@ const QUESTIONS = [
 ];
 
 /* =========================================================
+   DISPLAY
+========================================================= */
+
+function displayExpr(expr) {
+
+  if (!expr) return "";
+
+  let e = expr;
+
+  // enlève parenthèses inutiles autour de simples variables
+  e = e.replace(/\(([^()+\-*/]+)\)/g, "$1");
+
+  // nettoyage espaces
+  e = e.replace(/\s+/g, "");
+
+  return e;
+}
+
+/* =========================================================
    COMPARAISON
 ========================================================= */
 
@@ -597,128 +622,160 @@ function cleanExpr(expr) {
   return expr.replace(/\s+/g, "").trim();
 }
 
-
-/* =========================================================
-   CANONICAL
-========================================================= */
-
-function canonical(expr) {
-
-  if (!expr) return "";
-
-  return expr
-    .replace(/\s+/g, "")
-
-    // enlève parenthèses inutiles simples
-    .replace(/\(([^()]+)\)/g, "$1")
-
-    // normalise *
-    .replace(/\*+/g, "*");
-}
-
-function canonicalFraction(expr) {
-
-  return expr
-
-    .replace(/\s+/g, "")
-
-    // enlève parenthèses inutiles
-    .replace(/\(([^()]+)\)/g, "$1")
-
-    // trie les produits
-    .replace(
-      /([A-Za-z0-9_*]+)\/([A-Za-z0-9_*]+)/g,
-      (_, num, den) => {
-
-        const n = num.split("*").sort().join("*");
-        const d = den.split("*").sort().join("*");
-
-        return `${n}/${d}`;
-      }
-    );
-}
-function canonicalStrong(expr) {
-
-  return expr
-    .replace(/\s+/g, "")
-    .replace(/[{}]/g, "")
-    .replace(/\*/g, "*")
-    .replace(/\(([^()]+)\)/g, "$1")
-
-    // normalisation des fractions (ordre stable)
-    .replace(/([a-zA-Z0-9_]+)\/([a-zA-Z0-9_]+)/g, (_, a, b) => {
-      return `${a}/${b}`;
-    })
-
-    // tri multiplicatif dans produits simples
-    .replace(/([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g, (_, a, b) => {
-      return [a, b].sort().join("*");
-    })
-
-    .toLowerCase();
-}
-function canonicalDisplay(expr) {
-
-  if (!expr) return "";
-
-  return expr
-    .replace(/\s+/g, "")
-    .replace(/\(([^()]+)\)/g, "$1")
-    .replace(/\*+/g, "*");
-}
-
 /* =========================================================
    NORMALIZE
 ========================================================= */
 
 function normalize(expr, type) {
+
   if (!expr) return "";
 
-  let e = expr;
+  let e = expr.replace(/\s+/g, "");
 
-  // base cleaning
-  e = e.replace(/\s+/g, "");
+  // ----------------------------
+  // BASE COMMUNE
+  // ----------------------------
 
-  switch (type) {
+  const sortProduct = (str) =>
+    str
+      .split("*")
+      .filter(Boolean)
+      .sort()
+      .join("*");
 
-    case "fraction":
-    case "product_fraction":
-    case "reciprocal_sum":
+  // ----------------------------
+  // CAS FRACTIONS (CRITIQUE)
+  // ----------------------------
 
-      // normalisation fraction stricte
-      e = e.replace(/\(([^()]+)\)/g, "$1");
+  if (
+    type === "fraction" ||
+    type === "product_fraction" ||
+    type === "reciprocal_sum"
+  ) {
 
-      // tri interne produit
-      e = e.replace(/([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g, (_, a, b) =>
-        [a, b].sort().join("*")
-      );
+    e = e.replace(/\(([^()]+)\)/g, "$1");
 
-      // normalisation fraction
-      e = e.replace(/([^\/]+)\/([^\/]+)/g, (_, a, b) => {
-        return `${a}/${b}`;
-      });
+    return e.replace(
+      /([^/]+)\/([^/]+)/g,
+      (_, a, b) => {
+        const num = sortProduct(a);
+        const den = sortProduct(b);
+        return `${num}/${den}`;
+      }
+    );
+  }
 
-      break;
+  // ----------------------------
+  // CAS PRODUITS ET SIMILAIRES
+  // ----------------------------
 
-    case "product":
-    case "power":
-    case "exp":
-    case "log":
-    case "sum":
-    case "cross":
+  if (
+    type === "product" ||
+    type === "cross" ||
+    type === "power" ||
+    type === "exp" ||
+    type === "log" ||
+    type === "sum"
+  ) {
 
-      // suppression parenthèses inutiles
-      e = e.replace(/\(([^()]+)\)/g, "$1");
+    e = e.replace(/\(([^()]+)\)/g, "$1");
 
-      // tri produit global
-      e = e.replace(/([a-zA-Z0-9_]+)\*([a-zA-Z0-9_]+)/g, (_, a, b) =>
-        [a, b].sort().join("*")
-      );
-
-      break;
+    return sortProduct(e);
   }
 
   return e;
+}
+
+function normalizeProductFraction(expr) {
+
+  if (!expr) return "";
+
+  let e = cleanExpr(expr);
+
+  // enlève parenthèses inutiles
+  e = e.replace(/\(([^()]+)\)/g, "$1");
+
+  // normalisation fraction
+  const sortProduct = (str) =>
+    str
+      .split("*")
+      .filter(Boolean)
+      .sort()
+      .join("*");
+
+  e = e.replace(
+    /([^/]+)\/([^/]+)/g,
+    (_, a, b) => {
+      return `${sortProduct(a)}/${sortProduct(b)}`;
+    }
+  );
+
+  return e;
+}
+function normalizeProduct(expr) {
+
+  if (!expr) return "";
+
+  return expr
+    .replace(/\s+/g, "")
+    .split("*")
+    .filter(Boolean)
+    .sort()
+    .join("*");
+}
+function normalizeFraction(expr) {
+
+  if (!expr) return "";
+
+  const sortProduct = (str) =>
+    str
+      .split("*")
+      .filter(Boolean)
+      .sort()
+      .join("*");
+
+  return expr
+    .replace(/\s+/g, "")
+    .replace(/([^/]+)\/([^/]+)/g, (_, a, b) =>
+      `${sortProduct(a)}/${sortProduct(b)}`
+    );
+}
+function normalizeCross(expr) {
+
+  if (!expr) return "";
+
+  return expr
+    .replace(/\s+/g, "")
+    .split("*")
+    .filter(Boolean)
+    .sort()
+    .join("*");
+}
+function normalizePower(expr) {
+
+  if (!expr) return "";
+
+  return expr
+    .replace(/\s+/g, "")
+    .replace(/\(([^()]+)\)/g, "$1");
+}
+function normalizeLog(expr) {
+  return cleanExpr(expr);
+}
+function normalizeExp(expr) {
+  return cleanExpr(expr);
+}
+function normalizeSum(expr) {
+  return cleanExpr(expr);
+}
+function normalizeReciprocal(expr) {
+
+  if (!expr) return "";
+
+  return expr
+    .replace(/\s+/g, "")
+    .replace(/1\//g, "")
+    .replace(/\(([^()]+)\)/g, "$1");
 }
 
 /* =========================================================
@@ -858,12 +915,12 @@ function toLatex(str) {
     "\\frac{$1}{$2}"
   );
 
-  /* Cas 2 : fraction générale (évite les faux positifs) */
+  /* Cas 2 : fraction générale (UNIQUEMENT si pas déjà LaTeX) */
   out = out.replace(
     /([^\/()]+|\([^()]+\))\s*\/\s*([^\/()]+|\([^\/()]+\))/g,
     (match, num, den) => {
 
-      // sécurité : éviter de re-transformer une fraction déjà LaTeX
+      // 🔥 protection réelle : ne pas toucher si déjà LaTeX
       if (match.includes("\\frac")) return match;
 
       return `\\frac{${num}}{${den}}`;
@@ -876,7 +933,7 @@ function toLatex(str) {
     "\\frac{$1}{$2}"
   );
 
-  /* Cas 4 : sécurité finale (anti fractions vides) */
+  /* Cas 4 : sécurité anti fraction vide */
   out = out.replace(
     /\\frac\{\s*\}\s*\/\s*\{\s*\}/g,
     ""
@@ -937,98 +994,37 @@ function solveQuestion(q, target) {
    DISTRACTORS - ENGINE PAR TYPE D'EXPRESSION
 ========================================================= */
 
-function isValidDistractor(candidate, correct, set) {
-
-  const normCandidate = normalizeExpr(candidate);
-  const normCorrect = normalizeExpr(correct);
-
-  if (normCandidate === normCorrect) return false;
-  if (set.has(normCandidate)) return false;
-
-  return true;
-}
-
-function buildCleanDistractors(rawList, correct, target) {
-
-  const rawSet = new Set();       // comparaison brute
-  const displaySet = new Set();   // comparaison affichée après clean
+function buildCleanDistractors(q, rawList, correct, target) {
 
   const result = [];
+  const used = new Set();
 
-  // Bonne réponse normalisée BRUTE
-  const normCorrect =
-    normalizeExpr(correct);
+  const correctNorm = normalize(cleanExpr(correct), q.type);
 
-  // Bonne réponse APRES clean
-  const cleanCorrect =
-    normalizeExpr(cleanExpr(correct));
-
-  const shuffled = shuffle(rawList);
+  const shuffled = shuffle([...rawList]);
 
   for (const d of shuffled) {
 
-    /* =========================================
-       1) COMPARAISON BRUTE
-    ========================================= */
+    const cleaned = cleanExpr(d);
+    const norm = normalize(cleaned, q.type);
 
-    const rawNorm =
-      normalizeExpr(d);
+    // ❌ on enlève la bonne réponse
+    if (norm === correctNorm) continue;
 
-    // distracteur == bonne réponse brute
-    if (rawNorm === normCorrect)
-      continue;
+    // ❌ doublons logiques
+    if (used.has(norm)) continue;
 
-    // doublon brut
-    if (rawSet.has(rawNorm))
-      continue;
+    used.add(norm);
 
-    /* =========================================
-       2) CLEAN POUR AFFICHAGE
-    ========================================= */
+    // 🎨 affichage propre
+    result.push(displayExpr(cleaned));
 
-    const cleaned =
-      cleanExpr(d);
-
-    const cleanNorm =
-      normalizeExpr(cleaned);
-
-    /* =========================================
-       3) SÉCURITÉ APRÈS CLEAN
-       IMPORTANT :
-       cleanExpr peut transformer :
-       (C2*V2)/V1
-       en
-       C2*V2/V1
-       => équivalent à la bonne réponse
-    ========================================= */
-
-    // devient la bonne réponse après clean
-    if (cleanNorm === cleanCorrect)
-      continue;
-
-    // doublon visuel après clean
-    if (displaySet.has(cleanNorm))
-      continue;
-
-    /* =========================================
-       4) VALIDATION
-    ========================================= */
-
-    rawSet.add(rawNorm);
-    displaySet.add(cleanNorm);
-
-    result.push(cleaned);
-
-    if (result.length === 3)
-      break;
+    if (result.length === 3) break;
   }
 
-  /* =========================================
-     FALLBACK
-  ========================================= */
-
+  // fallback sécurisé
   while (result.length < 3) {
-    result.push(`${target} = ?`);
+    result.push(displayExpr(`${target} = ?`));
   }
 
   return result;
@@ -1056,46 +1052,40 @@ function generateDistractors(q, target, correct) {
 function generateQuestion() {
 
   const q =
-    QUESTIONS[
-      Math.floor(Math.random()*QUESTIONS.length)
-    ];
+    QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
 
   const target =
-    q.targetPool[
-      Math.floor(Math.random()*q.targetPool.length)
-    ];
+    q.targetPool[Math.floor(Math.random() * q.targetPool.length)];
 
-  const solved =
-    solveQuestion(q,target);
+  const solved = solveQuestion(q, target);
 
-  const correct =
-    canonicalDisplay(solved.result);
+  const correctRaw = solved.result;
+
+  const correctDisplay = displayExpr(correctRaw);
+
+  const correctNorm = normalize(cleanExpr(correctRaw), q.type);
 
   let choices = [
-    correct,
-    ...generateDistractors(q,target,correct)
+    correctDisplay,
+    ...generateDistractors(q, target, correctRaw)
   ];
 
+  // 🎲 shuffle
   choices = shuffle(choices);
 
+  // 🎯 index bonne réponse basé sur NORMALISATION
   const answer =
-    choices.findIndex(
-      c =>
-        normalizeExpr(c) ===
-        normalizeExpr(correct)
+    choices.findIndex(c =>
+      normalize(cleanExpr(c), q.type) === correctNorm
     );
 
   currentQuestion = {
-
     ...q,
-
     target,
-
     choices,
-
-    answer,
-
-    solveType: solved.type
+    answer: answer >= 0 ? answer : 0,
+    solveType: solved.type,
+    correct: correctDisplay
   };
 }
 
