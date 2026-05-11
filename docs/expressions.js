@@ -62,10 +62,10 @@ const EXPRESSION_TYPES = {
 const QUESTIONS = [
 
 // 1
-{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
+//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
 
 // 2
-{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
+//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d=rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"], answers:{rho:"d*rho0", rho0:"rho/d"} },
@@ -80,13 +80,13 @@ const QUESTIONS = [
 //{ difficulty:"easy", domain:"chimie", law:"Quantité de matière", image:"./images/quantite_matiere.jpg", expr:"n=m/M", type:EXPRESSION_TYPES.FRACTION, lhs:"n", numerator:"m", denominator:"M", baseVars:["n","m","M"], targetPool:["m","M"], answers:{m:"n*M", M:"m/n"} },
 
 // 7
-{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1=C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"], answers:{C1:"C2*V2/V1", V1:"C2*V2/C1", C2:"C1*V1/V2", V2:"C1*V1/C2"} },
+//{ difficulty:"medium", domain:"chimie", law:"Dilution", image:"./images/dilution.jpg", expr:"C1*V1=C2*V2", type:EXPRESSION_TYPES.CROSS, left:["C1","V1"], right:["C2","V2"], baseVars:["C1","V1","C2","V2"], targetPool:["C1","V1","C2","V2"], answers:{C1:"C2*V2/V1", V1:"C2*V2/C1", C2:"C1*V1/V2", V2:"C1*V1/C2"} },
 
 // 8
 //{ difficulty:"easy", domain:"forces", law:"Poids", image:"./images/poids.jpg", expr:"P=m*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["m","g"], baseVars:["P","m","g"], targetPool:["m","g"], answers:{m:"P/g", g:"P/m"} },
 
 // 9
-//{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F=(G*m1*m2)/(r^2)", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], answers:{m1:"(F*r^2)/(G*m2)", m2:"(F*r^2)/(G*m1)", r:"sqrt((G*m1*m2)/F)"} },
+{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F=G*m1*m2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], answers:{m1:"F*r^2/G*m2", m2:"F*r^2/G*m1", r:"\sqrt(G*m1*m2/F)"} },
 
 // 10
 //{ difficulty:"hard", domain:"ondes", law:"Effet Doppler", image:"./images/doppler.jpg", expr:"f'=f*(v+vr)/(v+vs)", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"f'", numerator:["f","(v+vr)"], denominator:"(v+vs)", baseVars:["f'","f","v","vr","vs"], targetPool:["f"], answers:{f:"f'*(v+vs)/(v+vr)"} },
@@ -107,7 +107,7 @@ const QUESTIONS = [
 //{ difficulty:"hard", domain:"energie", law:"Chaleur", image:"./images/chaleur.jpg", expr:"Q=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT, lhs:"Q", factors:["m","c","(Tf-Ti)"], baseVars:["Q","m","c","Tf","Ti"], targetPool:["m"], answers:{m:"Q/(c*(Tf-Ti))"} },
 
 // 16
-//{ difficulty:"medium", domain:"electricite", law:"Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"(F*r^2)/(k*q2)", q2:"(F*r^2)/(k*q1)" , r:"sqrt((k*q1*q2)/F)"} },
+//{ difficulty:"medium", domain:"electricite", law:"Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"F*r^2/k*q2", q2:"F*r^2/k*q1" , r:"\sqrt(k*q1*q2/F)"} },
 
 // 17
 //{ difficulty:"easy", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P=rho*g*h", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["h","rho"], answers:{h:"P/(rho*g)", rho:"P/(g*h)"} },
@@ -276,6 +276,62 @@ CROSS: [
   ({op1,op2,other}) => `${op2}/(${op1}*${other})`
 
 ],
+
+  // =========================
+  // FORCE CENTRALE
+  // =========================
+
+FORCE_CENTRALE: [
+
+  // =========================
+  // CAS MASS (m1 / m2)
+  // =========================
+
+  // erreur type inversion produit
+  (L, num, den, target, other) =>
+    `${L}*${den}^2/(${other}*G)`,
+
+  // oubli du carré
+  (L, num, den, target, other) =>
+    `${L}*${den}/(${other}*G)`,
+
+  // mauvais placement fraction
+  (L, num, den, target, other) =>
+    `${L}/(${other}*G*${den}^2)`,
+
+  // inversion m1/m2
+  (L, num, den, target, other) =>
+    `${L}*${den}^2/(G*${target})`,
+
+  // multiplication au lieu division
+  (L, num, den, target, other) =>
+    `${L}*${target}*${den}^2`,
+
+  // =========================
+  // CAS R (racine)
+  // =========================
+
+  // oubli de racine
+  (L, num, den, target, other) =>
+    `${num[0]}*${num[1]}/${L}`,
+
+  // racine mal placée
+  (L, num, den, target, other) =>
+    `sqrt(${L}*${den}^2)`,
+
+  // inversion fraction dans racine
+  (L, num, den, target, other) =>
+    `sqrt(${L}/(${num[0]}*${num[1]}))`,
+
+  // carré au lieu de racine
+  (L, num, den, target, other) =>
+    `(${num[0]}*${num[1]}/${L})^2`,
+
+  // racine oubliée complète
+  (L, num, den, target, other) =>
+    `${num[0]}*${num[1]}/${L}`
+]
+
 
   // =========================
   // POWER (Kepler, Stefan, etc.)
@@ -476,15 +532,6 @@ function toLatex(str) {
     });
 
   /* =========================================================
-     SQRT
-  ========================================================= */
-
-  out = out.replace(
-    /sqrt\(([^()]*)\)/g,
-    "\\sqrt{$1}"
-  );
-
-  /* =========================================================
      EXPOSANTS
   ========================================================= */
 
@@ -523,6 +570,20 @@ function toLatex(str) {
   out = out.replace(
     /\\frac\{\s*\}\s*\/\s*\{\s*\}/g,
     ""
+  );
+
+  /* =========================================================
+     SQRT
+  ========================================================= */
+
+  out = out.replace(
+    /sqrt\(([^()]*)\)/g,
+    "\\sqrt{$1}"
+  );
+
+  out = out.replace(
+    /sqrt\{([^{}]*)\}/g,
+    "\\sqrt{$1}"
   );
 
   /* =========================================================
