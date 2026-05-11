@@ -51,8 +51,10 @@ const EXPRESSION_TYPES = {
     "exp",
 
   RECIPROCAL_SUM:
-    "reciprocal_sum"
+    "reciprocal_sum",
 
+  FORCE_CENTRALE:
+    "force_centrale"
 };
 
 /* =========================================================
@@ -223,7 +225,7 @@ const DISTRACTOR_PATTERNS = {
   // =========================
   // CROSS (C1V1 = C2V2)
   // =========================
-CROSS: [
+  CROSS: [
 
   // =====================================
   // produit au lieu de quotient
@@ -281,57 +283,33 @@ CROSS: [
   // FORCE CENTRALE
   // =========================
 
-FORCE_CENTRALE: [
-
-  // =========================
-  // CAS MASS (m1 / m2)
-  // =========================
-
-  // erreur type inversion produit
+  FORCE_CENTRALE_M: [
   (L, num, den, target, other) =>
-    `${L}*${den}^2/(${other}*G)`,
-
-  // oubli du carré
+    `${L}*${den}^2/(${other}+${num[0]})`,
   (L, num, den, target, other) =>
-    `${L}*${den}/(${other}*G)`,
-
-  // mauvais placement fraction
+    `${L}/(${other}*${num[0]}*${den}^2)`,
   (L, num, den, target, other) =>
-    `${L}/(${other}*G*${den}^2)`,
-
-  // inversion m1/m2
+    `${L}*${other}*${den}^2/${num[0]}`,
   (L, num, den, target, other) =>
-    `${L}*${den}^2/(G*${target})`,
-
-  // multiplication au lieu division
+    `${L}-${den}^2/${other}*${num[0]}`,
   (L, num, den, target, other) =>
-    `${L}*${target}*${den}^2`,
-
-  // =========================
-  // CAS R (racine)
-  // =========================
-
-  // oubli de racine
+    `${other}*${num[0]}/${L}-${den}^2`,
   (L, num, den, target, other) =>
-    `${num[0]}*${num[1]}/${L}`,
+    `${other}+${L}/${num[0]}-${den}^2`
+],
 
-  // racine mal placée
-  (L, num, den, target, other) =>
-    `sqrt(${L}*${den}^2)`,
-
-  // inversion fraction dans racine
-  (L, num, den, target, other) =>
-    `sqrt(${L}/(${num[0]}*${num[1]}))`,
-
-  // carré au lieu de racine
-  (L, num, den, target, other) =>
-    `(${num[0]}*${num[1]}/${L})^2`,
-
-  // racine oubliée complète
-  (L, num, den, target, other) =>
-    `${num[0]}*${num[1]}/${L}`
-]
-
+  FORCE_CENTRALE_R: [
+  (L, num, den, other) =>
+    `sqrt(${L}/${num[0]}*${num[1]}*${num[2]})`,
+  (L, num, den, other) =>
+    `(${L}/${num[0]}*${num[1]}*${num[2]})^2`,
+  (L, num, den, other) =>
+    `(${num[0]}*${num[1]}*${num[2]}/${L})^2`,
+  (L, num, den, other) =>
+    `sqrt(1/${L}-${num[0]}*${num[1]}*${num[2]})`,
+  (L, num, den, other) =>
+    `sqrt(1/${num[0]}*${num[1]}*${num[2]}-${L})`
+],
 
   // =========================
   // POWER (Kepler, Stefan, etc.)
@@ -701,6 +679,52 @@ function generateDistractors(q, target, correct) {
     return [...pool];
   }
 
+    // =========================
+  // 🔥 CAS FORCE CENTRALE
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.FORCE_CENTRALE) {
+
+  const L = q.lhs;
+  const num = q.numerator || [];
+  const den = q.denominator;
+  const pow = q.denominatorPower ?? 2;
+
+  const isRadius = target === "r";
+
+  const table = isRadius
+    ? DISTRACTOR_PATTERNS.FORCE_CENTRALE_R
+    : DISTRACTOR_PATTERNS.FORCE_CENTRALE_M;
+
+  const other =
+    (q.targetPool || []).find(v => v !== target) ?? "x";
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = isRadius
+        ? fn(L, num, den, other)
+        : fn(L, num, den, target, other, pow);
+
+    } catch (e) {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) {
+      continue;
+    }
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
   else {
 
     table = DISTRACTOR_PATTERNS.DEFAULT;
@@ -770,16 +794,19 @@ function generateQuestion() {
 
   // 🔥 on s’assure qu’on a 3 choix
   while (distractors.length < 3) {
-    const fallback =
-      genericDistractors(q, target)
-        .map(cleanExpr)
-        .find(d => d !== correct && !distractors.includes(d));
 
-    if (!fallback) break;
+  const fn =
+    DISTRACTOR_PATTERNS.DEFAULT[
+      Math.floor(Math.random() * DISTRACTOR_PATTERNS.DEFAULT.length)
+    ];
 
-    distractors.push(fallback);
+  const val =
+    cleanExpr(fn(currentQuestion.lhs, null, null, target));
+
+  if (val !== correct && !distractors.includes(val)) {
+    distractors.push(val);
   }
-
+}
   // 🔥 assemblage final
   let choices = [
     correct,
@@ -1036,6 +1063,47 @@ function showFeedback() {
       </div>
       `;
       break;
+
+    /* =========================================================
+   FORCE CENTRALE (gravitation / Coulomb)
+========================================================= */
+
+case EXPRESSION_TYPES.FORCE_CENTRALE:
+  explanation = `
+  <div style="text-align:left">
+
+  👉 De relation <b>\\(${toLatex(q.expr)}\\)</b>
+  on en déduit que la force dépend :
+
+  <ul>
+    <li>du produit des grandeurs au numérateur</li>
+    <li>et de la distance au carré au dénominateur</li>
+  </ul>
+
+  Pour isoler la variable recherchée <b>\\(${toLatex(q.target)}\\)</b> :
+
+  <ul>
+    <li>on commence par supprimer la fraction en faisant un produit en croix</li>
+    <li>puis on divise par les facteurs restants</li>
+  </ul>
+
+  ${q.target === "r"
+    ? `
+
+    ⚠️ Attention :
+    la distance apparaît sous la forme
+    \\(${toLatex(q.denominator)}^2\\).
+
+    Après isolement de
+    \\(${toLatex(q.denominator)}^2\\),
+    il faut appliquer une racine carrée.
+    `
+    : ""
+  }
+
+  </div>
+  `;
+  break;
 
     /* =========================================================
        FALLBACK
