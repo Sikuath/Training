@@ -62,10 +62,10 @@ const EXPRESSION_TYPES = {
 const QUESTIONS = [
 
 // 1
-//{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
+{ difficulty:"easy", domain:"electricite", law:"Loi d’Ohm", image:"./images/ohm.jpg", expr:"U=R*I", type:EXPRESSION_TYPES.PRODUCT, lhs:"U", factors:["R","I"], baseVars:["U","R","I"], targetPool:["R","I"], answers:{R:"U/I", I:"U/R"} },
 
 // 2
-//{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
+{ difficulty:"easy", domain:"chimie", law:"Masse volumique", image:"./images/masse_volumique.jpg", expr:"rho=m/V", type:EXPRESSION_TYPES.FRACTION, lhs:"rho", numerator:"m", denominator:"V", baseVars:["rho","m","V"], targetPool:["m","V"], answers:{m:"rho*V", V:"m/rho"} },
 
 // 3
 //{ difficulty:"easy", domain:"chimie", law:"Densité", image:"./images/densite.jpg", expr:"d=rho/rho0", type:EXPRESSION_TYPES.FRACTION, lhs:"d", numerator:"rho", denominator:"rho0", baseVars:["d","rho","rho0"], targetPool:["rho","rho0"], answers:{rho:"d*rho0", rho0:"rho/d"} },
@@ -95,49 +95,49 @@ const QUESTIONS = [
 //{ difficulty:"medium", domain:"ondes", law:"Réfraction", image:"./images/refraction.jpg", expr:"n1*sin(i)=n2*sin(r)", type:EXPRESSION_TYPES.CROSS, left:["n1","sin(i)"], right:["n2","sin(r)"], baseVars:["n1","n2","sin(i)","sin(r)"], targetPool:["n1","n2","sin(i)","sin(r)"], answers:{n1:"(n2*sin(r))/sin(i)", n2:"(n1*sin(i))/sin(r)", sin(i):"(n2*sin(r))/n1",sin(r):"(n1*sin(i))/n2"} },
 
 // 12
-//{ difficulty:"medium", domain:"lentilles", law:"Grandissement", image:"./images/lens.jpg", expr:"G=A1B1/AB", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"A1B1", denominator:"AB", baseVars:["G","A1B1","AB"], targetPool:["A1B1","AB"], answers:{A1B1:"G*AB", AB:"A1B1/G"} },
+//{ difficulty:"easy", domain:"lentilles", law:"Grandissement", image:"./images/lens.jpg", expr:"G=A1B1/AB", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"A1B1", denominator:"AB", baseVars:["G","A1B1","AB"], targetPool:["A1B1","AB"], answers:{A1B1:"G*AB", AB:"A1B1/G"} },
 
 // 13
-//{ difficulty:"hard", domain:"chimie", law:"Beer-Lambert", image:"./images/spectroscopie.jpg", expr:"A=epsilon*l*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"A", factors:["epsilon","l","C"], baseVars:["A","epsilon","l","C"], targetPool:["C"], answers:{C:"A/(epsilon*l)"} },
+//{ difficulty:"easy", domain:"chimie", law:"Beer-Lambert", image:"./images/spectroscopie.jpg", expr:"A=epsilon*l*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"A", factors:["epsilon","l","C"], baseVars:["A","epsilon","l","C"], targetPool:["C"], answers:{C:"A/(epsilon*l)"} },
 
 // 14
 //{ difficulty:"medium", domain:"chimie", law:"Titrage", image:"./images/titrage.jpg", expr:"nA/a=nB/b", type:EXPRESSION_TYPES.CROSS, left:["nA","b"], right:["nB","a"], baseVars:["nA","nB","a","b"], targetPool:["nA","nB"], answers:{nA:"(nB*a)/b", nB:"(nA*b)/a"} },
 
 // 15
-//{ difficulty:"medium", domain:"energie", law:"Chaleur", image:"./images/chaleur.jpg", expr:"Q=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT, lhs:"Q", factors:["m","c","(Tf-Ti)"], baseVars:["Q","m","c","Tf","Ti"], targetPool:["m"], answers:{m:"Q/(c*(Tf-Ti))"} },
+//{ difficulty:"hard", domain:"energie", law:"Chaleur", image:"./images/chaleur.jpg", expr:"Q=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT, lhs:"Q", factors:["m","c","(Tf-Ti)"], baseVars:["Q","m","c","Tf","Ti"], targetPool:["m"], answers:{m:"Q/(c*(Tf-Ti))"} },
 
 // 16
 //{ difficulty:"medium", domain:"electricite", law:"Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"(F*r^2)/(k*q2)", q2:"(F*r^2)/(k*q1)" , r:"sqrt((k*q1*q2)/F)"} },
 
 // 17
-//{ difficulty:"medium", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P=rho*g*h", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["h","rho"], answers:{h:"P/(rho*g)", rho:"P/(g*h)"} },
+//{ difficulty:"easy", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P=rho*g*h", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["h","rho"], answers:{h:"P/(rho*g)", rho:"P/(g*h)"} },
 
 // 18
-//{ difficulty:"medium", domain:"thermodynamique", law:"Boyle-Mariotte", image:"./images/manometre.jpg", expr:"P*V=k", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["k"], baseVars:["P","V","k"], targetPool:["P","V"], answers:{P:"k/V", V:"k/P"} },
+//{ difficulty:"easy", domain:"thermodynamique", law:"Boyle-Mariotte", image:"./images/manometre.jpg", expr:"P*V=k", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["k"], baseVars:["P","V","k"], targetPool:["P","V"], answers:{P:"k/V", V:"k/P"} },
 
 // 19
 //{ difficulty:"easy", domain:"energie", law:"Puissance", image:"./images/puissance.jpg", expr:"P=E/deltat", type:EXPRESSION_TYPES.FRACTION, lhs:"P", numerator:"E", denominator:"deltat", baseVars:["P","E","deltat"], targetPool:["E","deltat"], answers:{E:"P*deltat", deltat:"deltat=E/P"} },
 
 // 20
-//{ difficulty:"easy", domain:"electricite", law:"Effet Joule", image:"./images/joule.jpg", expr:"E=R*I^2*deltat", type:EXPRESSION_TYPES.PRODUCT_POWER, lhs:"E", factors:["R","deltat"], poweredVar:"I", power:2, baseVars:["E","R","I","deltat"], targetPool:["R","I","deltat"], answers:{R:"E/(I^2*deltat)", I:"sqrt(E/(R*deltat))", deltat:"E/(R*I^2)"} },
+//{ difficulty:"hard", domain:"electricite", law:"Effet Joule", image:"./images/joule.jpg", expr:"E=R*I^2*deltat", type:EXPRESSION_TYPES.PRODUCT_POWER, lhs:"E", factors:["R","deltat"], poweredVar:"I", power:2, baseVars:["E","R","I","deltat"], targetPool:["R","I","deltat"], answers:{R:"E/(I^2*deltat)", I:"sqrt(E/(R*deltat))", deltat:"E/(R*I^2)"} },
 
 // 21
-//{ difficulty:"easy", domain:"energie", law:"Énergie cinétique", image:"./images/energie_cinetique.jpg", expr:"Ec=1/2*m*v^2", type:EXPRESSION_TYPES.PRODUCT_POWER, lhs:"Ec", constant:"1/2", factors:["m"], poweredVar:"v", power:2, baseVars:["Ec","m","v"], targetPool:["m","v"], answers:{m:"(2*Ec)/v^2", v:"sqrt((2*Ec)/m)"} },
+//{ difficulty:"medium", domain:"energie", law:"Énergie cinétique", image:"./images/energie_cinetique.jpg", expr:"Ec=1/2*m*v^2", type:EXPRESSION_TYPES.PRODUCT_POWER, lhs:"Ec", constant:"1/2", factors:["m"], poweredVar:"v", power:2, baseVars:["Ec","m","v"], targetPool:["m","v"], answers:{m:"(2*Ec)/v^2", v:"sqrt((2*Ec)/m)"} },
 
 // 22
-//{ difficulty:"easy", domain:"energie", law:"Énergie potentielle de pesanteur", image:"./images/energie_pot_pes.jpg", expr:"Epp=m*g*h+Epp(0)", type:EXPRESSION_TYPES.PRODUCT_EPP, lhs:"Epp", constant:"Epp(0)", factors:["m","g","h"], baseVars:["Ep","m","g","h","Epp(0)"], targetPool:["m","h"], answers:{m:"(Epp-Epp(0))/(g*h)", h:"(Epp-Epp(0))/(m*g)"} },
+//{ difficulty:"medium", domain:"energie", law:"Énergie potentielle de pesanteur", image:"./images/energie_pot_pes.jpg", expr:"Epp=m*g*h+Epp(0)", type:EXPRESSION_TYPES.PRODUCT_EPP, lhs:"Epp", constant:"Epp(0)", factors:["m","g","h"], baseVars:["Ep","m","g","h","Epp(0)"], targetPool:["m","h"], answers:{m:"(Epp-Epp(0))/(g*h)", h:"(Epp-Epp(0))/(m*g)"} },
 
 // 23
 //{ difficulty:"easy", domain:"ondes", law:"Célérité onde", image:"./images/celerite.jpg", expr:"v=lambda*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"v", factors:["lambda","f"], baseVars:["v","lambda","f"], targetPool:["lambda","f"], answers:{lambda:"v/f", f:"v/lambda"} },
 
 // 24
-//{ difficulty:"hard", domain:"quantique", law:"Photon", image:"./images/energie_photon.jpg", expr:"E=h*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"E", factors:["h","f"], baseVars:["E","h","f"], targetPool:["f"], answers:{f:"E/h"} },
+//{ difficulty:"easy", domain:"quantique", law:"Photon", image:"./images/energie_photon.jpg", expr:"E=h*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"E", factors:["h","f"], baseVars:["E","h","f"], targetPool:["f"], answers:{f:"E/h"} },
 
 // 25
 //{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^(-lambda*t)", type:EXPRESSION_TYPES.EXP, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t"], answers:{t:"-(ln(N/N0))/lambda"} },
 
 // 26
-//{ difficulty:"medium", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr:"pH=-log([H3O+]/C0)", type:EXPRESSION_TYPES.LOG, lhs:"pH", variable:"[H3O+]", baseVars:["pH","[H3O+]"], targetPool:["[H3O+]"], answers:{[H3O+]:"C0*10^(-pH)"} },
+//{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr:"pH=-log([H3O+]/C0)", type:EXPRESSION_TYPES.LOG, lhs:"pH", variable:"[H3O+]", baseVars:["pH","[H3O+]"], targetPool:["[H3O+]"], answers:{[H3O+]:"C0*10^(-pH)"} },
 
 // 27
 //{ difficulty:"hard", domain:"gravitation", law:"Kepler III", image:"./images/kepler.jpg", expr:"T^2=k*R^3", type:EXPRESSION_TYPES.POWER, leftVar:"T", leftPower:2, coefficient:"k", rightVar:"R", rightPower:3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"(T^2/k)^(1/3)", T:"sqrt(k*R^3)"} },
@@ -146,10 +146,10 @@ const QUESTIONS = [
 //{ difficulty:"hard", domain:"fluide", law:"Bernoulli", image:"./images/bernoulli.jpg", expr:"P+1/2*rho*v^2=k", type:EXPRESSION_TYPES.SUM, targetFormula:"v=sqrt((2*(k-P))/rho)", baseVars:["P","rho","v","k"], targetPool:["v"], answers:{v:"v=sqrt((2*(k-P))/rho)"} },
 
 // 29
-//{ difficulty:"medium", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa=rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"], answers:{rho:"Pa/(V*g)", V:"Pa/(rho*g)"} },
+//{ difficulty:"easy", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa=rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"], answers:{rho:"Pa/(V*g)", V:"Pa/(rho*g)"} },
 
 // 30
-//{ difficulty:"hard", domain:"fluide", law:"Venturi", image:"./images/venturi.jpg", expr:"v1*S1=v2*S2", type:EXPRESSION_TYPES.CROSS, left:["v1","S1"], right:["v2","S2"], baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2","S1","S2"], answers:{v1:"(v2*S2)/S1", v2:"(v1*S1)/S2", S1:"(v2/S2)/v1", S2:"(v1*S1)/v2"} },
+//{ difficulty:"medium", domain:"fluide", law:"Venturi", image:"./images/venturi.jpg", expr:"v1*S1=v2*S2", type:EXPRESSION_TYPES.CROSS, left:["v1","S1"], right:["v2","S2"], baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2","S1","S2"], answers:{v1:"(v2*S2)/S1", v2:"(v1*S1)/S2", S1:"(v2/S2)/v1", S2:"(v1*S1)/v2"} },
 
 // 31
 //{ difficulty:"hard", domain:"thermodynamique", law:"Gaz parfait", image:"./images/gaz_parfait.jpg", expr:"P*V=n*R*T", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["n","R*T"], baseVars:["P","V","n","R","T"], targetPool:["P","V","n","T"], answers:{P:"(n*R*T)/V", V:"(n*R*T)/P", n:"(P*V)/(R*T)", T:"(P*V)/(n*R)"} },
@@ -158,16 +158,16 @@ const QUESTIONS = [
 //{ difficulty:"hard", domain:"energie", law:"Rayonnement", image:"./images/stefan.jpg", expr:"P=sigma*T^4", type:EXPRESSION_TYPES.POWER, lhs:"P", coefficient:"sigma", variable:"T", power:4, baseVars:["P","sigma","T"], targetPool:["T"], answers:{T:"(P/sigma)^(1/4)"} },
 
 // 33
-//{ difficulty:"hard", domain:"electricite", law:"Circuit RC", image:"./images/rc.jpg", expr:"tau=R*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"tau", factors:["R","C"], baseVars:["tau","R","C"], targetPool:["R","C"], answers:{R:"tau/C", C:"tau/R"} },
+//{ difficulty:"easy", domain:"electricite", law:"Circuit RC", image:"./images/rc.jpg", expr:"tau=R*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"tau", factors:["R","C"], baseVars:["tau","R","C"], targetPool:["R","C"], answers:{R:"tau/C", C:"tau/R"} },
 
 // 34
-//{ difficulty:"hard", domain:"ondes", law:"Diffraction", image:"./images/diffraction.jpg", expr:"theta=lambda/a", type:EXPRESSION_TYPES.FRACTION, lhs:"theta", numerator:"lambda", denominator:"a", baseVars:["theta","lambda","a"], targetPool:["lambda","a"], answers:{lambda:"theta*a", a:"lambda/theta"} },
+//{ difficulty:"easy", domain:"ondes", law:"Diffraction", image:"./images/diffraction.jpg", expr:"theta=lambda/a", type:EXPRESSION_TYPES.FRACTION, lhs:"theta", numerator:"lambda", denominator:"a", baseVars:["theta","lambda","a"], targetPool:["lambda","a"], answers:{lambda:"theta*a", a:"lambda/theta"} },
 
 // 35
-//{ difficulty:"hard", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i=lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", numerator:["lambda","D"], denominator:"b", baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"], answers:{lambda:"(i*b)/D", D:"(i*b)/lambda", b:"(lambda*D)/i"} },
+//{ difficulty:"medium", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i=lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", numerator:["lambda","D"], denominator:"b", baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"], answers:{lambda:"(i*b)/D", D:"(i*b)/lambda", b:"(lambda*D)/i"} },
 
 // 36
-//{ difficulty:"medium", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^(L/10)"} },
+//{ difficulty:"hard", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^(L/10)"} },
 
 // 37
 //{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=v^2/R", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"a", numerator:["v"], numeratorPower:2, denominator:"R", baseVars:["a","v","R"], targetPool:["v","R"], answers:{v:"sqrt(a*R)", R:"v^2/a"} },
@@ -179,7 +179,7 @@ const QUESTIONS = [
 //{ difficulty:"hard", domain:"lentilles", law:"Conjugaison", image:"./images/lens1.jpg", expr:"1/di-1/do=1/f", type:EXPRESSION_TYPES.RECIPROCAL_SUM, baseVars:["f","do","di"], targetPool:["f"], answers:{f:"(do*di)/(do-di)"} },
 
 // 40
-//{ difficulty:"hard", domain:"optique", law:"Lunette astronomique", image:"./images/lunette.jpg", expr:"G=fo/fe", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"fo", denominator:"fe", baseVars:["G","fo","fe"], targetPool:["fo","fe"], answers:{fo:"G*fe", fe:"fo/G"} }
+//{ difficulty:"easy", domain:"optique", law:"Lunette astronomique", image:"./images/lunette.jpg", expr:"G=fo/fe", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"fo", denominator:"fe", baseVars:["G","fo","fe"], targetPool:["fo","fe"], answers:{fo:"G*fe", fe:"fo/G"} }
 
 ];
 
@@ -567,101 +567,98 @@ function shuffle(array) {
 
 function generateDistractors(q, target, correct) {
 
-  let table =
-    DISTRACTOR_PATTERNS.DEFAULT;
+  const L = q.lhs;
+  const A = q.numerator;
+  const B = q.denominator;
 
-  const ctx = {
+  let table;
 
-    L: q.lhs,
-
-    A: q.numerator,
-    B: q.denominator,
-
-    target,
-
-    other: null,
-
-    op1: null,
-    op2: null
-  };
-
-  /* =====================================================
-     FRACTION
-  ===================================================== */
-
+  // =========================
+  // CAS FRACTION AVEC CONTEXTE
+  // =========================
   if (q.type === EXPRESSION_TYPES.FRACTION) {
 
     table =
-      (target === q.numerator)
+      (target === A)
         ? DISTRACTOR_PATTERNS.FRACTION_NUM
         : DISTRACTOR_PATTERNS.FRACTION_DEN;
   }
 
-  /* =====================================================
-     PRODUCT
-  ===================================================== */
-
+  // =========================
+  // AUTRES CAS
+  // =========================
   else if (q.type === EXPRESSION_TYPES.PRODUCT) {
 
-    table =
-      DISTRACTOR_PATTERNS.PRODUCT;
-
-    ctx.other =
-      q.factors.find(f => f !== target);
+    table = DISTRACTOR_PATTERNS.PRODUCT;
   }
-
-  /* =====================================================
-     CROSS
-  ===================================================== */
-
+    // =========================
+  // 🔥 CAS CROSS
+  // =========================
   else if (q.type === EXPRESSION_TYPES.CROSS) {
 
-    table =
-      DISTRACTOR_PATTERNS.CROSS;
+    table = DISTRACTOR_PATTERNS.CROSS;
 
-    const targetOnLeft =
-      q.left.includes(target);
+    const left = q.left || [];
 
-    if (targetOnLeft) {
+    const op1 = left[0] ?? "x";
+    const op2 = left[1] ?? "y";
 
-      ctx.other =
-        q.left.find(v => v !== target);
+    const allVars = [
+      ...(q.left || []),
+      ...(q.right || [])
+    ];
 
-      ctx.op1 = q.right[0];
-      ctx.op2 = q.right[1];
+    const other =
+      allVars.find(v => v && v !== target) ?? "k";
 
-    } else {
+    const pool = new Set();
 
-      ctx.other =
-        q.right.find(v => v !== target);
+    while (pool.size < 3) {
 
-      ctx.op1 = q.left[0];
-      ctx.op2 = q.left[1];
+      const fn =
+        table[Math.floor(Math.random() * table.length)];
+
+      let val;
+
+      try {
+        val = fn({ op1, op2, other });
+      } catch (e) {
+        continue;
+      }
+
+      if (
+        !val ||
+        val === correct ||
+        val.includes("undefined")
+      ) {
+        continue;
+      }
+
+      pool.add(val);
     }
+
+    return [...pool];
   }
 
-  /* =====================================================
-     GENERATION
-  ===================================================== */
+  else {
+
+    table = DISTRACTOR_PATTERNS.DEFAULT;
+  }
+
+  const other =
+    (q.factors || []).find(f => f !== target);
 
   const pool = new Set();
 
-  let attempts = 0;
-
-  while (pool.size < 3 && attempts < 50) {
-
-    attempts++;
+  while (pool.size < 3) {
 
     const fn =
       table[Math.floor(Math.random() * table.length)];
 
     const val =
-      cleanExpr(fn(ctx));
+      fn(L, A, B, target, other);
 
-    if (
-      val &&
-      val !== cleanExpr(correct)
-    ) {
+    if (val && val !== correct) {
       pool.add(val);
     }
   }
