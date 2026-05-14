@@ -1,6 +1,5 @@
 import { QUESTIONS } from "./exp_questions.js";
 import { DISTRACTOR_PATTERNS } from "./exp_distractors.js";
-import { generateDistractors } from "./exp_distractors.js"
 import { toLatex, displayExpr } from "./exp_latex.js";
 import { showFeedback } from "./exp_feedback.js";
 import { EXPRESSION_TYPES } from "./exp_types.js";
@@ -70,6 +69,157 @@ function shuffle(array) {
   }
 
   return arr;
+}
+
+/* =========================================================
+   DISPATCHER PRINCIPAL
+========================================================= */
+
+function generateDistractors(q, target, correct) {
+
+  const L = q.lhs;
+  const A = q.numerator;
+  const B = q.denominator;
+
+  let table;
+
+  // =========================
+  // CAS FRACTION AVEC CONTEXTE
+  // =========================
+  if (q.type === EXPRESSION_TYPES.FRACTION) {
+
+    table =
+      (target === A)
+        ? DISTRACTOR_PATTERNS.FRACTION_NUM
+        : DISTRACTOR_PATTERNS.FRACTION_DEN;
+  }
+
+  // =========================
+  // AUTRES CAS
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.PRODUCT) {
+
+    table = DISTRACTOR_PATTERNS.PRODUCT;
+  }
+    // =========================
+  // 🔥 CAS CROSS
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.CROSS) {
+
+    table = DISTRACTOR_PATTERNS.CROSS;
+
+    const left = q.left || [];
+
+    const op1 = left[0] ?? "x";
+    const op2 = left[1] ?? "y";
+
+    const allVars = [
+      ...(q.left || []),
+      ...(q.right || [])
+    ];
+
+    const other =
+      allVars.find(v => v && v !== target) ?? "k";
+
+    const pool = new Set();
+
+    while (pool.size < 3) {
+
+      const fn =
+        table[Math.floor(Math.random() * table.length)];
+
+      let val;
+
+      try {
+        val = fn({ op1, op2, other });
+      } catch (e) {
+        continue;
+      }
+
+      if (
+        !val ||
+        val === correct ||
+        val.includes("undefined")
+      ) {
+        continue;
+      }
+
+      pool.add(val);
+    }
+
+    return [...pool];
+  }
+
+    // =========================
+  // 🔥 CAS FORCE CENTRALE
+  // =========================
+  else if (q.type === EXPRESSION_TYPES.FORCE_CENTRALE) {
+
+  const L = q.lhs;
+  const num = q.numerator || [];
+  const den = q.denominator;
+  const pow = q.denominatorPower ?? 2;
+
+  const isRadius = target === "r";
+
+  const table = isRadius
+    ? DISTRACTOR_PATTERNS.FORCE_CENTRALE_R
+    : DISTRACTOR_PATTERNS.FORCE_CENTRALE_M;
+
+  const other =
+    (q.targetPool || []).find(v => v !== target) ?? "x";
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = isRadius
+        ? fn(L, num, den, other)
+        : fn(L, num, den, target, other, pow);
+
+    } catch (e) {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) {
+      continue;
+    }
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+  else {
+
+    table = DISTRACTOR_PATTERNS.DEFAULT;
+  }
+
+  const other =
+    (q.factors || []).find(f => f !== target);
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    const val =
+      fn(L, A, B, target, other);
+
+    if (val && val !== correct) {
+      pool.add(val);
+    }
+  }
+
+  return [...pool];
 }
 
 /* =========================================================

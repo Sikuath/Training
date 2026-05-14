@@ -191,3 +191,167 @@ export const DISTRACTOR_PATTERNS = {
     (L, A, B, t) => `${L}-${t}`
   ]
 };
+
+export function generateDistractors(q, target, correct) {
+
+  switch (q.type) {
+
+    case "fraction":
+      return handleFraction(q, target, correct);
+
+    case "product":
+      return handleProduct(q, target, correct);
+
+    case "cross":
+      return handleCross(q, target, correct);
+
+    case "force_centrale":
+      return handleForce(q, target, correct);
+
+    default:
+      return handleDefault(q, target, correct);
+  }
+}
+
+  // =========================
+  // FRACTION
+  // =========================
+
+function handleFraction(q, target, correct) {
+
+  const L = q.lhs;
+  const A = q.numerator;
+  const B = q.denominator;
+
+  const table =
+    (target === A)
+      ? DISTRACTOR_PATTERNS.FRACTION_NUM
+      : DISTRACTOR_PATTERNS.FRACTION_DEN;
+
+  return generateFromTable(table, [L, A, B], correct);
+}
+
+  // =========================
+  // CROSS
+  // =========================
+
+function handleCross(q, target, correct) {
+
+  const table = DISTRACTOR_PATTERNS.CROSS;
+
+  const left = q.left || [];
+
+  const op1 = left[0] ?? "x";
+  const op2 = left[1] ?? "y";
+
+  const allVars = [...(q.left || []), ...(q.right || [])];
+
+  const other = allVars.find(v => v && v !== target) ?? "k";
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = fn({ op1, op2, other });
+    } catch {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // FORCE CENTRALE
+  // =========================
+function handleForce(q, target, correct) {
+
+  const L = q.lhs;
+  const num = q.numerator || [];
+  const den = q.denominator;
+  const pow = q.denominatorPower ?? 2;
+
+  const isRadius = target === "r";
+
+  const table = isRadius
+    ? DISTRACTOR_PATTERNS.FORCE_CENTRALE_R
+    : DISTRACTOR_PATTERNS.FORCE_CENTRALE_M;
+
+  const other =
+    (q.targetPool || []).find(v => v !== target) ?? "x";
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = isRadius
+        ? fn(L, num, den, other)
+        : fn(L, num, den, target, other, pow);
+
+    } catch {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // DEFAULT
+  // =========================
+function handleDefault(q, target, correct) {
+
+  const L = q.lhs;
+  const A = q.numerator;
+  const B = q.denominator;
+
+  const table = DISTRACTOR_PATTERNS.DEFAULT;
+
+  return generateFromTable(table, [L, A, B, target], correct);
+}
+
+  // =========================
+  // HELPER COMMUN
+  // =========================
+function generateFromTable(table, args, correct) {
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = fn(...args);
+    } catch {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
