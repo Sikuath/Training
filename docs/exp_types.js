@@ -31,5 +31,7 @@ export const EXPRESSION_TYPES = {
     "reciprocal_sum",
 
   FORCE_CENTRALE:
-    "force_centrale"
+    "force_centrale",
+  DOPPLER:
+    "doppler"
 };

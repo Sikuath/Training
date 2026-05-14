@@ -10,7 +10,7 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
   switch (q.type) {
 
     /* =========================================================
-       PRODUIT
+&       PRODUIT
     ========================================================= */
 
     case EXPRESSION_TYPES.PRODUCT:
@@ -137,44 +137,106 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
 
     /* =========================================================
    FORCE CENTRALE (gravitation / Coulomb)
-========================================================= */
+   ========================================================= */
 
-case EXPRESSION_TYPES.FORCE_CENTRALE:
-  explanation = `
-  <div style="text-align:left">
+    case EXPRESSION_TYPES.FORCE_CENTRALE:
+      explanation = `
+      <div style="text-align:left">
 
-  👉 De relation <b>\\(${toLatex(q.expr)}\\)</b>
-  on en déduit que la force dépend :
+      👉 De relation <b>\\(${toLatex(q.expr)}\\)</b>
+      on en déduit que la force dépend :
 
-  <ul>
-    <li>du produit des grandeurs au numérateur</li>
-    <li>et de la distance au carré au dénominateur</li>
-  </ul>
+      <ul>
+        <li>du produit des grandeurs au numérateur</li>
+        <li>et de la distance au carré au dénominateur</li>
+      </ul>
 
-  Pour isoler la variable recherchée <b>\\(${toLatex(q.target)}\\)</b> :
+      Pour isoler la variable recherchée <b>\\(${toLatex(q.target)}\\)</b> :
 
-  <ul>
-    <li>on commence par supprimer la fraction en faisant un produit en croix</li>
-    <li>puis on divise par les facteurs restants</li>
-  </ul>
+      <ul>
+        <li>on commence par supprimer la fraction en faisant un produit en croix</li>
+        <li>puis on divise par les facteurs restants</li>
+      </ul>
 
-  ${q.target === "r"
-    ? `
+      ${q.target === "r"
+        ? `
 
-    ⚠️ Attention :
-    la distance apparaît sous la forme
-    \\(${toLatex(q.denominator)}^2\\).
+        ⚠️ Attention :
+        la distance apparaît sous la forme
+        \\(${toLatex(q.denominator)}^2\\).
 
-    Après isolement de
-    \\(${toLatex(q.denominator)}^2\\),
-    il faut appliquer une racine carrée.
-    `
-    : ""
-  }
+        Après isolement de
+        \\(${toLatex(q.denominator)}^2\\),
+        il faut appliquer une racine carrée.
+        `
+        : ""
+      }
 
-  </div>
-  `;
-  break;
+      </div>
+      `;
+      break;
+
+/* =========================================================
+   EFFET DOPPLER
+   ========================================================= */
+
+    case EXPRESSION_TYPES.DOPPLER:
+      explanation = `
+      <div style="text-align:left">
+
+      On remarque que la fréquence observée <b>f'</b> dépend d’un quotient
+
+      <ul>
+        <li>avec une vitesse au numérateur et une autre au dénominateur</li>
+        <li>il faut donc être très attentif au produit en croix</li>
+      </ul>
+
+      Pour isoler la variable recherchée <b>\\(${toLatex(q.target)}\\)</b> :
+
+      <ul>
+        <li>on commence par supprimer la fraction grâce à un produit en croix</li>
+        <li>on développe éventuellement les parenthèses</li>
+        <li>puis on regroupe les termes contenant la variable cherchée</li>
+      </ul>
+      </div>
+      ${
+        q.target === "v"
+          ? `
+
+          ⚠️ Attention :
+
+          la vitesse \\(v\\) apparaît des deux côtés
+          de l’équation après le produit en croix.
+
+          Il faut donc développer les produits pour ensuite regrouper tous les termes en \\(v\\) et enfin factoriser par la variable \\(v\\) .
+
+          `
+          : ""
+      }
+
+      ${
+        q.target === "f"
+          ? `
+
+          ⚠️ Attention :
+
+          il ne faut pas inverser le quotient :
+
+          <div style="margin-top:8px">
+          \\(
+          \\frac{v+v_r}{v+v_s}
+          \\neq
+          \\frac{v+v_s}{v+v_r}
+          \\)
+          </div>
+
+          `
+          : ""
+      }
+
+      </div>
+      `;
+      break;
 
     /* =========================================================
        FALLBACK

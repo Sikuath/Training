@@ -122,6 +122,50 @@ export const DISTRACTOR_PATTERNS = {
 ],
 
   // =========================
+  // DOPPLER
+  // =========================
+DOPPLER_F: [
+
+  (f, fp, v, vr, vs) =>
+    `${fp}*\\frac{v+v_s}{v-v_r}`,
+
+  (f, fp, v, vr, vs) =>
+    `${fp}*\\frac{v+v_r}{v-v_s}`,
+
+  (f, fp, v, vr, vs) =>
+    `${fp}*\\frac{v+v_s}{(v+v_r)^2}`,
+
+  (f, fp, v, vr, vs) =>
+    `${fp}*\\frac{v+v_s}{v-v_r}`,
+
+  (f, fp, v, vr, vs) =>
+    `${fp}*\\frac{v+v_r+v_s}{v}`
+],
+
+DOPPLER_V: [
+
+  (f, fp, v, vr, vs) =>
+    `f'*\\frac{v+v_s}{f} - v_r`,
+
+  (f, fp, v, vr, vs) =>
+    `\\frac{f'*v_r+f*v_s}{f-f'}`,
+
+  (f, fp, v, vr, vs) =>
+    `\\frac{f'*v_r-f*v_s}{f+f'}`,
+
+  (f, fp, v, vr, vs) =>
+    `\\frac{f-f'}{f'*v_r-f*v_s}`,
+
+  (f, fp, v, vr, vs) =>
+    `f'*\\frac{(f' + v_r)(v+v_s)}{f}`,
+
+  (f, fp, v, vr, vs) =>
+    `f'*\\frac{v+v_s-v_r}{f}`,
+
+  (f, fp, v, vr, vs) =>
+    `f*\\frac{v+v_s}{f' + v_r}`
+],
+  // =========================
   // POWER (Kepler, Stefan, etc.)
   // =========================
   POWER: [
@@ -207,6 +251,9 @@ export function generateDistractors(q, target, correct) {
 
     case "force_centrale":
       return handleForce(q, target, correct);
+
+    case "doppler":
+      return handleDoppler(q, target, correct);
 
     default:
       return handleDefault(q, target, correct);
@@ -315,6 +362,45 @@ function handleForce(q, target, correct) {
 }
 
   // =========================
+  // DOPPLER
+  // =========================
+function handleDoppler(q, target, correct) {
+
+  const f = "f";
+  const fp = "f'";
+  const v = "v";
+  const vr = "vr";
+  const vs = "vs";
+
+  const isF = target === "f";
+
+  const table = isF
+    ? DISTRACTOR_PATTERNS.DOPPLER_F
+    : DISTRACTOR_PATTERNS.DOPPLER_V;
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = fn(f, fp, v, vr, vs);
+    } catch {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+// =========================
   // DEFAULT
   // =========================
 function handleDefault(q, target, correct) {

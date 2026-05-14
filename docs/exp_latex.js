@@ -43,7 +43,9 @@ export function toLatex(str) {
 
     msolute: "m_{solute}",
     nsolute: "n_{solute}",
-    Vsolution: "V_{solution}"
+    Vsolution: "V_{solution}",
+    vr: "v_{r}",
+    vs : "v_{s}"
   };
 
   /* =========================================================
