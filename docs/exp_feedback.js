@@ -10,7 +10,7 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
   switch (q.type) {
 
     /* =========================================================
-       PRODUIT
+       PRODUIT/PRODUIT TRIPLE
     ========================================================= */
 
     case EXPRESSION_TYPES.PRODUCT:
@@ -24,6 +24,62 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       `;
       break;
 
+    /* =========================================================
+       PRODUIT THERMAL
+    ========================================================= */
+
+    case EXPRESSION_TYPES.PRODUCT_THERMAL:
+
+      if (q.target === "m") {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 On part de la relation :
+        \\(${toLatex(q.expr)}\\)
+
+        <br><br>
+
+        La masse <b>m</b> est multipliée par le produit \\(c \\times (T_f-T_i)\\)
+
+        <br><br>
+
+        Pour l’isoler, on divise les deux membres de l'expression par \\(c \\times (T_f-T_i)\\)
+
+        </div>
+        `;
+      }
+
+      else if (q.target === "Tf" || q.target === "Ti") {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 On part de la relation :
+        \\(${toLatex(q.expr)}\\)
+
+        <br><br>
+
+        La température \\(${toLatex(q.target)}\\) apparaît dans la différence :
+        \\((T_f - T_i)\\)
+
+        Pour l'isoler
+
+        <ul>
+          <li>on commence par diviser les deux membres de l'égalité par le produit \\(m \\times c\\)</li>
+          <li>puis on développe la relation</li>
+          <li>et enfin on isole la température recherchée \\(${toLatex(q.target)}\\)</li>
+
+        </ul>
+
+        ⚠️ Attention au signe :
+        inversion des termes si on passe d’un côté de l’équation.
+
+        </div>
+        `;
+      }
+
+      break;
 
     /* =========================================================
        FRACTION
