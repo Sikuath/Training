@@ -29,10 +29,10 @@ export const QUESTIONS = [
 //{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F=G*m1*m2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], answers:{m1:"F*r^2/G*m2", m2:"F*r^2/G*m1", r:"\sqrt(G*m1*m2/F)"} },
 
 // 10
-{ difficulty:"hard", domain:"ondes", law:"Effet Doppler", image:"./images/doppler.jpg", expr:"f'=f*\\frac{v+v_r}{v+v_s}", type:EXPRESSION_TYPES.DOPPLER, lhs:"f'", numerator:["f","(v+vr)"], denominator:"(v+vs)", baseVars:["f'","f","v","vr","vs"], targetPool:["f", "v"], answers:{f:"f'*\\frac{v+vs}{v+vr}", v:"\\frac{f'*v_r-f*v_s}{f-f'}"} },
+//{ difficulty:"hard", domain:"ondes", law:"Effet Doppler", image:"./images/doppler.jpg", expr:"f'=f*\\frac{v+v_r}{v+v_s}", type:EXPRESSION_TYPES.DOPPLER, lhs:"f'", numerator:["f","(v+vr)"], denominator:"(v+vs)", baseVars:["f'","f","v","vr","vs"], targetPool:["f", "v"], answers:{f:"f'*\\frac{v+vs}{v+vr}", v:"\\frac{f'*v_r-f*v_s}{f-f'}"} },
 
 // 11
-//{ difficulty:"medium", domain:"ondes", law:"Réfraction", image:"./images/refraction.jpg", expr:"n1*sin(i)=n2*sin(r)", type:EXPRESSION_TYPES.CROSS, left:["n1","sin(i)"], right:["n2","sin(r)"], baseVars:["n1","n2","sin(i)","sin(r)"], targetPool:["n1","n2","sin(i)","sin(r)"], answers:{n1:"(n2*sin(r))/sin(i)", n2:"(n1*sin(i))/sin(r)", sin(i):"(n2*sin(r))/n1",sin(r):"(n1*sin(i))/n2"} },
+{ difficulty:"medium", domain:"ondes", law:"Réfraction", image:"./images/refraction.jpg", expr:"n1*sin(i)=n2*sin(r)", type:EXPRESSION_TYPES.CROSS, left:["n1","sin(i)"], right:["n2","sin(r)"], baseVars:["n1","n2","sin(i)","sin(r)"], targetPool:["n1","n2","sin(i)","sin(r)"], answers:{n1: "n2*\\frac {sin(r)} {sin(i)}", n2:" n1*\\frac {sin(i)} {sin(r)}", "sin(i)":" n2*\\frac{sin(r)} {n1}" ,"sin(r)":" n1*\\frac {sin(i)} {n2}"} },
 
 // 12
 //{ difficulty:"easy", domain:"lentilles", law:"Grandissement", image:"./images/lens.jpg", expr:"G=A1B1/AB", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"A1B1", denominator:"AB", baseVars:["G","A1B1","AB"], targetPool:["A1B1","AB"], answers:{A1B1:"G*AB", AB:"A1B1/G"} },

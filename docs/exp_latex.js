@@ -23,6 +23,8 @@ export function toLatex(str) {
 
     m1: "m_{1}",
     m2: "m_{2}",
+    n1: "n_{1}",
+    n2: "n_{2}",
 
     q1: "q_{1}",
     q2: "q_{2}",

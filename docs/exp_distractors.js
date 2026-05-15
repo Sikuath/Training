@@ -32,61 +32,35 @@ export const DISTRACTOR_PATTERNS = {
     (L, A, B, t, other) => `${other}-${L}`
   ],
 
-  // =========================
-  // CROSS (C1V1 = C2V2)
-  // =========================
-  CROSS: [
-
-  // =====================================
-  // produit au lieu de quotient
-  // =====================================
-
+// =========================
+// CROSS
+// =========================
+CROSS: [
   ({op1,op2,other}) => `${op1}*${op2}*${other}`,
 
-  // =====================================
-  // inversion totale
-  // =====================================
+  ({op1,op2,other}) => `\\frac{${other}}{${op1}}*${op2}`,
 
-  ({op1,op2,other}) => `${other}/(${op1}*${op2})`,
+  ({op1,op2,other}) => `\\frac{${op1}}{${op2}}*${other}`,
 
-  // =====================================
-  // mauvais quotient
-  // =====================================
+  ({op1,op2,other}) => `\\frac{${op2}}{${op1}}*${other}`,
 
-  ({op1,op2,other}) => `${op1}/${op2}*${other}`,
+  ({op1,op2,other}) => `${op1}*\\frac{${other}}{${op2}}`,
 
-  ({op1,op2,other}) => `${op2}/${op1}*${other}`,
+  ({op1,op2,other}) => `${op2}*\\frac{${other}}{${op1}}`,
 
-  ({op1,op2,other}) => `${op1}*${other}/${op2}`,
+  ({op1,op2,other}) => `${op1}+\\frac{${op2}}{${other}}`,
 
-  ({op1,op2,other}) => `${op2}*${other}/${op1}`,
+  ({op1,op2,other}) => `${op1}+\\frac{${other}}{${op2}}`,
 
-  // =====================================
-  // somme au lieu de produit
-  // =====================================
+  ({op1,op2,other}) => `${op2}+\\frac{${other}}{${op1}}`,
 
-  ({op1,op2,other}) => `${op1}+${op2}/${other}`,
+  ({op1,op2,other}) => `${op1}-\\frac{${op2}}{${other}}`,
 
-  ({op1,op2,other}) => `${op1}+${other}/${op2}`,
+  ({op1,op2,other}) => `${op2}-\\frac{${op1}}{${other}}`,
 
-  ({op1,op2,other}) => `${op2}+${other}/${op1}`,
+  ({op1,op2,other}) => `\\frac{${op1}}{${op2}}-${other}`,
 
-  // =====================================
-  // différence
-  // =====================================
-
-  ({op1,op2,other}) => `${op1}-${op2}/${other}`,
-
-  ({op1,op2,other}) => `${op2}-${op1}/${other}`,
-
-  // =====================================
-  // parenthèses foireuses
-  // =====================================
-
-  ({op1,op2,other}) => `${op1}/(${op2}*${other})`,
-
-  ({op1,op2,other}) => `${op2}/(${op1}*${other})`
-
+  ({op1,op2,other}) => `\\frac{${op2}}{${op1}}+${other}`
 ],
 
   // =========================
@@ -261,6 +235,28 @@ export function generateDistractors(q, target, correct) {
 }
 
   // =========================
+  // PRODUCT
+  // =========================
+
+function handleProduct(q, target, correct) {
+
+  const L = q.lhs;
+
+  const other =
+    (q.factors || [])
+      .find(f => f !== target) ?? "x";
+
+  const table =
+    DISTRACTOR_PATTERNS.PRODUCT;
+
+  return generateFromTable(
+    table,
+    [L, null, null, target, other],
+    correct
+  );
+}
+
+  // =========================
   // FRACTION
   // =========================
 
@@ -287,29 +283,60 @@ function handleCross(q, target, correct) {
   const table = DISTRACTOR_PATTERNS.CROSS;
 
   const left = q.left || [];
-
-  const op1 = left[0] ?? "x";
-  const op2 = left[1] ?? "y";
-
-  const allVars = [...(q.left || []), ...(q.right || [])];
-
-  const other = allVars.find(v => v && v !== target) ?? "k";
+  const right = q.right || [];
 
   const pool = new Set();
+  let attempts = 0;
 
-  while (pool.size < 3) {
+  while (pool.size < 3 && attempts < 50) {
+    attempts++;
 
     const fn = table[Math.floor(Math.random() * table.length)];
 
     let val;
 
     try {
-      val = fn({ op1, op2, other });
+
+      // =========================
+      // 🔥 CAS 1 : target à gauche
+      // =========================
+      if (left.includes(target)) {
+
+        const op3 = left.find(v => v !== target) ?? "a"; // reste gauche
+        const op1 = right[0] ?? "x";
+        const op2 = right[1] ?? "y";
+
+        val = fn({
+          op1,
+          op2,
+          other: op3
+        });
+
+      // =========================
+      // 🔥 CAS 2 : target à droite
+      // =========================
+      } else {
+
+        const op3 = right.find(v => v !== target) ?? "a";
+        const op1 = left[0] ?? "x";
+        const op2 = left[1] ?? "y";
+
+        val = fn({
+          op1,
+          op2,
+          other: op3
+        });
+      }
+
     } catch {
       continue;
     }
 
-    if (!val || val === correct || val.includes("undefined")) continue;
+    if (!val) continue;
+    if (val === correct) continue;
+
+    // 🔥 filtre anti-boucle variable cible
+    if (typeof val === "string" && val.includes(target)) continue;
 
     pool.add(val);
   }
