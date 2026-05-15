@@ -26,7 +26,7 @@ export const QUESTIONS = [
 //{ difficulty:"easy", domain:"forces", law:"Poids", image:"./images/poids.jpg", expr:"P=m*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"P", factors:["m","g"], baseVars:["P","m","g"], targetPool:["m","g"], answers:{m:"P/g", g:"P/m"} },
 
 // 9
-//{ difficulty:"medium", domain:"gravitation", law:"Gravitation de Newton", image:"./images/gravitation.jpg", expr:"F=G*m1*m2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], answers:{m1:"F*r^2/G*m2", m2:"F*r^2/G*m1", r:"\sqrt(G*m1*m2/F)"} },
+//{ difficulty:"medium", domain:"gravitation", law:"Force gravitationnelle", image:"./images/gravitation.jpg", expr:"F=G*m1*m2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["G","m1","m2"], denominator:"r", denominatorPower:2, baseVars:["F","G","m1","m2","r"], targetPool:["m1","m2","r"], answers:{m1:"F*r^2/G*m2", m2:"F*r^2/G*m1", r:"\sqrt(G*m1*m2/F)"} },
 
 // 10
 //{ difficulty:"hard", domain:"ondes", law:"Effet Doppler", image:"./images/doppler.jpg", expr:"f'=f*\\frac{v+v_r}{v+v_s}", type:EXPRESSION_TYPES.DOPPLER, lhs:"f'", numerator:["f","(v+vr)"], denominator:"(v+vs)", baseVars:["f'","f","v","vr","vs"], targetPool:["f", "v"], answers:{f:"f'*\\frac{v+vs}{v+vr}", v:"\\frac{f'*v_r-f*v_s}{f-f'}"} },
@@ -38,19 +38,19 @@ export const QUESTIONS = [
 //{ difficulty:"easy", domain:"lentilles", law:"Grandissement", image:"./images/lens.jpg", expr:"G=A1B1/AB", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"A1B1", denominator:"AB", baseVars:["G","A1B1","AB"], targetPool:["A1B1","AB"], answers:{A1B1:"G*AB", AB:"A1B1/G"} },
 
 // 13
-{ difficulty:"easy", domain:"chimie", law:"Beer-Lambert", image:"./images/spectroscopie.jpg", expr:"A=epsilon*l*C", type:EXPRESSION_TYPES.PRODUCT_TRIPLE, lhs:"A", factors:["epsilon","l","C"], baseVars:["A","epsilon","l","C"], targetPool:["C"], answers:{C:"\\frac{A}{epsilon*l}"} },
+//{ difficulty:"easy", domain:"chimie", law:"Beer-Lambert", image:"./images/spectroscopie.jpg", expr:"A=epsilon*l*C", type:EXPRESSION_TYPES.PRODUCT_TRIPLE, lhs:"A", factors:["epsilon","l","C"], baseVars:["A","epsilon","l","C"], targetPool:["C"], answers:{C:"\\frac{A}{epsilon*l}"} },
 
 // 14
-//{ difficulty:"medium", domain:"chimie", law:"Titrage", image:"./images/titrage.jpg", expr:"nA/a=nB/b", type:EXPRESSION_TYPES.CROSS, left:["nA","b"], right:["nB","a"], baseVars:["nA","nB","a","b"], targetPool:["nA","nB"], answers:{nA:"(nB*a)/b", nB:"(nA*b)/a"} },
+//{ difficulty:"medium", domain:"chimie", law:"Titrage", image:"./images/titrage.jpg", expr:"\\frac{nA}{a}=\\frac{nB}{b}", type:EXPRESSION_TYPES.CROSS, left:["nA","b"], right:["nB","a"], baseVars:["nA","nB","a","b"], targetPool:["nA","nB"], answers:{nA:"\\frac{nB*a}{b}", nB:"\\frac{nA*b}{a}"} },
 
 // 15
-//{ difficulty:"hard", domain:"energie", law:"Chaleur", image:"./images/chaleur.jpg", expr:"Q=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT_THERMAL, lhs:"Q", factors:["m","c","(Tf-Ti)"], baseVars:["Q","m","c","Tf","Ti"], targetPool:["m"], answers:{m:"Q/(c*(Tf-Ti))"} },
+{ difficulty:"hard", domain:"energie", law:"Variation d'énergie interne", image:"./images/chaleur.jpg", expr:"deltaU=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT_THERMAL, lhs:"deltaU", factors:["m","c"], temp:["Tf","Ti"], baseVars:["deltaU","m","c","Tf","Ti"], targetPool:["m","Tf","Ti"], answers:{m: "\\frac{deltaU}{c*(Tf-Ti)}", Tf: "\\frac{deltaU}{m*c}+Ti", Ti: "Tf-{\\frac{deltaU}{m*c}}"} },
 
 // 16
-//{ difficulty:"medium", domain:"electricite", law:"Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"F*r^2/k*q2", q2:"F*r^2/k*q1" , r:"\sqrt(k*q1*q2/F)"} },
+//{ difficulty:"medium", domain:"electricite", law:"Force de Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"F*r^2/k*q2", q2:"F*r^2/k*q1" , r:"\sqrt(k*q1*q2/F)"} },
 
 // 17
-{ difficulty:"easy", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P=rho*g*h", type:EXPRESSION_TYPES.PRODUCT_TRIPLE, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["rho","h"], answers:{h: "\\frac{P}{rho*g}", rho: "\\frac{P}{g*h}"} },
+//{ difficulty:"easy", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P=rho*g*h", type:EXPRESSION_TYPES.PRODUCT_TRIPLE, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["rho","h"], answers:{h: "\\frac{P}{rho*g}", rho: "\\frac{P}{g*h}"} },
 
 // 18
 //{ difficulty:"easy", domain:"thermodynamique", law:"Boyle-Mariotte", image:"./images/manometre.jpg", expr:"P*V=k", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["k"], baseVars:["P","V","k"], targetPool:["P","V"], answers:{P:"k/V", V:"k/P"} },

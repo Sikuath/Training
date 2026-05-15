@@ -25,6 +25,8 @@ export function toLatex(str) {
     m2: "m_{2}",
     n1: "n_{1}",
     n2: "n_{2}",
+    nA: "n_{A}",
+    nB: "n_{B}",
 
     q1: "q_{1}",
     q2: "q_{2}",
@@ -42,6 +44,10 @@ export function toLatex(str) {
 
     v1: "v_{1}",
     v2: "v_{2}",
+
+    deltaU: "\\Delta U",
+    Ti: "T_{i}",
+    Tf: "T_{f}",
 
     I0: "I_{0}",
 

@@ -55,6 +55,53 @@ export const DISTRACTOR_PATTERNS = {
   ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}+${op2}}`
  ],
 
+  // =========================
+  // PRODUCT THERMAL
+  // =========================
+PRODUCT_TH_M: [
+
+  ({L, c, Tf, Ti}) =>
+    `\\frac{${c}*(${Tf}-${Ti})}{${L}}`,
+
+  ({L, c, Tf, Ti}) =>
+    `\\frac{${L}}{${c}*${Tf}-${Ti}}`,
+
+  ({L, c, Tf, Ti}) =>
+    `\\frac{${L}}{${c}+(${Tf}-${Ti})}`,
+
+  ({L, Tf, Ti}) =>
+    `\\frac{${c}{${L}}-{{${Tf}+${Ti}}}`,
+
+  ({L, c, Tf, Ti}) =>
+    `\\frac{${c}*(${Tf}-${Ti})}{${L}}`,
+
+  ({L, c, Tf, Ti}) =>
+    `\\frac{${c}*(${Ti}-${Tf})}{${L}}`
+],
+
+PRODUCT_TH_TF: [
+
+  ({L, m, c, Tf, Ti}) =>
+    `${Ti}*\\frac{${L}}{${m}*${c}}`,
+
+  ({L, m, c, Tf, Ti}) =>
+    `\\frac{Ti}{\\frac{${L}}{${m}*${c}}}`,
+
+  ({L, m, c, Tf, Ti}) =>
+    `\\frac{${L}}{${c}*${m}}-${Ti}`],
+
+PRODUCT_TH_TI: [
+
+  ({L, m, c, Tf, Ti}) =>
+    `${Tf}*\\frac{${L}}{${m}*${c}}`,
+
+  ({L, m, c, Tf, Ti}) =>
+    `\\frac{Tf}{\\frac{${L}}{${m}*${c}}}`,
+
+  ({L, m, c, Tf, Ti}) =>
+    `\\frac{${L}}{${c}*${m}}-${Tf}`
+],
+
 // =========================
 // CROSS
 // =========================
@@ -246,6 +293,9 @@ export function generateDistractors(q, target, correct) {
     case "product_triple":
       return handleProductTriple(q, target, correct);
 
+    case "product_thermal":
+      return handleThermal(q, target, correct);
+
     case "cross":
       return handleCross(q, target, correct);
 
@@ -421,6 +471,63 @@ function handleProductTriple(q, target, correct) {
 }
 
   // =========================
+  // PRODUCT THERMAL
+  // =========================
+
+function handleThermal(q, target, correct) {
+
+  const ctx = {
+    L: q.lhs,
+    m: q.factors?.[0],
+    c: q.factors?.[1],
+    Tf: q.temp?.[0],
+    Ti: q.temp?.[1]
+  };
+
+  let table;
+
+  if (target === "m") {
+    table = DISTRACTOR_PATTERNS.PRODUCT_TH_M;
+  }
+
+  else if (target === "Tf") {
+    table = DISTRACTOR_PATTERNS.PRODUCT_TH_TF;
+  }
+
+  else if (target === "Ti") {
+    table = DISTRACTOR_PATTERNS.PRODUCT_TH_TI;
+  }
+
+  const pool = new Set();
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 60) {
+
+    attempts++;
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = fn(ctx);
+    } catch (e) {
+      console.warn("fn error:", e);
+      continue;
+    }
+
+    if (typeof val !== "string") continue;
+    if (val.includes("undefined")) continue;
+    if (val === correct) continue;
+    if (val.includes(target)) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
   // FRACTION
   // =========================
 
@@ -591,7 +698,7 @@ function handleDoppler(q, target, correct) {
   return [...pool];
 }
 
-// =========================
+  // =========================
   // DEFAULT
   // =========================
 function handleDefault(q, target, correct) {

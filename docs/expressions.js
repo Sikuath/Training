@@ -122,7 +122,7 @@ function generateQuestion() {
     ];
 
   const val =
-    cleanExpr(fn(currentQuestion.lhs, null, null, target));
+    cleanExpr(fn(q.lhs, null, null, target));
 
   if (val !== correct && !distractors.includes(val)) {
     distractors.push(val);

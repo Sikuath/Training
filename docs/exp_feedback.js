@@ -45,12 +45,59 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
     ========================================================= */
 
     case EXPRESSION_TYPES.CROSS:
-      explanation = `
-      <div style="text-align:left">
-      👉 L’expression <b>\\(${toLatex(q.expr)}\\)</b> est une égalité de deux produits.
-      Pour isoler la variable <b>\\(${toLatex(q.target)}\\)</b> on divise à gauche et à droite du signe = par la grandeur qui multiplie la variable recherchée.
-      </div>
-      `;
+
+      // =========================
+      // TITRAGE
+      // =========================
+
+      if (q.law === "Titrage") {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 Lors d’un titrage, les quantités de matière sont reliées
+        par les coefficients stœchiométriques de l’équation chimique.
+
+        La relation : \\[${toLatex(q.expr)}\\]
+
+        signifie que les rapports \\(\\frac{n}{coefficient}\\)
+        sont égaux.
+
+        <br><br>
+
+        Pour isoler la variable
+        <b>\\(${toLatex(q.target)}\\)</b> :
+
+        <ul>
+          <li>on commence par faire un produit en croix</li>
+          <li>puis on divise par le coefficient restant</li>
+        </ul>
+
+        </div>
+        `;
+      }
+
+      // =========================
+      // CAS GÉNÉRAL
+      // =========================
+
+      else {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 L’expression
+        <b>\\(${toLatex(q.expr)}\\)</b>
+        est une égalité de deux produits.
+
+        <br><br>
+
+        Pour isoler la variable \\(${toLatex(q.target)}\\) on divise à gauche et à droite du signe = par la grandeur qui multiplie la variable recherchée \\(${toLatex(q.target)}\\)
+
+        </div>
+        `;
+      }
+
       break;
 
     /* =========================================================

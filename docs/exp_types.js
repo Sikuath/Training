@@ -12,6 +12,9 @@ export const EXPRESSION_TYPES = {
   PRODUCT_FRACTION:
     "product_fraction",
 
+  PRODUCT_THERMAL:
+    "product_thermal",
+
   CROSS:
     "cross",
 
