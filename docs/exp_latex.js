@@ -38,6 +38,8 @@ export function toLatex(str) {
     S1: "S_{1}",
     S2: "S_{2}",
 
+    A1B1: "A_{1}B_{1}",
+
     v1: "v_{1}",
     v2: "v_{2}",
 

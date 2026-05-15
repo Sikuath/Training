@@ -10,10 +10,11 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
   switch (q.type) {
 
     /* =========================================================
-&       PRODUIT
+       PRODUIT
     ========================================================= */
 
     case EXPRESSION_TYPES.PRODUCT:
+    case EXPRESSION_TYPES.PRODUCT_TRIPLE:
       explanation = `
       <div style="text-align:left">
       👉 L’expression <b>\\(${toLatex(q.expr)}\\)</b> est un produit.
@@ -22,6 +23,7 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       </div>
       `;
       break;
+
 
     /* =========================================================
        FRACTION

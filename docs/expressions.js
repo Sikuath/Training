@@ -160,6 +160,8 @@ function load() {
 
   document.getElementById("question").innerHTML = `
 
+    <b>Notion abordée :</b> ${q.law}<br><br>
+
     D’après la relation : \\(${toLatex(q.expr)}\\)<br><br>
 
     Donner la bonne expression pour la variable  <b>\\(${toLatex(q.target)}\\)</b>

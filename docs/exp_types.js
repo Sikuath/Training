@@ -3,6 +3,9 @@ export const EXPRESSION_TYPES = {
   PRODUCT:
     "product",
 
+  PRODUCT_TRIPLE:
+    "product_triple",
+
   FRACTION:
     "fraction",
 

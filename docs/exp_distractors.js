@@ -2,7 +2,7 @@ import { EXPRESSION_TYPES } from "./exp_types.js";
 export const DISTRACTOR_PATTERNS = {
 
   // =========================
-  // FRACTION (rho = m/V, etc.)
+  // FRACTION
   // =========================
   FRACTION_NUM: [
     (L, A, B) => `${B}/${L}`,
@@ -21,7 +21,7 @@ export const DISTRACTOR_PATTERNS = {
   ],
 
   // =========================
-  // PRODUCT (P=m*g, U=R*I)
+  // PRODUCT
   // =========================
   PRODUCT: [
     (L, A, B, t, other) => `${L}*${other}`,
@@ -31,6 +31,29 @@ export const DISTRACTOR_PATTERNS = {
     (L, A, B, t, other) => `${L}+${other}`,
     (L, A, B, t, other) => `${other}-${L}`
   ],
+
+  // =========================
+  // PRODUCT TRIPLE
+  // =========================
+  PRODUCT_T: [
+  ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}}`,
+
+  ({L, op1, op2, op3}) => `\\frac{${L}}{${op2}}`,
+
+  ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}*${op2}*${op3}}`,
+
+  ({L, op1, op2, op3}) => `${L}*${op1}*${op2}`,
+
+  ({L, op1, op2, op3}) => `${op1}*\\frac{${op2}}{${op3}}`,
+
+  ({L, op1, op2, op3}) => `\\frac{${op1}}{${op2}}*${L}`,
+
+  ({L, op1, op2, op3}) => `${op1}+${op2}*${op3}`,
+
+  ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}}*${op2}`,
+
+  ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}+${op2}}`
+ ],
 
 // =========================
 // CROSS
@@ -220,6 +243,9 @@ export function generateDistractors(q, target, correct) {
     case "product":
       return handleProduct(q, target, correct);
 
+    case "product_triple":
+      return handleProductTriple(q, target, correct);
+
     case "cross":
       return handleCross(q, target, correct);
 
@@ -254,6 +280,144 @@ function handleProduct(q, target, correct) {
     [L, null, null, target, other],
     correct
   );
+}
+
+  // =========================
+  // PRODUCT TRIPLE
+  // =========================
+
+function handleProductTriple(q, target, correct) {
+
+  console.group("🧪 PRODUCT_TRIPLE DEBUG");
+
+  // =========================
+  // sécurité question
+  // =========================
+
+  if (!q) {
+    console.error("❌ q est null");
+    console.groupEnd();
+    return [];
+  }
+
+  if (!q.factors || q.factors.length < 3) {
+    console.error("❌ factors invalides :", q.factors);
+    console.groupEnd();
+    return [];
+  }
+
+  const table = DISTRACTOR_PATTERNS.PRODUCT_T;
+
+  if (!table || !Array.isArray(table)) {
+    console.error("❌ PRODUCT_T manquant");
+    console.groupEnd();
+    return [];
+  }
+
+  const L = q.lhs;
+
+  const [
+    op1 = "x",
+    op2 = "y",
+    op3 = "z"
+  ] = q.factors;
+
+  console.log("QUESTION :", q);
+
+  console.log("VARIABLES :", {
+    L,
+    op1,
+    op2,
+    op3,
+    target,
+    correct
+  });
+
+  const pool = new Set();
+
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 50) {
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+
+      val = fn({
+        L,
+        op1,
+        op2,
+        op3
+      });
+
+    } catch (e) {
+
+      console.warn("⚠️ erreur fonction :", e);
+
+      continue;
+    }
+
+    console.log(`➡️ tentative ${attempts} :`, val);
+
+    // =========================
+    // sécurités
+    // =========================
+
+    if (!val) {
+      console.warn("❌ valeur vide");
+      continue;
+    }
+
+    if (typeof val !== "string") {
+      console.warn("❌ pas une string :", val);
+      continue;
+    }
+
+    if (val.includes("undefined")) {
+      console.warn("❌ contient undefined :", val);
+      continue;
+    }
+
+    // parenthèses incohérentes
+    const open =
+      (val.match(/\(/g) || []).length;
+
+    const close =
+      (val.match(/\)/g) || []).length;
+
+    if (open !== close) {
+      console.warn("❌ parenthèses invalides :", val);
+      continue;
+    }
+
+    // bonne réponse interdite
+    if (val === correct) {
+      console.warn("❌ égal à la bonne réponse");
+      continue;
+    }
+
+    // évite la variable cible seule
+    if (
+      val === target ||
+      val === `\\frac{${L}}{${target}}`
+    ) {
+      console.warn("❌ contient cible triviale :", val);
+      continue;
+    }
+
+    pool.add(val);
+  }
+
+  console.log("🎯 POOL FINAL :", [...pool]);
+
+  console.groupEnd();
+
+  return [...pool];
 }
 
   // =========================
