@@ -236,10 +236,11 @@ PRODUCT_JOULE_ROOT: [
     `\\sqrt{\\frac{${L}}{${F1}^2*${F2}}}`,
 
   (L, F1, F2, F3) =>
-    `\\sqrt{\\frac{${L}}{${F1}*${F2}^}}`,
+    `\\sqrt{\\frac{${L}}{${F1}*${F2}^2}}`,
 
   (L, F1, F2, F3) =>
     `\\sqrt{\\frac{${L}^2}{${F1}*${F2}}}`,
+
 
   (L, F1, F2, F3) =>
     `\\frac{${L}}{${F1}*${F2}}`,

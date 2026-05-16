@@ -157,18 +157,58 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       break;
 
     /* =========================================================
-       PRODUIT + PUISSANCE (JOULE / CINÉTIQUE etc.)
+       ENERGIE JOULE / CINÉTIQUE
     ========================================================= */
 
-    case EXPRESSION_TYPES.PRODUCT_POWER:
-      explanation = `
-      <div style="text-align:left">
-      👉 La variable apparaît dans un produit avec une puissance.
-      <br><br>
-      On isole d’abord la puissance puis on applique une racine.
-      </div>
-      `;
-      break;
+    case EXPRESSION_TYPES.ENERGIE_JOULE:
+
+      if (q.poweredVar === q.target) {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 On remarque un produit à droite du signe = et que la variable \\(${toLatex(q.target)}\\) est au carré.
+
+        <br><br>
+
+        ${q.coeff !== "1"
+          ? `⚠️ Le coefficient ${q.coeff} ne change pas la méthode : il se conserve dans les divisions.`
+          : ""
+        }
+
+        On applique la méthode suivante :
+        <ul>
+          <li>On isole le terme \\(${toLatex(q.target)}^2\\) en divisant par le produit des autres facteurs
+          à gauche et à droite du signe =.</li>
+          <li>On applique ensuite la racine carré.</li>
+        </ul>
+
+        </div>
+        `;
+      }
+
+      else {
+
+        explanation = `
+        <div style="text-align:left">
+
+        <br></br>
+
+        On veut isoler la variable \\(${toLatex(q.target)}\\).
+
+        <br></br>
+
+        👉 On remarque des produits à droite du signe =.
+
+       <br></br>
+
+       On isole la variable \\(${toLatex(q.target)}\\) en divisant à gauche et à droite du signe = par le produit des autres facteurs.
+
+        </div>
+        `;
+      }
+
+  break;
 
     /* =========================================================
        PUISSANCE PURE (KEPLER / STEFAN etc.)
