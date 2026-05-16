@@ -253,13 +253,25 @@ PRODUCT_JOULE_ROOT: [
 ],
 
   // =========================
-  // ENERGIE CINETIQUE
-  // =========================
-
-  // =========================
   // ENERGIE PESANTEUR
   // =========================
+ENERGIE_PESANTEUR: [
 
+  (L, C, G, target, other) =>
+    `\\frac{${L}+${C}}{${G}*${other}}`,
+
+  (L, C, G, target, other) =>
+    `\\frac{${L}-${C}}{${other}}`,
+
+  (L, C, G, target, other) =>
+    `\\frac{${C}-${L}}{${G}*${other}}`,
+
+  (L, C, G, target, other) =>
+    `${L}-${C}*${G}*${other}`,
+
+  (L, C, G, target, other) =>
+    `\\frac{${L}}{${G}*${other}}-${C}`
+],
 
   // =========================
   // POWER (Kepler, Stefan, etc.)
@@ -359,6 +371,9 @@ export function generateDistractors(q, target, correct) {
 
     case "energie_joule":
       return handleEnergieJoule(q, target, correct);
+
+    case "energie_pesanteur":
+      return handleEnergiePesanteur(q, target, correct);
 
     default:
       return handleDefault(q, target, correct);
@@ -748,29 +763,20 @@ function handleEnergieJoule(q, target, correct) {
   let F1;
   let F2;
 
-  // =========================
-  // CAS variable au carré (v ou I)
-  // =========================
   if (target === F3) {
 
     table = DISTRACTOR_PATTERNS.PRODUCT_JOULE_ROOT;
 
-    // coeff possible dans factors (ex: "2")
     F1 = factors[0] ?? target;
     F2 = factors[1] ?? factors.find(f => f !== target) ?? target;
   }
 
-  // =========================
-  // CAS facteur linéaire (m, R, Δt)
-  // =========================
   else {
 
     table = DISTRACTOR_PATTERNS.PRODUCT_JOULE_LINEAR;
 
-    // target est un facteur direct
     F1 = target;
 
-    // autre facteur (ou coeff "2")
     F2 =
       factors.find(f => f !== target) ??
       target;
@@ -798,6 +804,64 @@ function handleEnergieJoule(q, target, correct) {
     if (typeof val !== "string") continue;
     if (val.includes("undefined")) continue;
     if (val === correct) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // ENERGIE POTENTIELLE
+  // =========================
+function handleEnergiePesanteur(q, target, correct) {
+
+  const L = q.lhs;
+
+  const C = q.constant;
+
+  const G =
+    q.factors.find(v => v === "g");
+
+  const other =
+    q.targetPool.find(v => v !== target);
+
+  const table =
+    DISTRACTOR_PATTERNS.ENERGIE_PESANTEUR;
+
+  const pool = new Set();
+
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 60) {
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+
+      val = fn(
+        L,
+        C,
+        G,
+        target,
+        other
+      );
+
+    } catch {
+
+      continue;
+    }
+
+    if (!val) continue;
+
+    if (val === correct) continue;
+
+    if (val.includes("undefined")) continue;
 
     pool.add(val);
   }

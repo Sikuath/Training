@@ -24,9 +24,6 @@ export const EXPRESSION_TYPES = {
   ENERGIE_JOULE:
     "energie_joule",
 
-  ENERGIE_CINETIQUE:
-    "energie_cinetique",
-
   ENERGIE_PESANTEUR:
     "energie_pesanteur",
 

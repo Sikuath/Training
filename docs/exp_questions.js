@@ -59,13 +59,13 @@ export const QUESTIONS = [
 //{ difficulty:"easy", domain:"energie", law:"Puissance", image:"./images/puissance.jpg", expr:"P=deltaE/deltat", type:EXPRESSION_TYPES.FRACTION, lhs:"P", numerator:"deltaE", denominator:"deltat", baseVars:["P","deltaE","deltat"], targetPool:["deltaE","deltat"], answers:{deltaE:"P*deltat", deltat:"deltat=deltaE/P"} },
 
 // 20
-{ difficulty:"hard", domain:"electricite", law:"Effet Joule", image:"./images/joule.jpg", expr:"deltaE=R*I^2*deltat", type:EXPRESSION_TYPES.ENERGIE_JOULE, lhs:"deltaE", factors:["R","deltat"], poweredVar:"I", power:2, baseVars:["deltaE","R","I","deltat"], targetPool:["R","I","deltat"],coeff: "1", answers:{R:"\\frac{deltaE}{I^2*deltat}", I:"\\sqrt{\\frac{deltaE}{R*deltat}}", deltat:"\\frac{deltaE}{R*I^2}"} },
+//{ difficulty:"hard", domain:"electricite", law:"Effet Joule", image:"./images/joule.jpg", expr:"deltaE=R*I^2*deltat", type:EXPRESSION_TYPES.ENERGIE_JOULE, lhs:"deltaE", factors:["R","deltat"], poweredVar:"I", power:2, baseVars:["deltaE","R","I","deltat"], targetPool:["R","I","deltat"],coeff: "1", answers:{R:"\\frac{deltaE}{I^2*deltat}", I:"\\sqrt{\\frac{deltaE}{R*deltat}}", deltat:"\\frac{deltaE}{R*I^2}"} },
 
 // 21
-{ difficulty:"medium", domain:"energie", law:"Énergie cinétique", image:"./images/energie_cinetique.jpg", expr:"Ec=\\frac{1}{2}*m*v^2", type:EXPRESSION_TYPES.ENERGIE_JOULE, lhs:"Ec", factors:["m","2"], poweredVar:"v", power:2, baseVars:["Ec","m","v"], targetPool:["m","v"],coeff: "1/2", answers:{m:"\\frac{2*Ec}{v^2}", v:"\\sqrt{\\frac{2*Ec}{m}}"} },
+//{ difficulty:"medium", domain:"energie", law:"Énergie cinétique", image:"./images/energie_cinetique.jpg", expr:"Ec=\\frac{1}{2}*m*v^2", type:EXPRESSION_TYPES.ENERGIE_JOULE, lhs:"Ec", factors:["m","2"], poweredVar:"v", power:2, baseVars:["Ec","m","v"], targetPool:["m","v"],coeff: "1/2", answers:{m:"\\frac{2*Ec}{v^2}", v:"\\sqrt{\\frac{2*Ec}{m}}"} },
 
 // 22
-//{ difficulty:"medium", domain:"energie", law:"Énergie potentielle de pesanteur", image:"./images/energie_pot_pes.jpg", expr:"Epp=m*g*h+Epp(0)", type:EXPRESSION_TYPES.ENERGIE_PESANTEUR, lhs:"Epp", constant:"Epp(0)", factors:["m","g","h"], baseVars:["Ep","m","g","h","Epp(0)"], targetPool:["m","h"], answers:{m:"(Epp-Epp(0))/(g*h)", h:"(Epp-Epp(0))/(m*g)"} },
+{ difficulty:"medium", domain:"energie", law:"Énergie potentielle de pesanteur", image:"./images/energie_pot_pes.jpg", expr:"Epp(z)=m*g*z+Epp(0)", type:EXPRESSION_TYPES.ENERGIE_PESANTEUR, lhs:"Epp(z)", constant:"Epp(0)", factors:["m","g","z"], baseVars:["Epp(z)","m","g","z","Epp(0)"], targetPool:["m","z"], answers:{m:"\\frac{Epp(z)-Epp(0)}{g*z}", z:"\\frac{Epp(z)-Epp(0)}{m*g}"} },
 
 // 23
 //{ difficulty:"easy", domain:"ondes", law:"Célérité onde", image:"./images/celerite.jpg", expr:"v=lambda*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"v", factors:["lambda","f"], baseVars:["v","lambda","f"], targetPool:["lambda","f"], answers:{lambda:"v/f", f:"v/lambda"} },
