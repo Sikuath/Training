@@ -167,20 +167,26 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
         explanation = `
         <div style="text-align:left">
 
-        👉 On remarque un produit à droite du signe = et que la variable \\(${toLatex(q.target)}\\) est au carré.
+        👉 On remarque un produit à droite du signe = et que la variable
+        \\(${toLatex(q.target)}\\) est au carré.
 
         <br><br>
 
         ${q.coeff !== "1"
-          ? `⚠️ Le coefficient ${q.coeff} ne change pas la méthode : il se conserve dans les divisions.`
+          ? `
+          ⚠️ Le coefficient \\(${toLatex(q.coeff)}\\) ne change pas la méthode :
+          il reste présent dans les divisions.
+
+          <br><br>
+          👉 Pour isoler \\(${toLatex(q.target)}^2\\), on commence par diviser par tous les autres facteurs.
+          `
           : ""
         }
 
-        On applique la méthode suivante :
         <ul>
-          <li>On isole le terme \\(${toLatex(q.target)}^2\\) en divisant par le produit des autres facteurs
-          à gauche et à droite du signe =.</li>
-          <li>On applique ensuite la racine carré.</li>
+          <li>On isole le terme \\(${toLatex(q.target)}^2\\)</li>
+          <li>On divise par le produit des autres facteurs</li>
+          <li>Puis on applique la racine carrée</li>
         </ul>
 
         </div>
@@ -192,23 +198,36 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
         explanation = `
         <div style="text-align:left">
 
-        <br></br>
+        👉 On veut isoler la variable \\(${toLatex(q.target)}\\).
 
-        On veut isoler la variable \\(${toLatex(q.target)}\\).
+        <br><br>
 
-        <br></br>
+        On remarque une relation de type produit :
 
-        👉 On remarque des produits à droite du signe =.
+        \\(${toLatex(q.expr)}\\)
 
-       <br></br>
+        <br><br>
 
-       On isole la variable \\(${toLatex(q.target)}\\) en divisant à gauche et à droite du signe = par le produit des autres facteurs.
+        ${q.coeff && q.coeff !== "1"
+      ? `
+          ⚠️ Le coefficient \\(${toLatex(q.coeff)}\\)
+          se conserve dans les calculs.
+
+          👉 Il peut être compensé par une multiplication inverse lors de l’isolement.
+          `
+          : ""
+        }
+
+        <br>
+
+        👉 On isole la variable \\(${toLatex(q.target)}\\) en divisant
+        par le produit des autres facteurs.
 
         </div>
         `;
       }
 
-  break;
+    break;
 
     /* =========================================================
        PUISSANCE PURE (KEPLER / STEFAN etc.)

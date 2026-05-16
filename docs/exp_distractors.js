@@ -736,49 +736,47 @@ function handleDoppler(q, target, correct) {
 }
 
   // =========================
-  // ENERGIE JOULE
+  // ENERGIE JOULE CINETIQUE
   // =========================
 function handleEnergieJoule(q, target, correct) {
 
   const L = q.lhs;
-
   const factors = q.factors || [];
-
   const F3 = q.poweredVar;
 
   let table;
-
   let F1;
   let F2;
 
   // =========================
-  // CAS I
+  // CAS variable au carré (v ou I)
   // =========================
-
   if (target === F3) {
 
     table = DISTRACTOR_PATTERNS.PRODUCT_JOULE_ROOT;
 
-    F1 = factors[0];
-    F2 = factors[1];
+    // coeff possible dans factors (ex: "2")
+    F1 = factors[0] ?? target;
+    F2 = factors[1] ?? factors.find(f => f !== target) ?? target;
   }
 
   // =========================
-  // CAS R ou deltat
+  // CAS facteur linéaire (m, R, Δt)
   // =========================
-
   else {
 
     table = DISTRACTOR_PATTERNS.PRODUCT_JOULE_LINEAR;
 
+    // target est un facteur direct
     F1 = target;
 
+    // autre facteur (ou coeff "2")
     F2 =
-      factors.find(v => v !== target);
+      factors.find(f => f !== target) ??
+      target;
   }
 
   const pool = new Set();
-
   let attempts = 0;
 
   while (pool.size < 3 && attempts < 60) {
@@ -791,26 +789,15 @@ function handleEnergieJoule(q, target, correct) {
     let val;
 
     try {
-
       val = fn(L, F1, F2, F3);
-
     } catch {
-
       continue;
     }
 
     if (!val) continue;
-
-    if (val === correct) continue;
-
+    if (typeof val !== "string") continue;
     if (val.includes("undefined")) continue;
-
-    // évite variable recherchée à droite
-
-    if (
-      target !== F3 &&
-      val.includes(F1)
-    ) continue;
+    if (val === correct) continue;
 
     pool.add(val);
   }
