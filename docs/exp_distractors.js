@@ -156,9 +156,9 @@ CROSS: [
   (L, num, den, other) =>
     `sqrt(${L}/${num[0]}*${num[1]}*${num[2]})`,
   (L, num, den, other) =>
-    `(${L}/${num[0]}*${num[1]}*${num[2]})^2`,
+    `\\left(\\frac{${L}}{${num[0]}*${num[1]}*${num[2]}}\\right)^2`,
   (L, num, den, other) =>
-    `(${num[0]}*${num[1]}*${num[2]}/${L})^2`,
+    `\\left(\\frac{${num[0]}*${num[1]}*${num[2]}}{${L}}\\right)^2`,
   (L, num, den, other) =>
     `sqrt(1/${L}-${num[0]}*${num[1]}*${num[2]})`,
   (L, num, den, other) =>

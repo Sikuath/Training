@@ -44,10 +44,10 @@ export const QUESTIONS = [
 //{ difficulty:"medium", domain:"chimie", law:"Titrage", image:"./images/titrage.jpg", expr:"\\frac{nA}{a}=\\frac{nB}{b}", type:EXPRESSION_TYPES.CROSS, left:["nA","b"], right:["nB","a"], baseVars:["nA","nB","a","b"], targetPool:["nA","nB"], answers:{nA:"\\frac{nB*a}{b}", nB:"\\frac{nA*b}{a}"} },
 
 // 15
-{ difficulty:"hard", domain:"energie", law:"Variation d'énergie interne", image:"./images/chaleur.jpg", expr:"deltaU=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT_THERMAL, lhs:"deltaU", factors:["m","c"], temp:["Tf","Ti"], baseVars:["deltaU","m","c","Tf","Ti"], targetPool:["m","Tf","Ti"], answers:{m: "\\frac{deltaU}{c*(Tf-Ti)}", Tf: "\\frac{deltaU}{m*c}+Ti", Ti: "Tf-{\\frac{deltaU}{m*c}}"} },
+//{ difficulty:"hard", domain:"energie", law:"Variation d'énergie interne", image:"./images/chaleur.jpg", expr:"deltaU=m*c*(Tf-Ti)", type:EXPRESSION_TYPES.PRODUCT_THERMAL, lhs:"deltaU", factors:["m","c"], temp:["Tf","Ti"], baseVars:["deltaU","m","c","Tf","Ti"], targetPool:["m","Tf","Ti"], answers:{m: "\\frac{deltaU}{c*(Tf-Ti)}", Tf: "\\frac{deltaU}{m*c}+Ti", Ti: "Tf-{\\frac{deltaU}{m*c}}"} },
 
 // 16
-//{ difficulty:"medium", domain:"electricite", law:"Force de Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"F*r^2/k*q2", q2:"F*r^2/k*q1" , r:"\sqrt(k*q1*q2/F)"} },
+{ difficulty:"medium", domain:"electricite", law:"Force de Coulomb", image:"./images/coulomb.jpg", expr:"F=k*q1*q2/r^2", type:EXPRESSION_TYPES.FORCE_CENTRALE, lhs:"F", numerator:["k","q1","q2"], denominator:"r", denominatorPower:2, baseVars:["F","k","q1","q2","r"], targetPool:["r","q1","q2"], answers:{q1:"F*r^2/k*q2", q2:"F*r^2/k*q1" , r:"\sqrt(k*q1*q2/F)"} },
 
 // 17
 //{ difficulty:"easy", domain:"fluide", law:"Hydrostatique", image:"./images/hydrostatique.jpg", expr:"P=rho*g*h", type:EXPRESSION_TYPES.PRODUCT_TRIPLE, lhs:"P", factors:["rho","g","h"], baseVars:["P","rho","g","h"], targetPool:["rho","h"], answers:{h: "\\frac{P}{rho*g}", rho: "\\frac{P}{g*h}"} },
