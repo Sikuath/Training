@@ -21,8 +21,14 @@ export const EXPRESSION_TYPES = {
   POWER:
     "power",
 
-  PRODUCT_POWER:
-    "product_power",
+  ENERGIE_JOULE:
+    "energie_joule",
+
+  ENERGIE_CINETIQUE:
+    "energie_cinetique",
+
+  ENERGIE_PESANTEUR:
+    "energie_pesanteur",
 
   SUM:
     "sum",

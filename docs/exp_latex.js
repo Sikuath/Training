@@ -20,6 +20,7 @@ export function toLatex(str) {
     epsilon: "\\epsilon",
 
     deltat: "\\Delta t",
+    deltaE: "\\Delta E",
 
     m1: "m_{1}",
     m2: "m_{2}",

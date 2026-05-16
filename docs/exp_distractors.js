@@ -209,6 +209,57 @@ DOPPLER_V: [
   (f, fp, v, vr, vs) =>
     `f*\\frac{v+v_s}{f' + v_r}`
 ],
+
+  // =========================
+  // ENERGIE JOULE
+  // =========================
+PRODUCT_JOULE_LINEAR: [
+
+  (L, F1, F2, F3) =>
+    `\\frac{${L}}{${F3}*${F2}^2}`,
+
+  (L, F1, F2, F3) =>
+    `\\frac{${F3}*${F2}}{${L}}`,
+
+  (L, F1, F2, F3) =>
+    `\\frac{${L}}{${F3}*${F2}}`,
+
+  (L, F1, F2, F3) =>
+    `${L}*${F2}/${F3}^2`,
+
+  (L, F1, F2, F3) =>
+    `\\frac{${F3}^2*${F2}}{${L}}`
+],
+PRODUCT_JOULE_ROOT: [
+
+  (L, F1, F2, F3) =>
+    `\\sqrt{\\frac{${L}}{${F1}^2*${F2}}}`,
+
+  (L, F1, F2, F3) =>
+    `\\sqrt{\\frac{${L}}{${F1}*${F2}^}}`,
+
+  (L, F1, F2, F3) =>
+    `\\sqrt{\\frac{${L}^2}{${F1}*${F2}}}`,
+
+  (L, F1, F2, F3) =>
+    `\\frac{${L}}{${F1}*${F2}}`,
+
+  (L, F1, F2, F3) =>
+    `\\sqrt{{${L}*${F1}*${F2}}}`,
+
+  (L, F1, F2, F3) =>
+    `\\frac{\sqrt{${L}}}{${F1}*${F2}}`
+],
+
+  // =========================
+  // ENERGIE CINETIQUE
+  // =========================
+
+  // =========================
+  // ENERGIE PESANTEUR
+  // =========================
+
+
   // =========================
   // POWER (Kepler, Stefan, etc.)
   // =========================
@@ -305,6 +356,9 @@ export function generateDistractors(q, target, correct) {
     case "doppler":
       return handleDoppler(q, target, correct);
 
+    case "energie_joule":
+      return handleEnergieJoule(q, target, correct);
+
     default:
       return handleDefault(q, target, correct);
   }
@@ -339,10 +393,6 @@ function handleProduct(q, target, correct) {
 function handleProductTriple(q, target, correct) {
 
   console.group("🧪 PRODUCT_TRIPLE DEBUG");
-
-  // =========================
-  // sécurité question
-  // =========================
 
   if (!q) {
     console.error("❌ q est null");
@@ -414,10 +464,6 @@ function handleProductTriple(q, target, correct) {
 
     console.log(`➡️ tentative ${attempts} :`, val);
 
-    // =========================
-    // sécurités
-    // =========================
-
     if (!val) {
       console.warn("❌ valeur vide");
       continue;
@@ -433,7 +479,6 @@ function handleProductTriple(q, target, correct) {
       continue;
     }
 
-    // parenthèses incohérentes
     const open =
       (val.match(/\(/g) || []).length;
 
@@ -445,13 +490,11 @@ function handleProductTriple(q, target, correct) {
       continue;
     }
 
-    // bonne réponse interdite
     if (val === correct) {
       console.warn("❌ égal à la bonne réponse");
       continue;
     }
 
-    // évite la variable cible seule
     if (
       val === target ||
       val === `\\frac{${L}}{${target}}`
@@ -568,12 +611,9 @@ function handleCross(q, target, correct) {
 
     try {
 
-      // =========================
-      // 🔥 CAS 1 : target à gauche
-      // =========================
       if (left.includes(target)) {
 
-        const op3 = left.find(v => v !== target) ?? "a"; // reste gauche
+        const op3 = left.find(v => v !== target) ?? "a";
         const op1 = right[0] ?? "x";
         const op2 = right[1] ?? "y";
 
@@ -583,9 +623,6 @@ function handleCross(q, target, correct) {
           other: op3
         });
 
-      // =========================
-      // 🔥 CAS 2 : target à droite
-      // =========================
       } else {
 
         const op3 = right.find(v => v !== target) ?? "a";
@@ -606,7 +643,6 @@ function handleCross(q, target, correct) {
     if (!val) continue;
     if (val === correct) continue;
 
-    // 🔥 filtre anti-boucle variable cible
     if (typeof val === "string" && val.includes(target)) continue;
 
     pool.add(val);
@@ -691,6 +727,89 @@ function handleDoppler(q, target, correct) {
     }
 
     if (!val || val === correct || val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // ENERGIE JOULE
+  // =========================
+function handleEnergieJoule(q, target, correct) {
+
+  const L = q.lhs;
+
+  const factors = q.factors || [];
+
+  const F3 = q.poweredVar;
+
+  let table;
+
+  let F1;
+  let F2;
+
+  // =========================
+  // CAS I
+  // =========================
+
+  if (target === F3) {
+
+    table = DISTRACTOR_PATTERNS.PRODUCT_JOULE_ROOT;
+
+    F1 = factors[0];
+    F2 = factors[1];
+  }
+
+  // =========================
+  // CAS R ou deltat
+  // =========================
+
+  else {
+
+    table = DISTRACTOR_PATTERNS.PRODUCT_JOULE_LINEAR;
+
+    F1 = target;
+
+    F2 =
+      factors.find(v => v !== target);
+  }
+
+  const pool = new Set();
+
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 60) {
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+
+      val = fn(L, F1, F2, F3);
+
+    } catch {
+
+      continue;
+    }
+
+    if (!val) continue;
+
+    if (val === correct) continue;
+
+    if (val.includes("undefined")) continue;
+
+    // évite variable recherchée à droite
+
+    if (
+      target !== F3 &&
+      val.includes(F1)
+    ) continue;
 
     pool.add(val);
   }
