@@ -65,16 +65,16 @@ export const QUESTIONS = [
 //{ difficulty:"medium", domain:"energie", law:"Énergie cinétique", image:"./images/energie_cinetique.jpg", expr:"Ec=\\frac{1}{2}*m*v^2", type:EXPRESSION_TYPES.ENERGIE_JOULE, lhs:"Ec", factors:["m","2"], poweredVar:"v", power:2, baseVars:["Ec","m","v"], targetPool:["m","v"],coeff: "1/2", answers:{m:"\\frac{2*Ec}{v^2}", v:"\\sqrt{\\frac{2*Ec}{m}}"} },
 
 // 22
-{ difficulty:"medium", domain:"energie", law:"Énergie potentielle de pesanteur", image:"./images/energie_pot_pes.jpg", expr:"Epp(z)=m*g*z+Epp(0)", type:EXPRESSION_TYPES.ENERGIE_PESANTEUR, lhs:"Epp(z)", constant:"Epp(0)", factors:["m","g","z"], baseVars:["Epp(z)","m","g","z","Epp(0)"], targetPool:["m","z"], answers:{m:"\\frac{Epp(z)-Epp(0)}{g*z}", z:"\\frac{Epp(z)-Epp(0)}{m*g}"} },
+//{ difficulty:"medium", domain:"energie", law:"Énergie potentielle de pesanteur", image:"./images/energie_pot_pes.jpg", expr:"Epp(z)=m*g*z+Epp(0)", type:EXPRESSION_TYPES.ENERGIE_PESANTEUR, lhs:"Epp(z)", constant:"Epp(0)", factors:["m","g","z"], baseVars:["Epp(z)","m","g","z","Epp(0)"], targetPool:["m","z"], answers:{m:"\\frac{Epp(z)-Epp(0)}{g*z}", z:"\\frac{Epp(z)-Epp(0)}{m*g}"} },
 
 // 23
 //{ difficulty:"easy", domain:"ondes", law:"Célérité onde", image:"./images/celerite.jpg", expr:"v=lambda*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"v", factors:["lambda","f"], baseVars:["v","lambda","f"], targetPool:["lambda","f"], answers:{lambda:"v/f", f:"v/lambda"} },
 
 // 24
-//{ difficulty:"easy", domain:"quantique", law:"Photon", image:"./images/energie_photon.jpg", expr:"E=h*f", type:EXPRESSION_TYPES.PRODUCT, lhs:"E", factors:["h","f"], baseVars:["E","h","f"], targetPool:["f"], answers:{f:"E/h"} },
+//{ difficulty:"easy", domain:"quantique", law:"Photon", image:"./images/energie_photon.jpg", expr:"E=h*nu", type:EXPRESSION_TYPES.PRODUCT, lhs:"E", factors:["h","nu"], baseVars:["E","h","nu"], targetPool:["nu"], answers:{nu:"E/h"} },
 
 // 25
-//{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^(-lambda*t)", type:EXPRESSION_TYPES.EXP, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t"], answers:{t:"-(ln(N/N0))/lambda"} },
+{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^{(-lambda*t)}", type:EXPRESSION_TYPES.RADIOACTIVITE, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t","lambda"], answers:{t:"-\\frac{1}{lambda}*ln\\left(\\frac{N}{N0} \\right)", lambda:"-\\frac{1}{t}*ln\\left(\\frac{N}{N0} \\right)"} },
 
 // 26
 //{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr:"pH=-log([H3O+]/C0)", type:EXPRESSION_TYPES.LOG, lhs:"pH", variable:"[H3O+]", baseVars:["pH","[H3O+]"], targetPool:["[H3O+]"], answers:{[H3O+]:"C0*10^(-pH)"} },

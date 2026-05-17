@@ -33,8 +33,8 @@ export const EXPRESSION_TYPES = {
   LOG:
     "log",
 
-  EXP:
-    "exp",
+  RADIOACTIVITE:
+    "radioactivite",
 
   RECIPROCAL_SUM:
     "reciprocal_sum",

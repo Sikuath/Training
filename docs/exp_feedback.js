@@ -298,18 +298,40 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       break;
 
     /* =========================================================
-       EXP
+       RADIOACTIVITE
     ========================================================= */
 
-    case EXPRESSION_TYPES.EXP:
+    case EXPRESSION_TYPES.RADIOACTIVITE:
+
       explanation = `
       <div style="text-align:left">
-      👉 La variable est dans une exponentielle.
-      <br><br>
-      On applique le logarithme pour l’isoler.
-      </div>
-      `;
-      break;
+
+      👉 On remarque que la variable \\(${toLatex(q.target)}\\) est dans une exponentielle de type :
+
+      \\(e^{-\\lambda t}\\)
+
+      Pour l’isoler :
+
+      <ul>
+
+        <li>
+        on commence par diviser par la valeur initiale \\(N_0\\)
+        </li>
+
+        <li>
+        puis on applique le logarithme népérien des deux côtés
+        </li>
+
+        <li>
+        enfin on isole la variable recherchée \\(${toLatex(q.target)}\\)
+        </li>
+
+      </ul>
+
+      ⚠️ Point important : le signe « - » dans l’exponentielle doit être conservé tout au long du calcul.
+
+    `;
+    break;
 
     /* =========================================================
        SOMME (BERNOULLI / énergie etc.)

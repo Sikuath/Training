@@ -37,21 +37,13 @@ export const DISTRACTOR_PATTERNS = {
   // =========================
   PRODUCT_T: [
   ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}}`,
-
   ({L, op1, op2, op3}) => `\\frac{${L}}{${op2}}`,
-
   ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}*${op2}*${op3}}`,
-
   ({L, op1, op2, op3}) => `${L}*${op1}*${op2}`,
-
   ({L, op1, op2, op3}) => `${op1}*\\frac{${op2}}{${op3}}`,
-
   ({L, op1, op2, op3}) => `\\frac{${op1}}{${op2}}*${L}`,
-
   ({L, op1, op2, op3}) => `${op1}+${op2}*${op3}`,
-
   ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}}*${op2}`,
-
   ({L, op1, op2, op3}) => `\\frac{${L}}{${op1}+${op2}}`
  ],
 
@@ -62,42 +54,31 @@ PRODUCT_TH_M: [
 
   ({L, c, Tf, Ti}) =>
     `\\frac{${c}*(${Tf}-${Ti})}{${L}}`,
-
   ({L, c, Tf, Ti}) =>
     `\\frac{${L}}{${c}*${Tf}-${Ti}}`,
-
   ({L, c, Tf, Ti}) =>
     `\\frac{${L}}{${c}+(${Tf}-${Ti})}`,
-
   ({L, Tf, Ti}) =>
     `\\frac{${c}{${L}}-{{${Tf}+${Ti}}}`,
-
   ({L, c, Tf, Ti}) =>
     `\\frac{${c}*(${Tf}-${Ti})}{${L}}`,
-
   ({L, c, Tf, Ti}) =>
     `\\frac{${c}*(${Ti}-${Tf})}{${L}}`
 ],
 
 PRODUCT_TH_TF: [
-
   ({L, m, c, Tf, Ti}) =>
     `${Ti}*\\frac{${L}}{${m}*${c}}`,
-
   ({L, m, c, Tf, Ti}) =>
     `\\frac{Ti}{\\frac{${L}}{${m}*${c}}}`,
-
   ({L, m, c, Tf, Ti}) =>
     `\\frac{${L}}{${c}*${m}}-${Ti}`],
 
 PRODUCT_TH_TI: [
-
   ({L, m, c, Tf, Ti}) =>
     `${Tf}*\\frac{${L}}{${m}*${c}}`,
-
   ({L, m, c, Tf, Ti}) =>
     `\\frac{Tf}{\\frac{${L}}{${m}*${c}}}`,
-
   ({L, m, c, Tf, Ti}) =>
     `\\frac{${L}}{${c}*${m}}-${Tf}`
 ],
@@ -172,16 +153,12 @@ DOPPLER_F: [
 
   (f, fp, v, vr, vs) =>
     `${fp}*\\frac{v+v_s}{v-v_r}`,
-
   (f, fp, v, vr, vs) =>
     `${fp}*\\frac{v+v_r}{v-v_s}`,
-
   (f, fp, v, vr, vs) =>
     `${fp}*\\frac{v+v_s}{(v+v_r)^2}`,
-
   (f, fp, v, vr, vs) =>
     `${fp}*\\frac{v+v_s}{v-v_r}`,
-
   (f, fp, v, vr, vs) =>
     `${fp}*\\frac{v+v_r+v_s}{v}`
 ],
@@ -190,22 +167,16 @@ DOPPLER_V: [
 
   (f, fp, v, vr, vs) =>
     `f'*\\frac{v+v_s}{f} - v_r`,
-
   (f, fp, v, vr, vs) =>
     `\\frac{f'*v_r+f*v_s}{f-f'}`,
-
   (f, fp, v, vr, vs) =>
     `\\frac{f'*v_r-f*v_s}{f+f'}`,
-
   (f, fp, v, vr, vs) =>
     `\\frac{f-f'}{f'*v_r-f*v_s}`,
-
   (f, fp, v, vr, vs) =>
     `f'*\\frac{(f' + v_r)(v+v_s)}{f}`,
-
   (f, fp, v, vr, vs) =>
     `f'*\\frac{v+v_s-v_r}{f}`,
-
   (f, fp, v, vr, vs) =>
     `f*\\frac{v+v_s}{f' + v_r}`
 ],
@@ -217,16 +188,12 @@ PRODUCT_JOULE_LINEAR: [
 
   (L, F1, F2, F3) =>
     `\\frac{${L}}{${F3}*${F2}^2}`,
-
   (L, F1, F2, F3) =>
     `\\frac{${F3}*${F2}}{${L}}`,
-
   (L, F1, F2, F3) =>
     `\\frac{${L}}{${F3}*${F2}}`,
-
   (L, F1, F2, F3) =>
     `${L}*${F2}/${F3}^2`,
-
   (L, F1, F2, F3) =>
     `\\frac{${F3}^2*${F2}}{${L}}`
 ],
@@ -234,20 +201,14 @@ PRODUCT_JOULE_ROOT: [
 
   (L, F1, F2, F3) =>
     `\\sqrt{\\frac{${L}}{${F1}^2*${F2}}}`,
-
   (L, F1, F2, F3) =>
     `\\sqrt{\\frac{${L}}{${F1}*${F2}^2}}`,
-
   (L, F1, F2, F3) =>
     `\\sqrt{\\frac{${L}^2}{${F1}*${F2}}}`,
-
-
   (L, F1, F2, F3) =>
     `\\frac{${L}}{${F1}*${F2}}`,
-
   (L, F1, F2, F3) =>
     `\\sqrt{{${L}*${F1}*${F2}}}`,
-
   (L, F1, F2, F3) =>
     `\\frac{\sqrt{${L}}}{${F1}*${F2}}`
 ],
@@ -259,19 +220,14 @@ ENERGIE_PESANTEUR: [
 
   (L, C, G, target, other) =>
     `\\frac{${L}+${C}}{${G}*${other}}`,
-
   (L, C, G, target, other) =>
     `\\frac{${L}-${C}}{${other}}`,
-
   (L, C, G, target, other) =>
     `\\frac{${C}-${L}}{${G}*${other}}`,
-
   (L, C, G, target, other) =>
     `${L}-${C}*${G}*${other}`,
-
   (L, C, G, target, other) =>
     `\\frac{${L}}{${G}*${other}}-${C}`,
-
   (L, C, G, target, other) =>
     `\\frac{g*\\left(${L}-${C}\\right)}{${other}}`
 
@@ -308,14 +264,21 @@ ENERGIE_PESANTEUR: [
   ],
 
   // =========================
-  // EXP (radioactivité)
+  // RADIOACTIVITE
   // =========================
-  EXP: [
-    (L, A, B, t) => `ln(${t})`,
-    (L, A, B, t) => `log(${t})`,
-    (L, A, B, t) => `-ln(${t})`,
-    (L, A, B, t) => `e^${t}`
-  ],
+RADIOACTIVITE: [
+
+  (L, B, target, other) =>
+    `\\frac{1}{${other}}*ln\\left(\\frac{${L}}{${B}}\\right)`,
+  (L, B, target, other) =>
+    `-${other}*ln\\left(\\frac{${L}}{${B}}\\right)`,
+  (L, B, target, other) =>
+    `-${other}*ln\\left(\\frac{${L}}{${B}}\\right)`,
+  (L, B, target, other) =>
+    `-\\frac{1}{${other}}*ln\\left(\\frac{${B}}{${L}}\\right)`,
+  (L, B, target, other) =>
+    `\\frac{ln(${L})-ln(${B})}{${other}}`
+],
 
   // =========================
   // SUM (Bernoulli etc.)
@@ -378,6 +341,9 @@ export function generateDistractors(q, target, correct) {
 
     case "energie_pesanteur":
       return handleEnergiePesanteur(q, target, correct);
+
+    case "radioactivite":
+      return handleRadioactivite(q, target, correct);
 
     default:
       return handleDefault(q, target, correct);
@@ -852,6 +818,60 @@ function handleEnergiePesanteur(q, target, correct) {
         L,
         C,
         G,
+        target,
+        other
+      );
+
+    } catch {
+
+      continue;
+    }
+
+    if (!val) continue;
+
+    if (val === correct) continue;
+
+    if (val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // RADIOACTIVITE
+  // =========================
+function handleRadioactivite(q, target, correct) {
+
+  const L = q.lhs;
+
+  const B = q.base;
+
+  const other =
+    q.targetPool.find(v => v !== target);
+
+  const table =
+    DISTRACTOR_PATTERNS.RADIOACTIVITE;
+
+  const pool = new Set();
+
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 60) {
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+
+      val = fn(
+        L,
+        B,
         target,
         other
       );

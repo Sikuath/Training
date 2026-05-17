@@ -12,13 +12,12 @@ export function toLatex(str) {
 
     rho0: "\\rho_{0}",
     rho: "\\rho",
-
     lambda: "\\lambda",
     theta: "\\theta",
     sigma: "\\sigma",
     tau: "\\tau",
     epsilon: "\\epsilon",
-
+    nu: "\\nu",
     deltat: "\\Delta t",
     deltaE: "\\Delta E",
 
@@ -51,7 +50,7 @@ export function toLatex(str) {
     Tf: "T_{f}",
 
     I0: "I_{0}",
-
+    N0: "N_{0}",
     msolute: "m_{solute}",
     nsolute: "n_{solute}",
     Vsolution: "V_{solution}",
