@@ -230,6 +230,46 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
     break;
 
     /* =========================================================
+       PUISSANCE PESANTEUR
+    ========================================================= */
+
+    case EXPRESSION_TYPES.ENERGIE_PESANTEUR:
+
+      explanation = `
+      <div style="text-align:left">
+
+      👉 La variable recherchée \\(${toLatex(q.target)}\\) apparaît dans un produit :
+
+      \\(m \\times g \\times z\\) mais aussi avec une constante additive :
+
+      \\(E_{pp}(0)\\)
+
+      <br><br>
+
+      Pour isoler \\(${toLatex(q.target)}\\) :
+
+      <ul>
+
+        <li>
+        on commence par soustraire \\(E_{pp}(0)\\)
+        des deux côtés du signe =
+        </li>
+
+        <li>
+        puis on divise par le produit des facteurs restants
+        </li>
+
+      </ul>
+
+      ⚠️ Attention : il ne faut pas oublier de retirer \\(E_{pp}(0)\\)
+      avant de faire la division.
+
+      </div>
+      `;
+
+    break;
+
+    /* =========================================================
        PUISSANCE PURE (KEPLER / STEFAN etc.)
     ========================================================= */
 

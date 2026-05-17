@@ -270,7 +270,11 @@ ENERGIE_PESANTEUR: [
     `${L}-${C}*${G}*${other}`,
 
   (L, C, G, target, other) =>
-    `\\frac{${L}}{${G}*${other}}-${C}`
+    `\\frac{${L}}{${G}*${other}}-${C}`,
+
+  (L, C, G, target, other) =>
+    `\\frac{g*\\left(${L}-${C}\\right)}{${other}}`
+
 ],
 
   // =========================
