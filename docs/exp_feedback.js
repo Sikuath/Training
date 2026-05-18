@@ -287,15 +287,46 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
        LOG
     ========================================================= */
 
-    case EXPRESSION_TYPES.LOG:
+    case EXPRESSION_TYPES.LOG_PH:
+
       explanation = `
       <div style="text-align:left">
-      👉 La variable est dans un logarithme.
+
+      👉 La concentration en ions oxonium \\(${toLatex(q.target)}\\)
+      apparaît à l’intérieur d’un logarithme base 10.
+
       <br><br>
-      On utilise l’exponentielle pour inverser le log.
+
+      Pour isoler cette grandeur :
+
+      <ul>
+
+        <li>
+        on commence par supprimer le signe « - »
+        </li>
+
+        <li>
+        puis on applique l’opération inverse du logarithme :
+        la puissance de 10
+        </li>
+
+        <li>
+        enfin on multiplie toute l'expression par la variable qui reste au dénominateur.
+        </li>
+
+      </ul>
+
+      ⚠️ An utilise la propriété :
+
+      \\[
+  log(x)=a\\quad \\Rightarrow \\quad x=10^a \\]
+
+      <br><br>
+
       </div>
       `;
-      break;
+
+    break;
 
     /* =========================================================
        RADIOACTIVITE

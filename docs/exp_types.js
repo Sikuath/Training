@@ -41,6 +41,7 @@ export const EXPRESSION_TYPES = {
 
   FORCE_CENTRALE:
     "force_centrale",
+
   DOPPLER:
     "doppler"
 };
