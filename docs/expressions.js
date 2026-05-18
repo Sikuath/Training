@@ -164,7 +164,7 @@ function load() {
 
     D’après la relation : \\(${toLatex(q.expr)}\\)<br><br>
 
-    Donner la bonne expression pour la variable  <b>\\(${toLatex(q.target)}\\)</b>
+    Donner la bonne expression pour la variable <b>\\(${toLatex(q.target)}\\)</b>
 
   `;
 

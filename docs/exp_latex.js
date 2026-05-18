@@ -55,7 +55,9 @@ export function toLatex(str) {
     nsolute: "n_{solute}",
     Vsolution: "V_{solution}",
     vr: "v_{r}",
-    vs : "v_{s}"
+    vs : "v_{s}",
+    C0: "C^{0}",
+    H3O: "[H_{3}O^{+}]"
   };
 
   /* =========================================================

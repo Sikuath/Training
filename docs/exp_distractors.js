@@ -256,13 +256,25 @@ ENERGIE_PESANTEUR: [
   // =========================
   // LOG (pH, son, etc.)
   // =========================
-  LOG: [
-    (L, A, B, t) => `10^${t}`,
-    (L, A, B, t) => `e^${t}`,
-    (L, A, B, t) => `10^(-${t})`,
-    (L, A, B, t) => `${t}^2`
-  ],
-
+LOG_PH: [
+  // oubli du 10^
+  (L, B, target) =>
+    `\\frac{${B}}{10^{-${L}}}`,
+  (L, B, target) =>
+    `${L}*10^{${B}}`,
+  (L, B, target) =>
+    `${L}*10^{-${B}}`,
+  (L, B, target) =>
+    `\\frac{10^{-${L}}}{${B}}`,
+  (L, B, target) =>
+    `10^{-${L}}`,
+  (L, B, target) =>
+    `10^{${L}}`,
+  (L, B, target) =>
+    `${B}*10^{\\frac{1}{-${L}}}`,
+  (L, B, target) =>
+    `${B}*e^{-{${L}}}`
+],
   // =========================
   // RADIOACTIVITE
   // =========================
@@ -345,6 +357,8 @@ export function generateDistractors(q, target, correct) {
     case "radioactivite":
       return handleRadioactivite(q, target, correct);
 
+    case "log_pH":
+      return handlePH(q, target, correct);
     default:
       return handleDefault(q, target, correct);
   }
@@ -883,6 +897,48 @@ function handleRadioactivite(q, target, correct) {
 
     if (!val) continue;
 
+    if (val === correct) continue;
+
+    if (val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // LOG PH
+  // =========================
+function handlePH(q, target, correct) {
+
+  const L = q.lhs;        // pH
+  const C0 = "C0";
+
+  const table = DISTRACTOR_PATTERNS.LOG_PH;
+
+  const pool = new Set();
+
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 60) {
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+
+      val = fn(L, C0, target);
+
+    } catch {
+      continue;
+    }
+
+    if (!val) continue;
     if (val === correct) continue;
 
     if (val.includes("undefined")) continue;

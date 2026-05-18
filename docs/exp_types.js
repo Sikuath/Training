@@ -30,8 +30,8 @@ export const EXPRESSION_TYPES = {
   SUM:
     "sum",
 
-  LOG:
-    "log",
+  LOG_PH:
+    "log_pH",
 
   RADIOACTIVITE:
     "radioactivite",

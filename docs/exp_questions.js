@@ -74,10 +74,10 @@ export const QUESTIONS = [
 //{ difficulty:"easy", domain:"quantique", law:"Photon", image:"./images/energie_photon.jpg", expr:"E=h*nu", type:EXPRESSION_TYPES.PRODUCT, lhs:"E", factors:["h","nu"], baseVars:["E","h","nu"], targetPool:["nu"], answers:{nu:"E/h"} },
 
 // 25
-{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^{(-lambda*t)}", type:EXPRESSION_TYPES.RADIOACTIVITE, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t","lambda"], answers:{t:"-\\frac{1}{lambda}*ln\\left(\\frac{N}{N0} \\right)", lambda:"-\\frac{1}{t}*ln\\left(\\frac{N}{N0} \\right)"} },
+//{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^{(-lambda*t)}", type:EXPRESSION_TYPES.RADIOACTIVITE, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t","lambda"], answers:{t:"-\\frac{1}{lambda}*ln\\left(\\frac{N}{N0} \\right)", lambda:"-\\frac{1}{t}*ln\\left(\\frac{N}{N0} \\right)"} },
 
 // 26
-//{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr:"pH=-log([H3O+]/C0)", type:EXPRESSION_TYPES.LOG, lhs:"pH", variable:"[H3O+]", baseVars:["pH","[H3O+]"], targetPool:["[H3O+]"], answers:{[H3O+]:"C0*10^(-pH)"} },
+{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr: "pH=-log\\left(\\frac{H3O}{C0}\\right)", type:EXPRESSION_TYPES.LOG_PH, lhs:"pH", variable:"H3O", baseVars:["pH","H3O"], targetPool:["H3O"], answers:{"H3O": "C0*10^{-pH}"} },
 
 // 27
 //{ difficulty:"hard", domain:"gravitation", law:"Kepler III", image:"./images/kepler.jpg", expr:"T^2=k*R^3", type:EXPRESSION_TYPES.POWER, leftVar:"T", leftPower:2, coefficient:"k", rightVar:"R", rightPower:3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"(T^2/k)^(1/3)", T:"sqrt(k*R^3)"} },
