@@ -81,7 +81,7 @@ export const QUESTIONS = [
 
 // 27
 
-//{ difficulty:"hard", domain:"gravitation", law:"Troisième loi de Kepler", image:"./images/kepler.jpg", expr:"\\frac{T^2}{R^3}=k", type:EXPRESSION_TYPES.POWER, lhs:"k", numerator:"T", numPower: 2, denominator:"R", denPower: 3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"\\sqrt[3]{\\frac{T^{2}}{k}}", T:"\\sqrt{k*R^{3}}"} },
+{ difficulty:"hard", domain:"gravitation", law:"Troisième loi de Kepler", image:"./images/kepler.jpg", expr:"\\frac{T^2}{R^3}=k", type:EXPRESSION_TYPES.POWER, lhs:"k", numerator:"T", numPower: 2, denominator:"R", denPower: 3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"\\sqrt[3]{\\frac{T^{2}}{k}}", T:"\\sqrt{k*R^{3}}"} },
 
 // 28
 //{ difficulty:"hard", domain:"fluide", law:"Bernoulli", image:"./images/bernoulli.jpg", expr:"P+1/2*rho*v^2=k", type:EXPRESSION_TYPES.SUM, targetFormula:"v=sqrt((2*(k-P))/rho)", baseVars:["P","rho","v","k"], targetPool:["v"], answers:{v:"v=sqrt((2*(k-P))/rho)"} },
@@ -111,7 +111,7 @@ export const QUESTIONS = [
 //{ difficulty:"hard", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^(L/10)"} },
 
 // 37
-//{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },
+{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },
 
 // 38
 //{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q=n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"], answers:{n:"q/e", e:"q/n"} },

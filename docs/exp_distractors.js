@@ -1015,88 +1015,91 @@ function handlePH(q, target, correct) {
 function handlePower(q, target, correct) {
 
   const ctx = {
-
     L: q.lhs,
     A: q.numerator,
     pA: q.numPower,
-
     B: q.denominator,
     pB: q.denPower
   };
 
-  let table;
+  let table = null;
 
   // =========================
-  // CAS RACINE
+  // CAS NUMERATEUR
   // =========================
-
   if (target === q.numerator) {
 
     if (q.numPower === 2) {
-
-      table =
-        DISTRACTOR_PATTERNS.POWER_ROOT_2;
+      table = DISTRACTOR_PATTERNS.POWER_ROOT_2;
     }
 
     else if (q.numPower === 4) {
+      table = DISTRACTOR_PATTERNS.POWER_ROOT_4;
+    }
 
-      table =
-        DISTRACTOR_PATTERNS.POWER_ROOT_4;
+    else {
+      table = DISTRACTOR_PATTERNS.POWER_LINEAR_1;
     }
   }
 
   // =========================
-  // CAS LINEAIRE
+  // CAS DENOMINATEUR (R)
   // =========================
-
-  else {
+  else if (target === q.denominator) {
 
     if (q.denPower === 1) {
+      table = DISTRACTOR_PATTERNS.POWER_LINEAR_1;
+    }
 
-      table =
-        DISTRACTOR_PATTERNS.POWER_LINEAR_1;
+    else if (q.denPower === 2) {
+      table = DISTRACTOR_PATTERNS.POWER_LINEAR_2; // 👈 TON CAS
     }
 
     else if (q.denPower === 3) {
+      table = DISTRACTOR_PATTERNS.POWER_LINEAR_3;
+    }
 
-      table =
-        DISTRACTOR_PATTERNS.POWER_LINEAR_3;
+    else if (q.denPower === 4) {
+      table = DISTRACTOR_PATTERNS.POWER_ROOT_4;
     }
   }
 
-  const pool = new Set();
+  // =========================
+  // FALLBACK
+  // =========================
+  else {
+    table = DISTRACTOR_PATTERNS.POWER_LINEAR_1;
+  }
 
+  // sécurité : évite crash si table non définie
+  if (!table || table.length === 0) return [];
+
+  const pool = new Set();
   let attempts = 0;
 
   while (pool.size < 3 && attempts < 50) {
 
     attempts++;
 
-    const fn =
-      table[Math.floor(Math.random() * table.length)];
+    const fn = table[Math.floor(Math.random() * table.length)];
 
     let val;
-
     try {
-
       val = fn(ctx);
-
     } catch {
-
       continue;
     }
 
     if (!val) continue;
-
     if (val === correct) continue;
-
-    if (val.includes("undefined")) continue;
+    if (typeof val === "string" && val.includes("undefined")) continue;
 
     pool.add(val);
   }
 
   return [...pool];
 }
+
   // =========================
   // DEFAULT
   // =========================
