@@ -59,7 +59,7 @@ PRODUCT_TH_M: [
   ({L, c, Tf, Ti}) =>
     `\\frac{${L}}{${c}+(${Tf}-${Ti})}`,
   ({L, Tf, Ti}) =>
-    `\\frac{${c}{${L}}-{{${Tf}+${Ti}}}`,
+    `\\frac{${c}*${L}}{${Tf}+${Ti}}`,
   ({L, c, Tf, Ti}) =>
     `\\frac{${c}*(${Tf}-${Ti})}{${L}}`,
   ({L, c, Tf, Ti}) =>
@@ -230,34 +230,75 @@ ENERGIE_PESANTEUR: [
   (L, C, G, target, other) =>
     `\\frac{${L}}{${G}*${other}}-${C}`,
   (L, C, G, target, other) =>
-    `\\frac{g*\\left(${L}-${C}\\right)}{${other}}`
+    `\\frac{${G}*\\left(${L}-${C}\\right)}{${other}}`
 
 ],
 
   // =========================
   // POWER (Kepler, Stefan, acceleration centripete.)
   // =========================
-KEPLER_T: [
-  ({k, R, pR}) =>
-    `\\sqrt{${k}*${R}^${pR}}`,
+POWER_ROOT_2: [
 
-  ({k, R, pR}) =>
-    `(${k}*${R}^${pR})^(1/2)`,
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt{{${L}*${B}^2}}`,
 
-  ({k, R, pR}) =>
-    `\\sqrt{\\frac{${k}}{1/${R}^${pR}}}`
-],
-KEPLER_R: [
-  ({k, T, pT}) =>
-    `\\left(\\frac{${T}^${pT}}{${k}}\\right)^(1/${pR})`,
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt{\\frac{${L}}{${B}}}`,
 
-  ({k, T, pT, pR}) =>
-    `\\sqrt[${pR}]{\\frac{${T}^${pT}}{${k}}}`,
+  ({L, A, pA, B, pB}) =>
+    `${L}*${B}`,
 
-  ({k, T, pT, pR}) =>
-    `((${T}^${pT}/${k})^(1/${pR}))`
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt{\\frac{${B}}{${L}}}`
 ],
 
+
+POWER_ROOT_4: [
+
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt{\\frac{${A}}{${L}}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt[4]{${L}*${A}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\left(\\frac{${A}}{${L}}\\right)^4`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt[3]{\\frac{${A}}{${L}}}`
+],
+
+
+POWER_LINEAR_1: [
+
+  ({L, A, pA, B, pB}) =>
+    `\\frac{${A}}{${L}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\frac{${L}}{${A}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt{${A}^2*${L}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `${A}^${pA}/${L}^2`
+],
+
+
+POWER_LINEAR_3: [
+
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt[3]{\\frac{${A}^{${pA}}}{${L}}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\frac{${A}^{${pA}}}{${L}}`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\left(\\frac{${L}}{${A}^{${pA}}}\\right)^3`,
+
+  ({L, A, pA, B, pB}) =>
+    `\\sqrt{\\frac{${A}^{${pA}}}{${L}}}`
+],
   // =========================
   // PRODUCT + POWER (Ec = 1/2 m v^2)
   // =========================
@@ -971,56 +1012,91 @@ function handlePH(q, target, correct) {
   // =========================
   // POWER KEPLER STEFAN CENTRI
   // =========================
-function normalizeKepler(q) {
-
-  return {
-    k: q.lhs,
-    T: q.numerator[0],
-    R: q.denominator[0],
-    pT: q.numPower[0],
-    pR: q.denPower[0]
-  };
-}
-
 function handlePower(q, target, correct) {
 
-  const { k, T, R, pT, pR } = normalizeKepler(q);
+  const ctx = {
 
-  const table =
-    target === "T"
-      ? DISTRACTOR_PATTERNS.KEPLER_T
-      : DISTRACTOR_PATTERNS.KEPLER_R;
+    L: q.lhs,
+    A: q.numerator,
+    pA: q.numPower,
+
+    B: q.denominator,
+    pB: q.denPower
+  };
+
+  let table;
+
+  // =========================
+  // CAS RACINE
+  // =========================
+
+  if (target === q.numerator) {
+
+    if (q.numPower === 2) {
+
+      table =
+        DISTRACTOR_PATTERNS.POWER_ROOT_2;
+    }
+
+    else if (q.numPower === 4) {
+
+      table =
+        DISTRACTOR_PATTERNS.POWER_ROOT_4;
+    }
+  }
+
+  // =========================
+  // CAS LINEAIRE
+  // =========================
+
+  else {
+
+    if (q.denPower === 1) {
+
+      table =
+        DISTRACTOR_PATTERNS.POWER_LINEAR_1;
+    }
+
+    else if (q.denPower === 3) {
+
+      table =
+        DISTRACTOR_PATTERNS.POWER_LINEAR_3;
+    }
+  }
 
   const pool = new Set();
+
   let attempts = 0;
 
   while (pool.size < 3 && attempts < 50) {
 
     attempts++;
 
-    const fn = table[Math.floor(Math.random() * table.length)];
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
 
     let val;
 
     try {
 
-      val =
-        target === "T"
-          ? fn({ k, R, pR })
-          : fn({ k, T, pT, pR });
+      val = fn(ctx);
 
     } catch {
+
       continue;
     }
 
-    if (!val || val === correct || val.includes("undefined")) continue;
+    if (!val) continue;
+
+    if (val === correct) continue;
+
+    if (val.includes("undefined")) continue;
 
     pool.add(val);
   }
 
   return [...pool];
 }
-
   // =========================
   // DEFAULT
   // =========================
