@@ -274,14 +274,141 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
     ========================================================= */
 
     case EXPRESSION_TYPES.POWER:
-      explanation = `
-      <div style="text-align:left">
-      👉 La variable est dans une relation de puissance.
-      <br><br>
-      On applique l’opération inverse : racine ou exponentiation fractionnaire.
-      </div>
-      `;
-      break;
+
+      const power =
+        q.numerator === q.target
+          ? q.numPower
+          : q.denPower;
+
+      if (power === 2) {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 La variable recherchée \\(${toLatex(q.target)}\\) apparaît au carré.
+
+        <br><br>
+
+        Pour l’isoler :
+
+        <ul>
+
+          <li>
+          on commence par isoler
+          \\(${toLatex(q.target)}^2\\)
+          </li>
+
+          <li>
+          puis on applique la racine carrée
+          </li>
+
+        </ul>
+
+        ⚠️ Attention : il ne faut pas oublier de conserver tous les autres facteurs lors des divisions.
+
+        </div>
+        `;
+      }
+
+      else if (power === 3) {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 La variable recherchée \\(${toLatex(q.target)}\\) apparaît à la puissance 3.
+
+        <br><br>
+
+        Pour l’isoler :
+
+        <ul>
+
+          <li>
+          on commence par isoler
+          \\(${toLatex(q.target)}^3\\)
+          </li>
+
+          <li>
+          puis on applique la racine cubique
+          </li>
+
+        </ul>
+
+        ⚠️ Attention :
+        la racine cubique s’écrit :
+
+        \\[
+        \\sqrt[3]{x}
+        \\]
+
+        </div>
+        `;
+      }
+
+      else if (power === 4) {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 La variable recherchée \\(${toLatex(q.target)}\\) apparaît à la puissance 4.
+
+        <br><br>
+
+        Pour l’isoler :
+
+        <ul>
+
+          <li>
+          on commence par isoler
+          \\(${toLatex(q.target)}^4\\)
+          </li>
+
+          <li>
+          puis on applique la racine quatrième
+          </li>
+
+        </ul>
+
+        ⚠️ Attention : il ne faut pas confondre :
+
+        \\[
+        x^4
+        \\quad \\text{et} \\quad
+        \\sqrt[4]{x}
+        \\]
+
+        </div>
+        `;
+      }
+
+      else {
+
+        explanation = `
+        <div style="text-align:left">
+
+        👉 La variable recherchée \\(${toLatex(q.target)}\\) n’est pas sous une puissance.
+
+        <br><br>
+
+        On l’isole simplement en utilisant :
+
+        <ul>
+
+          <li>
+          un produit en croix si nécessaire
+          </li>
+
+          <li>
+          puis une division par les facteurs restants
+          </li>
+
+        </ul>
+
+        </div>
+        `;
+      }
+
+    break;
 
     /* =========================================================
        LOG
