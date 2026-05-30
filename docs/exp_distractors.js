@@ -39,12 +39,9 @@ PRODUCT_FRACTION: [
   ({op1,op2,other}) => `${op1}*${op2}*${other}`,
   ({op1,op2,other}) => `\\frac{${other}*${op2}}{${op1}}`,
   ({op1,op2,other}) => `\\frac{${op1}*${other}}{${op2}}`,
-  ({op1,op2,other}) => `\\frac{${op2}}{${op1}}*${other}`,
-  ({op1,op2,other}) => `${op1}*\\frac{${other}}{${op2}}`,
+  ({op1,op2,other}) => `\\frac{${other}*${op1}}{${op2}}`,
   ({op1,op2,other}) => `${op2}*\\frac{${other}}{${op1}}`,
   ({op1,op2,other}) => `${op1}+\\frac{${op2}}{${other}}`,
-  ({op1,op2,other}) => `${op1}+\\frac{${other}}{${op2}}`,
-  ({op1,op2,other}) => `${op2}+\\frac{${other}}{${op1}}`,
   ({op1,op2,other}) => `${op1}-\\frac{${op2}}{${other}}`,
   ({op1,op2,other}) => `${op2}-\\frac{${op1}}{${other}}`,
   ({op1,op2,other}) => `\\frac{${op1}}{${op2}}-${other}`,
@@ -708,6 +705,15 @@ function handleProductFraction(q, target, correct) {
   const left = q.left || [];
   const right = q.right || [];
 
+  const inLeft = left.includes(target);
+  const inRight = right.includes(target);
+
+  // 🔴 sécurité : si target n'est nulle part, on stoppe
+  if (!inLeft && !inRight) {
+    console.warn("❌ target absent de left et right :", target);
+    return [];
+  }
+
   const pool = new Set();
   let attempts = 0;
 
@@ -720,30 +726,19 @@ function handleProductFraction(q, target, correct) {
 
     try {
 
-      if (left.includes(target)) {
+      let op1, op2, other;
 
-        const op3 = left.find(v => v !== target) ?? "a";
-        const op1 = right[0] ?? "x";
-        const op2 = right[1] ?? "y";
-
-        val = fn({
-          op1,
-          op2,
-          other: op3
-        });
-
+      if (inLeft) {
+        other = left.find(v => v !== target) ?? "a";
+        op1 = right[0] ?? "x";
+        op2 = right[1] ?? "y";
       } else {
-
-        const op3 = right.find(v => v !== target) ?? "a";
-        const op1 = left[0] ?? "x";
-        const op2 = left[1] ?? "y";
-
-        val = fn({
-          op1,
-          op2,
-          other: op3
-        });
+        other = right.find(v => v !== target) ?? "a";
+        op1 = left[0] ?? "x";
+        op2 = left[1] ?? "y";
       }
+
+      val = fn({ op1, op2, other });
 
     } catch {
       continue;
@@ -751,8 +746,7 @@ function handleProductFraction(q, target, correct) {
 
     if (!val) continue;
     if (val === correct) continue;
-
-    if (typeof val === "string" && val.includes(target)) continue;
+    if (typeof val === "string" && val.includes("undefined")) continue;
 
     pool.add(val);
   }
