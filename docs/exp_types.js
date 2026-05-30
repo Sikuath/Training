@@ -27,8 +27,8 @@ export const EXPRESSION_TYPES = {
   ENERGIE_PESANTEUR:
     "energie_pesanteur",
 
-  SUM:
-    "sum",
+  BERNOUILLI:
+    "bernouilli",
 
   LOG_PH:
     "log_pH",

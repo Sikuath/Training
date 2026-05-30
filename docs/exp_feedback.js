@@ -495,14 +495,30 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
        SOMME (BERNOULLI / énergie etc.)
     ========================================================= */
 
-    case EXPRESSION_TYPES.SUM:
-      explanation = `
-      <div style="text-align:left">
-      👉 L’expression est une somme avec une constante.
-      <br><br>
-      On isole le terme contenant la variable en réorganisant l’équation.
-      </div>
-      `;
+    case EXPRESSION_TYPES.BERNOUILLI:
+
+      if (q.target === "v") {
+
+        explanation = `
+        <div style="text-align:left">
+        👉 La variable <b>\\(v\\)</b> apparaît dans un terme au carré.
+        <br><br>
+        On isole d'abord le terme contenant \\(v^2\\), puis on applique la racine carrée pour obtenir \\(v\\).
+        </div>
+        `;
+
+      } else if (q.target === "z") {
+
+        explanation = `
+        <div style="text-align:left">
+        👉 La variable <b>\\(z\\)</b> apparaît dans un terme multiplicatif.
+        <br><br>
+        On isole d'abord le terme contenant \\(z\\), puis on divise par les grandeurs qui le multiplient.
+        </div>
+        `;
+
+      }
+
       break;
 
     /* =========================================================

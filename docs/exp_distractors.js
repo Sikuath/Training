@@ -349,14 +349,38 @@ RADIOACTIVITE: [
 ],
 
   // =========================
-  // SUM (Bernoulli etc.)
+  // BERNOUILLI
   // =========================
-  SUM: [
-    (L, A, B, t) => `${L}+${t}`,
-    (L, A, B, t) => `${L}-${t}`,
-    (L, A, B, t) => `${t}+1`,
-    (L, A, B, t) => `${t}*2`
-  ],
+BERNOULLI_V: [
+
+  ({ k, P, rho, g, z }) =>
+    `\\sqrt{\\frac{k - P - rho*g*z}{rho}}`,
+  ({ k, P, rho, g, z }) =>
+     '\\frac{2*\\left( k-P - rho*g*z \\right)}{{rho}}',
+  ({ k, P, rho, g, z }) =>
+    `\\sqrt{\\frac{2(k - P + rho*g*z)}{rho}}`,
+  ({ k, P, rho, g, z }) =>
+    `\\sqrt{{2 \\left( k - P - rho*g*z \\right)}}`,
+  ({ k, P, rho, g, z }) =>
+    `\\sqrt{\\frac{P - k - rho*g*z}{rho}}`,
+  ({ k, P, rho, g, z }) =>
+    `\\sqrt{\\frac{2(k - P - rho*g*z)}{rho}^{2}}`
+],
+BERNOULLI_Z: [
+
+  ({ k, P, rho, g, v }) =>
+    `\\frac{k - P}{rho*g}`,
+  ({ k, P, rho, g, v }) =>
+    `\\frac{k - P + \\frac{1}{2}rho*v^2}{rho*g}`,
+  ({ k, P, rho, g, v }) =>
+    `\\frac{k - P - \\frac{1}{2}rho*v^2}{rho}`,
+  ({ k, P, rho, g, v }) =>
+    `\\frac{k + P - \\frac{1}{2}rho*v^2}{rho*g}`,
+  ({ k, P, rho, g, v }) =>
+    `\\frac{k - \\frac{1}{2}rho*v^2}{rho*g}`,
+  ({ k, P, rho, g, v }) =>
+    `\\frac{k - P - \\frac{1}{2}rho*v}{g}`
+],
 
   // =========================
   // RECIPROCAL SUM (lentilles)
@@ -418,6 +442,9 @@ export function generateDistractors(q, target, correct) {
 
     case "power":
       return handlePower(q, target, correct);
+
+    case "bernouilli":
+      return handleBernoulli(q, target, correct);
 
     default:
       return handleDefault(q, target, correct);
@@ -1093,6 +1120,58 @@ function handlePower(q, target, correct) {
     if (!val) continue;
     if (val === correct) continue;
     if (typeof val === "string" && val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // BERNOUILLI
+  // =========================
+function handleBernoulli(q, target, correct) {
+
+  const ctx = {
+    k: q.k,
+    P: q.P,
+    rho: q.rho,
+    g: q.g,
+    v: q.v,
+    z: q.z
+  };
+
+  let table = null;
+
+  if (target === "v") {
+    table = DISTRACTOR_PATTERNS.BERNOULLI_V;
+  }
+
+  else if (target === "z") {
+    table = DISTRACTOR_PATTERNS.BERNOULLI_Z;
+  }
+
+  if (!table) return [];
+
+  const pool = new Set();
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 50) {
+
+    attempts++;
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = fn(ctx);
+    } catch {
+      continue;
+    }
+
+    if (!val) continue;
+    if (val === correct) continue;
 
     pool.add(val);
   }

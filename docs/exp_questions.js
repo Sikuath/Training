@@ -81,13 +81,13 @@ export const QUESTIONS = [
 
 // 27
 
-{ difficulty:"hard", domain:"gravitation", law:"Troisième loi de Kepler", image:"./images/kepler.jpg", expr:"\\frac{T^2}{R^3}=k", type:EXPRESSION_TYPES.POWER, lhs:"k", numerator:"T", numPower: 2, denominator:"R", denPower: 3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"\\sqrt[3]{\\frac{T^{2}}{k}}", T:"\\sqrt{k*R^{3}}"} },
+//{ difficulty:"hard", domain:"gravitation", law:"Troisième loi de Kepler", image:"./images/kepler.jpg", expr:"\\frac{T^2}{R^3}=k", type:EXPRESSION_TYPES.POWER, lhs:"k", numerator:"T", numPower: 2, denominator:"R", denPower: 3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"\\sqrt[3]{\\frac{T^{2}}{k}}", T:"\\sqrt{k*R^{3}}"} },
 
 // 28
-//{ difficulty:"hard", domain:"fluide", law:"Bernoulli", image:"./images/bernoulli.jpg", expr:"P+1/2*rho*v^2=k", type:EXPRESSION_TYPES.SUM, targetFormula:"v=sqrt((2*(k-P))/rho)", baseVars:["P","rho","v","k"], targetPool:["v"], answers:{v:"v=sqrt((2*(k-P))/rho)"} },
+//{ difficulty:"hard", domain:"fluide", law:"Bernoulli", image:"./images/bernoulli.jpg", expr:"P+ \\frac{1}{2}*rho*v^{2} +rho*g*z=k", type:EXPRESSION_TYPES.BERNOUILLI, lhs:"k", baseVars:["P","rho","g","z","v","k"], targetPool:["v","z"], answers:{v:"\\sqrt{{\\frac{2\\left(k-P-rho*g*z\\right)}{rho}}}",z: "\\frac{k-P-\\frac{1}{2}*rho*v^2}{rho*g}"} },
 
 // 29
-//{ difficulty:"easy", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa=rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"], answers:{rho:"Pa/(V*g)", V:"Pa/(rho*g)"} },
+{ difficulty:"easy", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa=rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"], answers:{rho:"Pa/(V*g)", V:"Pa/(rho*g)"} },
 
 // 30
 //{ difficulty:"medium", domain:"fluide", law:"Venturi", image:"./images/venturi.jpg", expr:"v1*S1=v2*S2", type:EXPRESSION_TYPES.CROSS, left:["v1","S1"], right:["v2","S2"], baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2","S1","S2"], answers:{v1:"(v2*S2)/S1", v2:"(v1*S1)/S2", S1:"(v2/S2)/v1", S2:"(v1*S1)/v2"} },
@@ -96,7 +96,7 @@ export const QUESTIONS = [
 //{ difficulty:"hard", domain:"thermodynamique", law:"Gaz parfait", image:"./images/gaz_parfait.jpg", expr:"P*V=n*R*T", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["n","R*T"], baseVars:["P","V","n","R","T"], targetPool:["P","V","n","T"], answers:{P:"(n*R*T)/V", V:"(n*R*T)/P", n:"(P*V)/(R*T)", T:"(P*V)/(n*R)"} },
 
 // 32
-{ difficulty:"hard", domain:"energie", law:" Stefan-Boltzmann", image:"./images/stefan.jpg", expr:"P=sigma*T^{4}", type:EXPRESSION_TYPES.POWER, lhs:"sigma", numerator:"P", numPower: 1, denominator: "T", denPower: 4, baseVars:["P","T","sigma"], targetPool:["T"], answers:{T: "\\sqrt[4]{\\frac{P}{sigma}}"} },
+//{ difficulty:"hard", domain:"energie", law:" Stefan-Boltzmann", image:"./images/stefan.jpg", expr:"P=sigma*T^{4}", type:EXPRESSION_TYPES.POWER, lhs:"sigma", numerator:"P", numPower: 1, denominator: "T", denPower: 4, baseVars:["P","T","sigma"], targetPool:["T"], answers:{T: "\\sqrt[4]{\\frac{P}{sigma}}"} },
 
 // 33
 //{ difficulty:"easy", domain:"electricite", law:"Circuit RC", image:"./images/rc.jpg", expr:"tau=R*C", type:EXPRESSION_TYPES.PRODUCT, lhs:"tau", factors:["R","C"], baseVars:["tau","R","C"], targetPool:["R","C"], answers:{R:"tau/C", C:"tau/R"} },
@@ -111,7 +111,7 @@ export const QUESTIONS = [
 //{ difficulty:"hard", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^(L/10)"} },
 
 // 37
-{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },
+//{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },
 
 // 38
 //{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q=n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"], answers:{n:"q/e", e:"q/n"} },
