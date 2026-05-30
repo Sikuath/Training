@@ -33,6 +33,26 @@ export const DISTRACTOR_PATTERNS = {
   ],
 
   // =========================
+  // PRODUCT FRACTION
+  // =========================
+PRODUCT_FRACTION: [
+  ({op1,op2,other}) => `${op1}*${op2}*${other}`,
+  ({op1,op2,other}) => `\\frac{${other}*${op2}}{${op1}}`,
+  ({op1,op2,other}) => `\\frac{${op1}*${other}}{${op2}}`,
+  ({op1,op2,other}) => `\\frac{${op2}}{${op1}}*${other}`,
+  ({op1,op2,other}) => `${op1}*\\frac{${other}}{${op2}}`,
+  ({op1,op2,other}) => `${op2}*\\frac{${other}}{${op1}}`,
+  ({op1,op2,other}) => `${op1}+\\frac{${op2}}{${other}}`,
+  ({op1,op2,other}) => `${op1}+\\frac{${other}}{${op2}}`,
+  ({op1,op2,other}) => `${op2}+\\frac{${other}}{${op1}}`,
+  ({op1,op2,other}) => `${op1}-\\frac{${op2}}{${other}}`,
+  ({op1,op2,other}) => `${op2}-\\frac{${op1}}{${other}}`,
+  ({op1,op2,other}) => `\\frac{${op1}}{${op2}}-${other}`,
+  ({op1,op2,other}) => `\\frac{${op2}}{${op1}}+${other}`
+
+],
+
+  // =========================
   // PRODUCT TRIPLE
   // =========================
   PRODUCT_T: [
@@ -413,6 +433,9 @@ export function generateDistractors(q, target, correct) {
     case "product":
       return handleProduct(q, target, correct);
 
+    case "product_fraction":
+      return handleProductFraction(q, target, correct);
+
     case "product_triple":
       return handleProductTriple(q, target, correct);
 
@@ -676,12 +699,11 @@ function handleFraction(q, target, correct) {
 }
 
   // =========================
-  // CROSS
+  // PRODUCT FRACTION
   // =========================
+function handleProductFraction(q, target, correct) {
 
-function handleCross(q, target, correct) {
-
-  const table = DISTRACTOR_PATTERNS.CROSS;
+  const table = DISTRACTOR_PATTERNS.PRODUCT_FRACTION;
 
   const left = q.left || [];
   const right = q.right || [];

@@ -148,7 +148,7 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
 
         <br><br>
 
-        Pour isoler la variable \\(${toLatex(q.target)}\\) on divise à gauche et à droite du signe = par la grandeur qui multiplie la variable recherchée \\(${toLatex(q.target)}\\)
+        Pour isoler la variable \\(${toLatex(q.target)}\\) on divise à gauche et à droite du signe = par ce qui multiplie la variable recherchée \\(${toLatex(q.target)}\\)
 
         </div>
         `;

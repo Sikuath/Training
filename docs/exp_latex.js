@@ -27,6 +27,7 @@ export function toLatex(str) {
     n2: "n_{2}",
     nA: "n_{A}",
     nB: "n_{B}",
+    Pa: "P_{a}",
 
     q1: "q_{1}",
     q2: "q_{2}",

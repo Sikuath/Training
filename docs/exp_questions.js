@@ -84,16 +84,16 @@ export const QUESTIONS = [
 //{ difficulty:"hard", domain:"gravitation", law:"Troisième loi de Kepler", image:"./images/kepler.jpg", expr:"\\frac{T^2}{R^3}=k", type:EXPRESSION_TYPES.POWER, lhs:"k", numerator:"T", numPower: 2, denominator:"R", denPower: 3, baseVars:["T","R","k"], targetPool:["R","T"], answers:{R:"\\sqrt[3]{\\frac{T^{2}}{k}}", T:"\\sqrt{k*R^{3}}"} },
 
 // 28
-//{ difficulty:"hard", domain:"fluide", law:"Bernoulli", image:"./images/bernoulli.jpg", expr:"P+ \\frac{1}{2}*rho*v^{2} +rho*g*z=k", type:EXPRESSION_TYPES.BERNOUILLI, lhs:"k", baseVars:["P","rho","g","z","v","k"], targetPool:["v","z"], answers:{v:"\\sqrt{{\\frac{2\\left(k-P-rho*g*z\\right)}{rho}}}",z: "\\frac{k-P-\\frac{1}{2}*rho*v^2}{rho*g}"} },
+//{ difficulty:"hard", domain:"fluide", law:"Loi de Bernoulli", image:"./images/bernoulli.jpg", expr:"P+ \\frac{1}{2}*rho*v^{2} +rho*g*z=k", type:EXPRESSION_TYPES.BERNOUILLI, lhs:"k", baseVars:["P","rho","g","z","v","k"], targetPool:["v","z"], answers:{v:"\\sqrt{{\\frac{2\\left(k-P-rho*g*z\\right)}{rho}}}",z: "\\frac{k-P-\\frac{1}{2}*rho*v^2}{rho*g}"} },
 
 // 29
-{ difficulty:"easy", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa=rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"], answers:{rho:"Pa/(V*g)", V:"Pa/(rho*g)"} },
+//{ difficulty:"easy", domain:"fluide", law:"Poussée Archimède", image:"./images/archimede.jpg", expr:"Pa=rho*V*g", type:EXPRESSION_TYPES.PRODUCT, lhs:"Pa", factors:["rho","V","g"], baseVars:["Pa","rho","V","g"], targetPool:["rho","V"], answers:{rho:"Pa/(V*g)", V:"Pa/(rho*g)"} },
 
 // 30
-//{ difficulty:"medium", domain:"fluide", law:"Venturi", image:"./images/venturi.jpg", expr:"v1*S1=v2*S2", type:EXPRESSION_TYPES.CROSS, left:["v1","S1"], right:["v2","S2"], baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2","S1","S2"], answers:{v1:"(v2*S2)/S1", v2:"(v1*S1)/S2", S1:"(v2/S2)/v1", S2:"(v1*S1)/v2"} },
+//{ difficulty:"medium", domain:"fluide", law:"Effet Venturi", image:"./images/venturi.jpg", expr:"v1*S1=v2*S2", type:EXPRESSION_TYPES.CROSS, left:["v1","S1"], right:["v2","S2"], baseVars:["v1","v2","S1","S2"], targetPool:["v1","v2","S1","S2"], answers:{v1:"v2*\\frac{S2}{S1}", v2:"v1*\\frac{S1}{S2}", S1:"S2*\\frac{v2}{v1}", S2:"S1*\\frac{v1}{v2}"} },
 
 // 31
-//{ difficulty:"hard", domain:"thermodynamique", law:"Gaz parfait", image:"./images/gaz_parfait.jpg", expr:"P*V=n*R*T", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["n","R*T"], baseVars:["P","V","n","R","T"], targetPool:["P","V","n","T"], answers:{P:"(n*R*T)/V", V:"(n*R*T)/P", n:"(P*V)/(R*T)", T:"(P*V)/(n*R)"} },
+//{ difficulty:"hard", domain:"thermodynamique", law:"Gaz parfait", image:"./images/gaz_parfait.jpg", expr:"P*V=n*R*T", type:EXPRESSION_TYPES.CROSS, left:["P","V"], right:["n","R*T"], baseVars:["P","V","n","R","T"], targetPool:["P","V","n","T"], answers:{P:"\\frac{n*R*T}{V}", V:"\\frac{n*R*T}{P}", n:"\\frac{P*V}{R*T}", T:"\\frac{P*V}{n*R}"} },
 
 // 32
 //{ difficulty:"hard", domain:"energie", law:" Stefan-Boltzmann", image:"./images/stefan.jpg", expr:"P=sigma*T^{4}", type:EXPRESSION_TYPES.POWER, lhs:"sigma", numerator:"P", numPower: 1, denominator: "T", denPower: 4, baseVars:["P","T","sigma"], targetPool:["T"], answers:{T: "\\sqrt[4]{\\frac{P}{sigma}}"} },
@@ -105,7 +105,7 @@ export const QUESTIONS = [
 //{ difficulty:"easy", domain:"ondes", law:"Diffraction", image:"./images/diffraction.jpg", expr:"theta=lambda/a", type:EXPRESSION_TYPES.FRACTION, lhs:"theta", numerator:"lambda", denominator:"a", baseVars:["theta","lambda","a"], targetPool:["lambda","a"], answers:{lambda:"theta*a", a:"lambda/theta"} },
 
 // 35
-//{ difficulty:"medium", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i=lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", numerator:["lambda","D"], denominator:"b", baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"], answers:{lambda:"(i*b)/D", D:"(i*b)/lambda", b:"(lambda*D)/i"} },
+{ difficulty:"medium", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i=lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", left:["i","b"], right:["lambda","D"], baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"], answers:{lambda:"\\frac{i*b}{D}", D:"\\frac{i*b}{lambda}", b:"\\frac{lambda*D}{i}"} },
 
 // 36
 //{ difficulty:"hard", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^(L/10)"} },
