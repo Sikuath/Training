@@ -114,7 +114,7 @@ export const QUESTIONS = [
 //{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },
 
 // 38
-//{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q=n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"], answers:{n:"q/e", e:"q/n"} },
+//cd nextcloud/Travail/Training/docs//{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q=n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"], answers:{n:"q/e", e:"q/n"} },
 
 // 39
 //{ difficulty:"hard", domain:"lentilles", law:"Conjugaison", image:"./images/lens1.jpg", expr:"1/di-1/do=1/f", type:EXPRESSION_TYPES.RECIPROCAL_SUM, baseVars:["f","do","di"], targetPool:["f"], answers:{f:"(do*di)/(do-di)"} },

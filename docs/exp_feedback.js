@@ -25,6 +25,32 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       break;
 
     /* =========================================================
+       PRODUIT FRACTION
+    ========================================================= */
+
+    case EXPRESSION_TYPES.PRODUCT_FRACTION:
+      explanation = `
+      <div style="text-align:left">
+      👉 L’expression <b>\\(${toLatex(q.expr)}\\)</b> peut s'écrire selon :
+
+      \\[
+      ${toLatex(q.left[0])} \\times ${toLatex(q.left[1])}
+      =
+      ${toLatex(q.right[0])} \\times ${toLatex(q.right[1])}
+      \\]
+
+
+      <br><br>
+      Pour isoler la variable <b>\\(${toLatex(q.target)}\\)</b> on divise simplement les deux côtés du signe = par le produit des autres facteurs.
+      </div>
+      `;
+      break;
+
+
+
+
+
+    /* =========================================================
        PRODUIT THERMAL
     ========================================================= */
 
