@@ -437,7 +437,7 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
     break;
 
     /* =========================================================
-       LOG
+       LOG PH
     ========================================================= */
 
     case EXPRESSION_TYPES.LOG_PH:
@@ -469,7 +469,52 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
 
       </ul>
 
-      ⚠️ An utilise la propriété :
+      ⚠️  On utilise la propriété :
+
+     \\[
+  log(x)=a\\quad \\Rightarrow \\quad x=10^a \\]
+
+      <br><br>
+
+      </div>
+      `;
+
+    break;
+
+     /* =========================================================
+       LOG SON
+    ========================================================= */
+
+    case EXPRESSION_TYPES.LOG_INTENSITE:
+
+      explanation = `
+      <div style="text-align:left">
+
+      👉 La variable à isoler \\(${toLatex(q.target)}\\)
+      apparaît à l’intérieur d’un logarithme base 10.
+
+      <br><br>
+
+      Pour isoler cette grandeur :
+
+      <ul>
+
+        <li>
+        on commence par supprimer le coefficient « 10 »
+        </li>
+
+        <li>
+        puis on applique l’opération inverse du logarithme :
+        la puissance de 10
+        </li>
+
+        <li>
+        enfin on multiplie toute l'expression par la variable qui reste au dénominateur.
+        </li>
+
+      </ul>
+
+      ⚠️  On utilise la propriété :
 
       \\[
   log(x)=a\\quad \\Rightarrow \\quad x=10^a \\]
@@ -480,7 +525,6 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       `;
 
     break;
-
     /* =========================================================
        RADIOACTIVITE
     ========================================================= */

@@ -77,7 +77,7 @@ export const QUESTIONS = [
 //{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^{(-lambda*t)}", type:EXPRESSION_TYPES.RADIOACTIVITE, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t","lambda"], answers:{t:"-\\frac{1}{lambda}*ln\\left(\\frac{N}{N0} \\right)", lambda:"-\\frac{1}{t}*ln\\left(\\frac{N}{N0} \\right)"} },
 
 // 26
-//{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr: "pH=-log\\left(\\frac{H3O}{C0}\\right)", type:EXPRESSION_TYPES.LOG_PH, lhs:"pH", variable:"H3O", baseVars:["pH","H3O"], targetPool:["H3O"], answers:{"H3O": "C0*10^{-pH}"} },
+{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr: "pH=-log\\left(\\frac{H3O}{C0}\\right)", type:EXPRESSION_TYPES.LOG_PH, lhs:"pH", variable:"H3O", baseVars:["pH","H3O"], targetPool:["H3O"], answers:{"H3O": "C0*10^{-pH}"} },
 
 // 27
 
@@ -105,10 +105,10 @@ export const QUESTIONS = [
 //{ difficulty:"easy", domain:"ondes", law:"Diffraction", image:"./images/diffraction.jpg", expr:"theta=lambda/a", type:EXPRESSION_TYPES.FRACTION, lhs:"theta", numerator:"lambda", denominator:"a", baseVars:["theta","lambda","a"], targetPool:["lambda","a"], answers:{lambda:"theta*a", a:"lambda/theta"} },
 
 // 35
-{ difficulty:"medium", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i=lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", left:["i","b"], right:["lambda","D"], baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"], answers:{lambda:"\\frac{i*b}{D}", D:"\\frac{i*b}{lambda}", b:"\\frac{lambda*D}{i}"} },
+//{ difficulty:"medium", domain:"ondes", law:"Interférences", image:"./images/interference.jpg", expr:"i=lambda*D/b", type:EXPRESSION_TYPES.PRODUCT_FRACTION, lhs:"i", left:["i","b"], right:["lambda","D"], baseVars:["i","lambda","D","b"], targetPool:["lambda","D","b"], answers:{lambda:"\\frac{i*b}{D}", D:"\\frac{i*b}{lambda}", b:"\\frac{lambda*D}{i}"} },
 
 // 36
-//{ difficulty:"hard", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^(L/10)"} },
+//{ difficulty:"hard", domain:"ondes", law:"Intensité sonore", image:"./images/son.jpg", expr:"L=10*log(I/I0)", type:EXPRESSION_TYPES.LOG_INTENSITE, lhs:"L", variable:"I", baseVars:["L","I","I0"], targetPool:["I"], answers:{I:"I0*10^{\\frac{L}{10}}"} },
 
 // 37
 //{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },

@@ -327,10 +327,9 @@ POWER_LINEAR_3: [
   ],
 
   // =========================
-  // LOG (pH, son, etc.)
+  // LOG (pH)
   // =========================
 LOG_PH: [
-  // oubli du 10^
   (L, B, target) =>
     `\\frac{${B}}{10^{-${L}}}`,
   (L, B, target) =>
@@ -348,6 +347,31 @@ LOG_PH: [
   (L, B, target) =>
     `${B}*e^{-{${L}}}`
 ],
+
+// =========================
+  // LOG (son)
+  // =========================
+LOG_INTENSITE: [
+  (L, B, target) =>
+    `\\frac{${B}}{10^{-${L}}}`,
+  (L, B, target) =>
+    `${L}*10^{${B}}`,
+  (L, B, target) =>
+    `${L}*10^{-${B}}`,
+  (L, B, target) =>
+    `\\frac{10^{-${L}}}{${B}}`,
+  (L, B, target) =>
+    `${B}*10^{-${L}}`,
+  (L, B, target) =>
+    `${B}*10^{${L}}`,
+  (L, B, target) =>
+    `${B}*10^{\\frac{-${L}}{10}}`,
+  (L, B, target) =>
+    `${B}*10^{\\frac{1}{-${L}}}`,
+  (L, B, target) =>
+    `${B}*e^{-{${L}}}`
+],
+
   // =========================
   // RADIOACTIVITE
   // =========================
@@ -459,6 +483,9 @@ export function generateDistractors(q, target, correct) {
 
     case "log_pH":
       return handlePH(q, target, correct);
+
+    case "log_intensite":
+      return handleLogIntensite(q, target, correct);
 
     case "power":
       return handlePower(q, target, correct);
@@ -1015,10 +1042,52 @@ function handleRadioactivite(q, target, correct) {
   // =========================
 function handlePH(q, target, correct) {
 
-  const L = q.lhs;        // pH
+  const L = q.lhs;
   const C0 = "C0";
 
   const table = DISTRACTOR_PATTERNS.LOG_PH;
+
+  const pool = new Set();
+
+  let attempts = 0;
+
+  while (pool.size < 3 && attempts < 60) {
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+
+      val = fn(L, C0, target);
+
+    } catch {
+      continue;
+    }
+
+    if (!val) continue;
+    if (val === correct) continue;
+
+    if (val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
+  // LOG INTENSITE
+  // =========================
+function handleLogIntensite(q, target, correct) {
+
+  const L = q.lhs;
+  const C0 = "I0";
+
+  const table = DISTRACTOR_PATTERNS.LOG_INTENSITE;
 
   const pool = new Set();
 

@@ -33,6 +33,9 @@ export const EXPRESSION_TYPES = {
   LOG_PH:
     "log_pH",
 
+  LOG_INTENSITE:
+    "log_intensite",
+
   RADIOACTIVITE:
     "radioactivite",
 
