@@ -77,7 +77,7 @@ export const QUESTIONS = [
 //{ difficulty:"hard", domain:"quantique", law:"Radioactivité", image:"./images/radio.jpg", expr:"N=N0*e^{(-lambda*t)}", type:EXPRESSION_TYPES.RADIOACTIVITE, lhs:"N", base:"N0", exponent:"(-lambda*t)", baseVars:["N","N0","lambda","t"], targetPool:["t","lambda"], answers:{t:"-\\frac{1}{lambda}*ln\\left(\\frac{N}{N0} \\right)", lambda:"-\\frac{1}{t}*ln\\left(\\frac{N}{N0} \\right)"} },
 
 // 26
-{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr: "pH=-log\\left(\\frac{H3O}{C0}\\right)", type:EXPRESSION_TYPES.LOG_PH, lhs:"pH", variable:"H3O", baseVars:["pH","H3O"], targetPool:["H3O"], answers:{"H3O": "C0*10^{-pH}"} },
+//{ difficulty:"hard", domain:"chimie", law:"pH", image:"./images/acidite.jpg", expr: "pH=-log\\left(\\frac{H3O}{C0}\\right)", type:EXPRESSION_TYPES.LOG_PH, lhs:"pH", variable:"H3O", baseVars:["pH","H3O"], targetPool:["H3O"], answers:{"H3O": "C0*10^{-pH}"} },
 
 // 27
 
@@ -114,10 +114,10 @@ export const QUESTIONS = [
 //{ difficulty:"medium", domain:"mouvement", law:"Mouvement circulaire", image:"./images/acceleration_normale.jpg", expr:"a=\\frac{v{^2}}{R}", type:EXPRESSION_TYPES.POWER, lhs:"a", numerator:"v", numPower:2, denominator:"R",denPower: 1, baseVars:["v","R","a"], targetPool:["v","R"], answers:{v:"sqrt{a*R}", R:"\\frac{v^2}{a}"} },
 
 // 38
-//cd nextcloud/Travail/Training/docs//{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q=n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"], answers:{n:"q/e", e:"q/n"} },
+//{ difficulty:"easy", domain:"electricite", law:"Charge électrique", image:"./images/quantite_elec.jpg", expr:"q=n*e", type:EXPRESSION_TYPES.PRODUCT, lhs:"q", factors:["n","e"], baseVars:["q","n","e"], targetPool:["n","e"], answers:{n:"q/e", e:"q/n"} },
 
 // 39
-//{ difficulty:"hard", domain:"lentilles", law:"Conjugaison", image:"./images/lens1.jpg", expr:"1/di-1/do=1/f", type:EXPRESSION_TYPES.RECIPROCAL_SUM, baseVars:["f","do","di"], targetPool:["f"], answers:{f:"(do*di)/(do-di)"} },
+{ difficulty:"hard", domain:"lentilles", law:"Relation de conjugaison", image:"./images/lens1.jpg", expr:"\\frac{1}{di}-\\frac{1}{d0}=\\frac{1}{f}", type:EXPRESSION_TYPES.RECIPROCAL_SUM, lhs:"do", baseVars:["f","do","di"], targetPool:["f","do","di"], answers:{f:"\\frac{do*di}{do-di}", do:"\\frac{di*f}{f-di}", di:"\\frac{f*do}{f+do}"} },
 
 // 40
 //{ difficulty:"easy", domain:"optique", law:"Lunette astronomique", image:"./images/lunette.jpg", expr:"G=fo/fe", type:EXPRESSION_TYPES.FRACTION, lhs:"G", numerator:"fo", denominator:"fe", baseVars:["G","fo","fe"], targetPool:["fo","fe"], answers:{fo:"G*fe", fe:"fo/G"} }

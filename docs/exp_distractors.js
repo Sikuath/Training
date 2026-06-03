@@ -426,11 +426,35 @@ BERNOULLI_Z: [
   // =========================
   // RECIPROCAL SUM (lentilles)
   // =========================
-  RECIPROCAL_SUM: [
-    (L, A, B, t) => `1/(${L}+${t})`,
-    (L, A, B, t) => `${L}+${t}`,
-    (L, A, B, t) => `(${t})^(-1)`
-  ],
+RECIPROCAL_F: [
+
+  ({do_,di_}) => `\\frac{${do_}*${di_}}{${do_}+${di_}}`,
+  ({do_,di_}) => `\\frac{${do_}-${di_}}{${do_}*${di_}}`,
+  ({do_,di_}) => `\\frac{${do_}*${di_}}{${di_}-${do_}}`,
+  ({do_,di_}) => `${do_}*${di_}`,
+  ({do_,di_}) => `\\frac{1}{${di_}-${do_}}`,
+  ({do_,di_}) => `${do_}+${di_}`
+],
+
+RECIPROCAL_DO: [
+
+  ({f,di}) => `\\frac{di*f}{f+di}`,
+  ({f,di}) => `\\frac{f-di}{di*f}`,
+  ({f,di}) => `\\frac{di*f}{di-f}`,
+  ({f,di}) => `di*f`,
+  ({f,di}) => `\\frac{1}{f-di}`,
+  ({f,di}) => `${f}+${di}`
+],
+
+RECIPROCAL_DI: [
+
+  ({f,do_}) => `\\frac{f*${do_}}{f-${do_}}`,
+  ({f,do_}) => `\\frac{f-${do_}}{f*${do_}}`,
+  ({f,do_}) => `\\frac{f*${do_}}{${do_}-f}`,
+  ({f,do_}) => `${f}*${do_}`,
+  ({f,do_}) => `\\frac{1}{f+${do_}}`,
+  ({f,do_}) => `${f}+${do_}`
+],
 
   // =========================
   // FALLBACK
@@ -492,6 +516,9 @@ export function generateDistractors(q, target, correct) {
 
     case "bernouilli":
       return handleBernoulli(q, target, correct);
+
+    case "reciprocical_sum":
+      return handleReprocical(q,target,correct);
 
     default:
       return handleDefault(q, target, correct);
@@ -984,6 +1011,60 @@ function handleEnergiePesanteur(q, target, correct) {
 }
 
   // =========================
+  // REPROCICAL SUM
+  // =========================
+function handleReprocical(q,target,correct){
+
+  let table;
+  let ctx;
+
+  if(target==="f"){
+    table = DISTRACTOR_PATTERNS.RECIPROCAL_F;
+    ctx = { do_:"do", di_:"di" };
+  }
+
+  else if(target==="do"){
+    table = DISTRACTOR_PATTERNS.RECIPROCAL_DO;
+    ctx = { f:"f", di:"di" };
+  }
+
+  else if(target==="di"){
+    table = DISTRACTOR_PATTERNS.RECIPROCAL_DI;
+    ctx = { f:"f", do_:"do" };
+  }
+
+  if(!table) return [];
+
+  const pool = new Set();
+  let attempts = 0;
+
+  while(pool.size < 3 && attempts < 50){
+
+    attempts++;
+
+    const fn =
+      table[Math.floor(Math.random()*table.length)];
+
+    let val;
+
+    try{
+      val = fn(ctx);
+    }
+    catch{
+      continue;
+    }
+
+    if(!val) continue;
+    if(val === correct) continue;
+    if(val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
   // RADIOACTIVITE
   // =========================
 function handleRadioactivite(q, target, correct) {
@@ -1304,4 +1385,3 @@ function generateFromTable(table, args, correct) {
 
   return [...pool];
 }
-

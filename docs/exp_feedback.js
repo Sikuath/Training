@@ -598,12 +598,37 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
     case EXPRESSION_TYPES.RECIPROCAL_SUM:
       explanation = `
       <div style="text-align:left">
-      👉 La relation est une somme de fractions inverses.
+      👉 Pour isoler une grandeur apparaissant sous forme d'inverse :
+
       <br><br>
-      On regroupe les inverses puis on inverse l’expression finale.
-      </div>
-      `;
-      break;
+
+      • On exprime d'abord son inverse en fonction des autres grandeurs.
+
+      <br><br>
+
+      • On réduit ensuite les fractions au même dénominateur grâce aux identités :
+
+      <br>\\[\\frac{1}{a}+\\frac{1}{b} = \\frac{a+b}{a*b}\\]
+
+  et
+
+  <br>\\[\\frac{1}{a}-\\frac{1}{b} = \\frac{b-a}{a*b}\\]
+
+  <br><br>
+
+  • On obtient alors une relation du type :
+
+  <br>\\[\\frac{1}{x}=A\\]
+
+  <br><br>
+
+  • En inversant les deux membres de l'égalité, on trouve :
+
+  <br>\\[x=\\frac{1}{A}\\]
+
+  </div>
+  `;
+  break;
 
     /* =========================================================
    FORCE CENTRALE (gravitation / Coulomb)

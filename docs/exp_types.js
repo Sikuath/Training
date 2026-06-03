@@ -40,7 +40,7 @@ export const EXPRESSION_TYPES = {
     "radioactivite",
 
   RECIPROCAL_SUM:
-    "reciprocal_sum",
+    "reciprocical_sum",
 
   FORCE_CENTRALE:
     "force_centrale",
