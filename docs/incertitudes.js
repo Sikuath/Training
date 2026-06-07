@@ -13,46 +13,38 @@ function generateQuestion() {
 
   const mode = getMode();
 
-  const base = [
+  // génération unique (évite duplication de code)
+  const ex = incTypeA.generateUncertaintyQuestion();
 
-    // EASY (arrondi)
-    {
-      type: "round",
-      q: "3,14159",
-      answer: "3,14",
-      choices: ["3,14", "3,141", "3,1", "3,15"]
-    },
+  // adaptation légère selon difficulté (optionnel mais utile)
+  if (mode === "easy") {
 
-    // MEDIUM (incertitude écriture)
-    {
-      type: "write",
-      q: "12,3456 ± 0,0789",
-      answer: "12,35 ± 0,08",
-      choices: [
-        "12,35 ± 0,08",
-        "12,3 ± 0,1",
-        "12,345 ± 0,079",
-        "12,4 ± 0,08"
-      ]
-    },
+    return {
+      ...ex,
+      mode: "easy",
 
-    // HARD (piège cohérence)
-    {
-      type: "write",
-      q: "5,67891 ± 0,1234",
-      answer: "5,68 ± 0,12",
-      choices: [
-        "5,68 ± 0,12",
-        "5,7 ± 0,1",
-        "5,679 ± 0,123",
-        "5,6 ± 0,12"
-      ]
-    }
-  ];
+      // option pédagogique : affichage simplifié
+      hint: "Mesures simples, dispersion faible"
+    };
+  }
 
-  if (mode === "easy") return base[0];
-  if (mode === "medium") return base[1];
-  return base[2];
+  if (mode === "medium") {
+
+    return {
+      ...ex,
+      mode: "medium",
+
+      hint: "Utilise moyenne et incertitude type A"
+    };
+  }
+
+  // HARD
+  return {
+    ...ex,
+    mode: "hard",
+
+    hint: "Résultat attendu sous forme x ± u avec unités"
+  };
 }
 
 /* =========================
@@ -73,8 +65,21 @@ function load() {
 
   currentQuestion = generateQuestion();
 
-  document.getElementById("question").textContent =
-    "Résultat : " + currentQuestion.q;
+  // -------------------------
+  // RENDU selon type
+  // -------------------------
+
+  let html = "";
+
+  if (currentQuestion.type === "typeA") {
+    html = incTypeA.render(currentQuestion);
+  }
+
+  document.getElementById("question").innerHTML = html;
+
+  // -------------------------
+  // CHOIX
+  // -------------------------
 
   const container = document.getElementById("choices");
   container.innerHTML = "";

@@ -138,9 +138,6 @@ function generateQuestion() {
 
     q = pickQuestionByDifficulty();
 
-console.log("MEMORY SIZE:", recentQuestions.length);
-console.log("MEMORY:", recentQuestions);
-console.log("QUESTION:", q.law);
     attempts++;
 
   } while (
