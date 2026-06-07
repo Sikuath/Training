@@ -750,6 +750,45 @@ function handleFraction(q, target, correct) {
 }
 
   // =========================
+  // CROSS
+  // =========================
+
+function handleCross(q, target, correct) {
+
+  const table = DISTRACTOR_PATTERNS.CROSS;
+
+  const left = q.left || [];
+
+  const op1 = left[0] ?? "x";
+  const op2 = left[1] ?? "y";
+
+  const allVars = [...(q.left || []), ...(q.right || [])];
+
+  const other = allVars.find(v => v && v !== target) ?? "k";
+
+  const pool = new Set();
+
+  while (pool.size < 3) {
+
+    const fn = table[Math.floor(Math.random() * table.length)];
+
+    let val;
+
+    try {
+      val = fn({ op1, op2, other });
+    } catch {
+      continue;
+    }
+
+    if (!val || val === correct || val.includes("undefined")) continue;
+
+    pool.add(val);
+  }
+
+  return [...pool];
+}
+
+  // =========================
   // PRODUCT FRACTION
   // =========================
 function handleProductFraction(q, target, correct) {

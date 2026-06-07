@@ -16,13 +16,11 @@ import { EXPRESSION_TYPES } from "./exp_types.js";
 
 let score = 0;
 let current = 0;
-
 let timeLeft = 180;
 let timer = null;
-
 let gameOver = false;
-
 let currentQuestion = null;
+let recentQuestions = [];
 
 /* =========================================================
    COMPARAISON
@@ -73,6 +71,53 @@ function shuffle(array) {
 }
 
 /* =========================================================
+   QUESTION ET DIFFICULTE
+========================================================= */
+
+function getCurrentMode() {
+
+  if (score > 10) return "hard";
+  if (score > 4) return "medium";
+
+  return "easy";
+}
+
+function pickQuestionByDifficulty() {
+
+  const mode = getCurrentMode();
+
+  let pool = [];
+
+  if (mode === "easy") {
+
+    // 100 % easy
+    pool = QUESTIONS.filter(q =>
+      q.difficulty === "easy"
+    );
+
+  } else if (mode === "medium") {
+
+    // 50 % easy / 50 % medium
+    const roll = Math.random();
+
+    pool = QUESTIONS.filter(q =>
+      q.difficulty === (roll < 0.5 ? "easy" : "medium")
+    );
+
+  } else {
+
+    // 30 % medium / 70 % hard
+    const roll = Math.random();
+
+    pool = QUESTIONS.filter(q =>
+      q.difficulty === (roll < 0.3 ? "medium" : "hard")
+    );
+  }
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/* =========================================================
    GENERATE QUESTION
 ========================================================= */
 
@@ -86,8 +131,28 @@ function cleanChoice(str) {
 
 function generateQuestion() {
 
-  const q =
-    QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+  let q;
+  let attempts = 0;
+
+  do {
+
+    q = pickQuestionByDifficulty();
+
+console.log("MEMORY SIZE:", recentQuestions.length);
+console.log("MEMORY:", recentQuestions);
+console.log("QUESTION:", q.law);
+    attempts++;
+
+  } while (
+    recentQuestions.includes(q.law) &&
+    attempts < 50
+  );
+
+  recentQuestions.push(q.law);
+
+  if (recentQuestions.length > 10) {
+    recentQuestions.shift();
+  }
 
   const target =
     q.targetPool[Math.floor(Math.random() * q.targetPool.length)];
@@ -116,18 +181,19 @@ function generateQuestion() {
   // 🔥 on s’assure qu’on a 3 choix
   while (distractors.length < 3) {
 
-  const fn =
-    DISTRACTOR_PATTERNS.DEFAULT[
-      Math.floor(Math.random() * DISTRACTOR_PATTERNS.DEFAULT.length)
-    ];
+    const fn =
+      DISTRACTOR_PATTERNS.DEFAULT[
+        Math.floor(Math.random() * DISTRACTOR_PATTERNS.DEFAULT.length)
+      ];
 
-  const val =
-    cleanExpr(fn(q.lhs, null, null, target));
+    const val =
+      cleanExpr(fn(q.lhs, null, null, target));
 
-  if (val !== correct && !distractors.includes(val)) {
-    distractors.push(val);
+    if (val !== correct && !distractors.includes(val)) {
+      distractors.push(val);
+    }
   }
-}
+
   // 🔥 assemblage final
   let choices = [
     correct,
