@@ -64,9 +64,78 @@ function getMode() {
 function load() {
 
   currentQuestion = generateQuestion();
+  window.currentQuestion = currentQuestion;
 
   // -------------------------
-  // RENDU selon type
+  // CONTEXTE PHYSIQUE
+  // -------------------------
+
+  if (currentQuestion.raw?.context) {
+
+    const context = currentQuestion.raw.context;
+
+    // Image instrument
+
+    const img = document.getElementById("instrumentImg");
+
+    if (img) {
+      img.src = context.instrument;
+      img.alt = context.label;
+    }
+
+    // Domaine
+
+    const domainLabel =
+      document.getElementById("domainLabel");
+
+    if (domainLabel) {
+      domainLabel.textContent = context.domain;
+    }
+
+    // Grandeur physique
+
+    const quantityLabel =
+      document.getElementById("quantityLabel");
+
+    if (quantityLabel) {
+      quantityLabel.textContent =
+        `${context.label} (${context.variable})`;
+    }
+
+    // Carte feedback
+
+    const feedbackBox =
+      document.getElementById("feedbackBox");
+
+    if (feedbackBox) {
+
+      feedbackBox.innerHTML = `
+        <h4>${context.label}</h4>
+
+        <p>
+          <strong>Variable :</strong>
+          ${context.variable}
+        </p>
+
+        <p>
+          <strong>Unité :</strong>
+          ${context.unit}
+        </p>
+
+        <p>
+          <strong>Domaine :</strong>
+          ${context.domain}
+        </p>
+
+        <hr>
+
+        <p>${currentQuestion.hint}</p>
+      `;
+    }
+  }
+
+  // -------------------------
+  // RENDU QUESTION
   // -------------------------
 
   let html = "";
@@ -82,19 +151,36 @@ function load() {
   // -------------------------
 
   const container = document.getElementById("choices");
-  container.innerHTML = "";
 
-  currentQuestion.choices.forEach((c, i) => {
+  if (container) {
 
-    const btn = document.createElement("button");
-    btn.textContent = c;
+    container.innerHTML = "";
 
-    btn.onclick = () => submit(i);
+    if (currentQuestion.choices) {
 
-    container.appendChild(btn);
-  });
+      currentQuestion.choices.forEach((c, i) => {
 
-  document.getElementById("feedback").textContent = "";
+        const btn = document.createElement("button");
+
+        btn.textContent = c;
+
+        btn.onclick = () => submit(i);
+
+        container.appendChild(btn);
+      });
+    }
+  }
+
+  // -------------------------
+  // FEEDBACK BAS
+  // -------------------------
+
+  const feedback =
+    document.getElementById("feedback");
+
+  if (feedback) {
+    feedback.textContent = "";
+  }
 }
 
 /* =========================

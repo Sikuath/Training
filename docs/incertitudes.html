@@ -26,19 +26,51 @@
     <div>🎯 Mode : <span id="mode">easy</span></div>
   </div>
 
-  <div class="game-card">
+  <!-- =========================
+       LAYOUT 3 COLONNES
+  ========================== -->
 
-    <h2>Incertitudes</h2>
+  <div class="layout">
 
-    <p id="question">Clique sur Démarrer</p>
+    <!-- GAUCHE : IMAGE INSTRUMENT -->
+  <div class="left-panel">
 
-    <div id="choices"></div>
+    <div id="domainLabel" class="domain-label">
+      Domaine
+    </div>
 
-    <p id="feedback"></p>
+    <img id="instrumentImg" src="voltmetre.png" alt="instrument">
 
-    <div class="buttons">
-      <button id="startBtn" onclick="startGame()">Démarrer</button>
-      <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+    <div id="quantityLabel" class="quantity-label">
+      Grandeur Physique
+    </div>
+
+  </div>
+    <!-- CENTRE : MINI JEU -->
+    <div class="center-panel">
+
+      <h2>Incertitudes</h2>
+
+      <p id="question">Clique sur Démarrer</p>
+
+      <div id="choices"></div>
+
+      <p id="feedback"></p>
+
+      <div class="buttons">
+        <button id="startBtn" onclick="startGame()">Démarrer</button>
+        <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+      </div>
+
+    </div>
+
+    <!-- DROITE : FEEDBACK -->
+    <div class="right-panel">
+
+      <h3>Feedback</h3>
+
+      <div id="feedbackBox"></div>
+
     </div>
 
   </div>
@@ -47,9 +79,8 @@
   <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
 
   <script src="scoreService.js"></script>
-  <!-- MODULES PHYSIQUE -->
+  <script src="inc_constante.js"></script>
   <script src="inc_typeA.js"></script>
-  <!-- MOTEUR DU JEU -->
   <script src="incertitudes.js"></script>
 
 </body>
