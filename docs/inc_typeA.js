@@ -23,20 +23,19 @@ function render(question) {
 
   const values = question.raw.values;
   const context = question.raw.context;
+  const decimals = question.raw.decimals ?? 2;
 
   const indices = values.map((_, i) => i + 1);
 
-  const displayDecimals = Math.floor(Math.random() * 4);
-
   const formatted = values.map(v =>
-    v.toFixed(displayDecimals).replace(".", ",")
+    v.toFixed(decimals).replace(".", ",")
   );
 
   const instruction =
-    `Écrire le résultat sous la forme : ${context.variable} ± u(${context.variable})`;
+    `Écrire le résultat sous la forme : (${context.variable} ± u(${context.variable})) ${context.unit}`;
 
-  // 🔥 chiffres significatifs imposés
-  const sig = question.raw.sig;
+  // 🔥 chiffres significatifs demandés (1 ou 2 comme tu as défini avant)
+  const sig = question.raw.sig ?? (Math.random() < 0.5 ? 1 : 2);
 
   let table = `
     <table class="measure-table">
@@ -69,20 +68,28 @@ function render(question) {
         <strong>Incertitude type A :</strong>
         ${formatFR(question.raw.uA, 9)} ${context.unit}
       </p>
-
-      <!-- 🔥 NOUVELLE INFO -->
-      <p class="tp-instruction">
-        Chiffres significatifs attendus pour l'incertitude : <strong>${sig}</strong>
-      </p>
     </div>
 
-    <p class="tp-instruction">${instruction}</p>
+    <p class="tp-instruction">
+      Écrire le résultat sous la forme :
+      ${context.variable} ± u(${context.variable})
+    </p>
 
-    <!-- ZONE DE RÉPONSE -->
+    <p class="tp-instruction">
+      🔢 Nombre de chiffres significatifs à respecter pour l’incertitude :
+      <strong>${sig}</strong>
+    </p>
+
     <div class="answer-box">
 
-      <input id="meanInput" placeholder="moyenne" />
-      <input id="uInput" placeholder="incertitude" />
+      <p>
+        (
+        <input id="meanInput" class="mini-input" />
+        ±
+        <input id="uInput" class="mini-input" />
+        )
+        ${context.unit}
+      </p>
 
       <button onclick="validateAnswer()">Valider</button>
 
@@ -202,10 +209,10 @@ function computeUA(values) {
 
 function generateMeasurementSet() {
 
-  const n = randomInt(4, 10);                 // 4 à 10 mesures
-  const trueValue = Math.random() * 149 + 1;  // 1 à 150
+  const n = randomInt(4, 10);
+  const trueValue = Math.random() * 149 + 1;
 
-  const noise = Math.max(0.5, trueValue * 0.02); // bruit ~2%
+  const noise = Math.max(0.5, trueValue * 0.02);
 
   const key =
     ALLOWED_UNITS.typeA[
@@ -213,6 +220,8 @@ function generateMeasurementSet() {
     ];
 
   const context = PHYSICS_CONTEXT[key];
+
+  const decimals = context.decimals ?? Math.floor(Math.random() * 4);
 
   const values = [];
 
@@ -222,15 +231,18 @@ function generateMeasurementSet() {
 
     let v = trueValue + variation;
 
-    // bornes physiques
     v = Math.max(1, Math.min(150, v));
+
+    // 🔥 ARRONDI UNIQUE = VALEUR OFFICIELLE
+    v = Number(v.toFixed(decimals));
 
     values.push(v);
   }
 
   return {
     values,
-    context
+    context,
+    decimals
   };
 }
 
@@ -244,42 +256,28 @@ function generateUncertaintyQuestion() {
 
   const values = data.values;
   const context = data.context;
+  const decimals = data.decimals;
 
   const m = mean(values);
   const u = computeUA(values);
 
-  // 🔥 chiffres significatifs aléatoires
-  const sig = randomSigDigits();
-  const uRounded = Number(u.toPrecision(sig));
-
-  // 🔥 consigne dynamique
-  const sigInstruction =
-    `Donner l'incertitude avec ${sig} chiffre${sig > 1 ? "s" : ""} significatif${sig > 1 ? "s" : ""}`;
-
   return {
     type: "typeA",
 
-    // affichage joueur
-    q: values.map(v => round(v, 2)),
+    q: values,
 
-    // réponse correcte
     answer: {
-      mean: round(m, 6),
-      uncertainty: uRounded,
+      mean: m,
+      uncertainty: u,
       unit: context.unit
     },
-
-    format: "(x ± u) unit",
-
-    // 🔥 nouvelle info pédagogique
-    sigInstruction,
 
     raw: {
       values,
       mean: m,
       uA: u,
       context,
-      sig
+      decimals
     }
   };
 }

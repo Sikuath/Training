@@ -261,3 +261,10 @@ button:hover {
   font-weight: bold;
   color: #ffb74d;
 }
+.mini-input {
+  width: 80px;
+  padding: 4px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
