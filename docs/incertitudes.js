@@ -6,6 +6,15 @@ let gameOver = false;
 let currentQuestion = null;
 
 /* =========================
+   FEEDBACK
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("feedbackBox");
+  if (box) box.innerHTML = "";
+});
+
+/* =========================
    BASE QUESTIONS
 ========================= */
 
@@ -101,37 +110,6 @@ function load() {
       quantityLabel.textContent =
         `${context.label} (${context.variable})`;
     }
-
-    // Carte feedback
-
-    const feedbackBox =
-      document.getElementById("feedbackBox");
-
-    if (feedbackBox) {
-
-      feedbackBox.innerHTML = `
-        <h4>${context.label}</h4>
-
-        <p>
-          <strong>Variable :</strong>
-          ${context.variable}
-        </p>
-
-        <p>
-          <strong>Unité :</strong>
-          ${context.unit}
-        </p>
-
-        <p>
-          <strong>Domaine :</strong>
-          ${context.domain}
-        </p>
-
-        <hr>
-
-        <p>${currentQuestion.hint}</p>
-      `;
-    }
   }
 
   // -------------------------
@@ -191,26 +169,80 @@ function submit(index) {
 
   if (gameOver) return;
 
-  const choice = currentQuestion.choices[index];
+  const q = window.currentQuestion;
+  const choice = q.choices?.[index];
 
-  if (choice === currentQuestion.answer) {
+  const center = document.getElementById("feedback");
+  center.innerHTML = "";
+
+  const context = q.raw.context;
+
+  const meanTrue = q.answer.mean;
+  const uRaw = q.answer.uncertainty;
+  const sig = q.raw?.sig ?? 2;
+
+  const uExpected = roundUpSig(uRaw, sig);
+
+  const decimals = Math.max(
+    0,
+    (uExpected.toString().split(".")[1] || "").length
+  );
+
+  const meanExpected = Number(meanTrue.toFixed(decimals));
+
+  const meanOk =
+    choice?.mean !== undefined &&
+    Math.abs(choice.mean - meanExpected) < 1e-9;
+
+  const uOk =
+    choice?.u !== undefined &&
+    Math.abs(choice.u - uExpected) < 1e-9;
+
+  // =========================
+  // BONNE RÉPONSE
+  // =========================
+  if (meanOk && uOk) {
 
     playGoodSound();
-
     score++;
     updateUI();
 
-    load();
+    center.innerHTML = `
+      <p style="color: lightgreen; font-weight: bold;">
+        ✔ Bonne réponse
+      </p>
+    `;
 
-  } else {
+    window.incFeedback.showFeedback("success", {
+      message: "✔ Bonne réponse"
+    });
 
-    playBadSound();
+    setTimeout(() => load(), 1200);
 
-    document.getElementById("feedback").textContent =
-      "❌ Mauvaise réponse\n✔ Réponse : " + currentQuestion.answer;
-
-    setTimeout(() => endGame(), 2000);
+    return;
   }
+
+  // =========================
+  // MAUVAISE RÉPONSE
+  // =========================
+
+  playBadSound();
+
+  center.innerHTML = "";
+
+  window.incFeedback.showFeedback("typeA", {
+    meanOk,
+    uOk,
+
+    meanExpected: formatFR(meanExpected, decimals),
+    uExpected: formatFR(uExpected, decimals),
+
+    // 🔥 ICI LE FIX IMPORTANT
+    variable: context.variable,
+    unit: context.unit
+  });
+
+  setTimeout(() => endGame(), 2000);
 }
 
 /* =========================

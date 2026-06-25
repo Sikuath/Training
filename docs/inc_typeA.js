@@ -34,8 +34,7 @@ function render(question) {
   const instruction =
     `Écrire le résultat sous la forme : (${context.variable} ± u(${context.variable})) ${context.unit}`;
 
-  // 🔥 chiffres significatifs demandés (1 ou 2 comme tu as défini avant)
-  const sig = question.raw.sig ?? (Math.random() < 0.5 ? 1 : 2);
+  const sig = question.raw.sig;
 
   let table = `
     <table class="measure-table">
@@ -79,11 +78,12 @@ function render(question) {
       🔢 Nombre de chiffres significatifs à respecter pour l’incertitude :
       <strong>${sig}</strong>
     </p>
-
     <div class="answer-box">
 
-      <p>
-        (
+      <p style="margin-bottom: 8px;">
+        <strong>
+          ${context.variable} = (
+        </strong>
         <input id="meanInput" class="mini-input" />
         ±
         <input id="uInput" class="mini-input" />
@@ -96,6 +96,7 @@ function render(question) {
       <p id="resultFeedback"></p>
 
     </div>
+
   `;
 }
 
@@ -123,47 +124,85 @@ function validateAnswer() {
   );
 
   const q = window.currentQuestion;
-  const feedback = document.getElementById("resultFeedback");
 
   if (isNaN(meanUser) || isNaN(uUser)) {
+
+    const feedback = document.getElementById("resultFeedback");
+
     feedback.textContent = "⚠ Entrée invalide";
     feedback.style.color = "orange";
+
     return;
   }
 
+
   const meanTrue = q.answer.mean;
   const uRaw = q.raw.uA;
-  const sig = q.raw.sig || 2;
 
-  // 🔥 incertitude correcte (majoration + CS)
+  // nombre de chiffres significatifs choisi pour CET exercice
+  const sig = q.raw.sig;
+
+
+  // incertitude correcte (majoration + CS)
   const uExpected = roundUpSig(uRaw, sig);
 
-  // 🔥 moyenne alignée sur u
+
+  // moyenne alignée sur l'incertitude
   const decimals = Math.max(
     0,
     (uExpected.toString().split(".")[1] || "").length
   );
 
-  const meanExpected = Number(meanTrue.toFixed(decimals));
 
-  // 🔥 comparaison stricte mais propre
-  const meanOk = Math.abs(meanUser - meanExpected) < 1e-9;
-  const uOk = Math.abs(uUser - uExpected) < 1e-9;
+  const meanExpected = Number(
+    meanTrue.toFixed(decimals)
+  );
+
+
+  // comparaison
+  const meanOk =
+    Math.abs(meanUser - meanExpected) < 1e-9;
+
+  const uOk =
+    Math.abs(uUser - uExpected) < 1e-9;
+
+
 
   if (meanOk && uOk) {
+
+    const feedback =
+      document.getElementById("resultFeedback");
 
     feedback.textContent = "✔ Correct !";
     feedback.style.color = "lightgreen";
 
+
   } else {
 
-    feedback.textContent =
-      "❌ Faux\nRéponse attendue : " +
-      formatFR(meanExpected, decimals) +
-      " ± " +
-      formatFR(uExpected, decimals);
+
+    // appel du fichier inc_feedback.js
+
+    window.incFeedback.showFeedback(
+      "typeA",
+      {
+
+        meanOk,
+        uOk,
+
+        meanExpected:
+          formatFR(meanExpected, decimals),
+
+        uExpected:
+          formatFR(uExpected, decimals)
+
+      }
+    );
+
+    const feedback =
+      document.getElementById("resultFeedback");
 
     feedback.style.color = "red";
+
   }
 }
 
@@ -210,9 +249,6 @@ function computeUA(values) {
 function generateMeasurementSet() {
 
   const n = randomInt(4, 10);
-  const trueValue = Math.random() * 149 + 1;
-
-  const noise = Math.max(0.5, trueValue * 0.02);
 
   const key =
     ALLOWED_UNITS.typeA[
@@ -221,7 +257,19 @@ function generateMeasurementSet() {
 
   const context = PHYSICS_CONTEXT[key];
 
-  const decimals = context.decimals ?? Math.floor(Math.random() * 4);
+  let trueValue;
+
+  if (context.variable === "pH") {
+    trueValue = Math.random() * 13 + 0.5;
+  } else {
+    trueValue = Math.random() * 149 + 1;
+  }
+
+  const noise = Math.max(0.5, trueValue * 0.05);
+  const decimals =
+    context.variable === "pH"
+      ? 2
+      : (context.decimals ?? Math.floor(Math.random() * 4));
 
   const values = [];
 
@@ -231,10 +279,13 @@ function generateMeasurementSet() {
 
     let v = trueValue + variation;
 
-    v = Math.max(1, Math.min(150, v));
+    if (context.variable === "pH") {
+      v = Math.max(0.01, Math.min(13.99, v));
+    } else {
+      v = Math.max(1, Math.min(150, v));
+    }
 
-    // 🔥 ARRONDI UNIQUE = VALEUR OFFICIELLE
-    v = Number(v.toFixed(decimals));
+    v = Number(v.toFixed(Math.max(decimals + 1, 3)));
 
     values.push(v);
   }
@@ -256,10 +307,19 @@ function generateUncertaintyQuestion() {
 
   const values = data.values;
   const context = data.context;
-  const decimals = data.decimals;
 
   const m = mean(values);
-  const u = computeUA(values);
+  let u = computeUA(values);
+
+  // 🔥 sécurité : éviter incertitude nulle ou quasi nulle
+  const minUncertainty = 1e-3;
+
+  if (!isFinite(u) || u < minUncertainty) {
+    u = minUncertainty;
+  }
+
+  // Nombre de chiffres significatifs demandé (1 ou 2)
+  const sig = randomSigDigits();
 
   return {
     type: "typeA",
@@ -277,7 +337,8 @@ function generateUncertaintyQuestion() {
       mean: m,
       uA: u,
       context,
-      decimals
+      decimals: data.decimals,
+      sig
     }
   };
 }
