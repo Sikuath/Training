@@ -22,37 +22,31 @@ function generateQuestion() {
 
   const mode = getMode();
 
-  // génération unique (évite duplication de code)
-  const ex = incTypeA.generateUncertaintyQuestion();
+  let ex;
 
-  // adaptation légère selon difficulté (optionnel mais utile)
-  if (mode === "easy") {
+  // SWITCH CENTRAL
+  switch (window.INCERTITUDE_MODE) {
 
-    return {
-      ...ex,
-      mode: "easy",
+    case "typeA":
+      ex = incTypeA.generateUncertaintyQuestion();
+      break;
 
-      // option pédagogique : affichage simplifié
-      hint: "Mesures simples, dispersion faible"
-    };
+    case "typeB":
+      ex = incTypeB.generateTypeBQuestion();
+      break;
+
+    case "typeC":
+      ex = incTypeC?.generateTypeCQuestion?.();
+      break;
+
+    default:
+      ex = incTypeB.generateTypeBQuestion();
   }
 
-  if (mode === "medium") {
-
-    return {
-      ...ex,
-      mode: "medium",
-
-      hint: "Utilise moyenne et incertitude type A"
-    };
-  }
-
-  // HARD
   return {
     ...ex,
-    mode: "hard",
-
-    hint: "Résultat attendu sous forme x ± u avec unités"
+    mode,
+    hint: `Mode actif : ${window.INCERTITUDE_MODE}`
   };
 }
 
@@ -75,89 +69,72 @@ function load() {
   currentQuestion = generateQuestion();
   window.currentQuestion = currentQuestion;
 
-  // -------------------------
+  // =========================
   // CONTEXTE PHYSIQUE
-  // -------------------------
+  // =========================
 
-  if (currentQuestion.raw?.context) {
+  let context = null;
 
-    const context = currentQuestion.raw.context;
+  if (window.INCERTITUDE_MODE === "typeA") {
+    context = currentQuestion.raw.context;
+  }
 
-    // Image instrument
+  if (window.INCERTITUDE_MODE === "typeB") {
+    context = currentQuestion.raw.relation;
+  }
+
+  if (context) {
 
     const img = document.getElementById("instrumentImg");
-
     if (img) {
       img.src = context.instrument;
       img.alt = context.label;
     }
 
-    // Domaine
-
-    const domainLabel =
-      document.getElementById("domainLabel");
-
-    if (domainLabel) {
-      domainLabel.textContent = context.domain;
+    const domain = document.getElementById("domainLabel");
+    if (domain) {
+      domain.textContent = context.domain;
     }
 
-    // Grandeur physique
-
-    const quantityLabel =
-      document.getElementById("quantityLabel");
-
-    if (quantityLabel) {
-      quantityLabel.textContent =
+    const quantity = document.getElementById("quantityLabel");
+    if (quantity) {
+      quantity.textContent =
         `${context.label} (${context.variable})`;
     }
   }
 
-  // -------------------------
-  // RENDU QUESTION
-  // -------------------------
+  // =========================
+  // AFFICHAGE QUESTION
+  // =========================
 
-  let html = "";
+  const container = document.getElementById("question");
 
-  if (currentQuestion.type === "typeA") {
-    html = incTypeA.render(currentQuestion);
+  if (!container) return;
+
+  switch (window.INCERTITUDE_MODE) {
+
+    case "typeA":
+      container.innerHTML = incTypeA.render(currentQuestion);
+      break;
+
+    case "typeB":
+      container.innerHTML = incTypeB.renderTypeB(currentQuestion);
+      break;
   }
 
-  document.getElementById("question").innerHTML = html;
+  // =========================
+  // RESET FEEDBACK
+  // =========================
 
-  // -------------------------
-  // CHOIX
-  // -------------------------
+  const feedback = document.getElementById("feedback");
+  if (feedback) feedback.textContent = "";
 
-  const container = document.getElementById("choices");
+  // =========================
+  // RENDU MATHJAX
+  // =========================
 
-  if (container) {
-
-    container.innerHTML = "";
-
-    if (currentQuestion.choices) {
-
-      currentQuestion.choices.forEach((c, i) => {
-
-        const btn = document.createElement("button");
-
-        btn.textContent = c;
-
-        btn.onclick = () => submit(i);
-
-        container.appendChild(btn);
-      });
-    }
-  }
-
-  // -------------------------
-  // FEEDBACK BAS
-  // -------------------------
-
-  const feedback =
-    document.getElementById("feedback");
-
-  if (feedback) {
-    feedback.textContent = "";
+  if (window.MathJax) {
+    MathJax.typesetPromise();
   }
 }
 
@@ -165,21 +142,34 @@ function load() {
    SUBMIT
 ========================= */
 
-function submit(index) {
+function submit() {
 
   if (gameOver) return;
 
   const q = window.currentQuestion;
-  const choice = q.choices?.[index];
+  if (!q || !q.raw) return;
 
   const center = document.getElementById("feedback");
-  center.innerHTML = "";
+  if (!center) return;
 
   const context = q.raw.context;
 
+  const meanUser = parseFloat(
+    document.getElementById("meanInput")?.value?.replace(",", ".")
+  );
+
+  const uUser = parseFloat(
+    document.getElementById("uInput")?.value?.replace(",", ".")
+  );
+
+  if (isNaN(meanUser) || isNaN(uUser)) {
+    center.innerHTML = "⚠ Entrée invalide";
+    return;
+  }
+
   const meanTrue = q.answer.mean;
   const uRaw = q.answer.uncertainty;
-  const sig = q.raw?.sig ?? 2;
+  const sig = q.raw.sig ?? 2;
 
   const uExpected = roundUpSig(uRaw, sig);
 
@@ -190,13 +180,10 @@ function submit(index) {
 
   const meanExpected = Number(meanTrue.toFixed(decimals));
 
-  const meanOk =
-    choice?.mean !== undefined &&
-    Math.abs(choice.mean - meanExpected) < 1e-9;
+  const meanOk = Math.abs(meanUser - meanExpected) < 1e-9;
+  const uOk = Math.abs(uUser - uExpected) < 1e-9;
 
-  const uOk =
-    choice?.u !== undefined &&
-    Math.abs(choice.u - uExpected) < 1e-9;
+  center.innerHTML = "";
 
   // =========================
   // BONNE RÉPONSE
@@ -217,29 +204,22 @@ function submit(index) {
       message: "✔ Bonne réponse"
     });
 
-    setTimeout(() => load(), 1200);
-
+    setTimeout(nextQuestion, 800);
     return;
   }
 
   // =========================
   // MAUVAISE RÉPONSE
   // =========================
-
   playBadSound();
-
-  center.innerHTML = "";
 
   window.incFeedback.showFeedback("typeA", {
     meanOk,
     uOk,
-
-    meanExpected: formatFR(meanExpected, decimals),
-    uExpected: formatFR(uExpected, decimals),
-
-    // 🔥 ICI LE FIX IMPORTANT
     variable: context.variable,
-    unit: context.unit
+    unit: context.unit,
+    meanExpected: formatFR(meanExpected, decimals),
+    uExpected: formatFR(uExpected, decimals)
   });
 
   setTimeout(() => endGame(), 2000);
@@ -349,3 +329,12 @@ function playBadSound() {
 window.startGame = startGame;
 window.submit = submit;
 window.endGame = endGame;
+
+function nextQuestion() {
+
+  if (gameOver) return;
+
+  setTimeout(() => {
+    load();
+  }, 300);
+}

@@ -135,17 +135,14 @@ function validateAnswer() {
     return;
   }
 
-
   const meanTrue = q.answer.mean;
   const uRaw = q.raw.uA;
 
-  // nombre de chiffres significatifs choisi pour CET exercice
+  // nombre de chiffres significatifs demandé
   const sig = q.raw.sig;
 
-
-  // incertitude correcte (majoration + CS)
+  // incertitude correcte
   const uExpected = roundUpSig(uRaw, sig);
-
 
   // moyenne alignée sur l'incertitude
   const decimals = Math.max(
@@ -153,11 +150,9 @@ function validateAnswer() {
     (uExpected.toString().split(".")[1] || "").length
   );
 
-
   const meanExpected = Number(
     meanTrue.toFixed(decimals)
   );
-
 
   // comparaison
   const meanOk =
@@ -166,7 +161,9 @@ function validateAnswer() {
   const uOk =
     Math.abs(uUser - uExpected) < 1e-9;
 
-
+  // =========================
+  // BONNE RÉPONSE
+  // =========================
 
   if (meanOk && uOk) {
 
@@ -176,34 +173,54 @@ function validateAnswer() {
     feedback.textContent = "✔ Correct !";
     feedback.style.color = "lightgreen";
 
+    playGoodSound();
 
-  } else {
+    score++;
+    updateUI();
 
+    window.incFeedback.showFeedback("success", {
+      message: "✔ Bonne réponse"
+    });
 
-    // appel du fichier inc_feedback.js
+    setTimeout(() => {
+      load();
+    }, 1200);
 
-    window.incFeedback.showFeedback(
-      "typeA",
-      {
-
-        meanOk,
-        uOk,
-
-        meanExpected:
-          formatFR(meanExpected, decimals),
-
-        uExpected:
-          formatFR(uExpected, decimals)
-
-      }
-    );
-
-    const feedback =
-      document.getElementById("resultFeedback");
-
-    feedback.style.color = "red";
-
+    return;
   }
+
+  // =========================
+  // MAUVAISE RÉPONSE
+  // =========================
+
+  playBadSound();
+
+  window.incFeedback.showFeedback(
+    "typeA",
+    {
+      meanOk,
+      uOk,
+
+      variable: q.raw.context.variable,
+      unit: q.raw.context.unit,
+
+      meanExpected:
+        formatFR(meanExpected, decimals),
+
+      uExpected:
+        formatFR(uExpected, decimals)
+    }
+  );
+
+  const feedback =
+    document.getElementById("resultFeedback");
+
+  feedback.textContent = "✘ Incorrect";
+  feedback.style.color = "red";
+
+  setTimeout(() => {
+    endGame();
+  }, 2500);
 }
 
 // -------------------------
