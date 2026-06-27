@@ -1,5 +1,5 @@
 // =========================
-// FEEDBACK INCERTITUDES
+// FEEDBACK ROUTER UNIQUE
 // =========================
 
 function showFeedback(type, data = {}) {
@@ -7,32 +7,29 @@ function showFeedback(type, data = {}) {
   const box = document.getElementById("feedbackBox");
   if (!box) return;
 
-  const q = window.currentQuestion;
-  const context = q?.raw?.context ?? {};
-
-  const variable = context.variable ?? "mesure";
-  const unit = context.unit ?? "";
-
   box.innerHTML = "";
 
-  if (type === "typeA") {
-    box.innerHTML = buildTypeA(data, variable, unit);
-  }
+  switch (type) {
 
-  if (type === "typeB") {
-    box.innerHTML = buildTypeB(data);
-  }
+    case "typeA":
+      box.innerHTML = buildTypeA(data);
+      break;
 
-  if (type === "typeC") {
-    box.innerHTML = buildTypeC(data);
-  }
+    case "typeB":
+      box.innerHTML = buildTypeB(data);
+      break;
 
-  if (type === "success") {
-    box.innerHTML = `
-      <p style="color: lightgreen; font-weight: bold;">
-        ${data.message ?? "✔ Bonne réponse"}
-      </p>
-    `;
+    case "typeC":
+      box.innerHTML = buildTypeC(data);
+      break;
+
+    case "success":
+      box.innerHTML = `
+        <p style="color: lightgreen; font-weight: bold;">
+          ${data.message ?? "✔ Bonne réponse"}
+        </p>
+      `;
+      break;
   }
 }
 
@@ -40,7 +37,7 @@ function showFeedback(type, data = {}) {
 // TYPE A
 // =========================
 
-function buildTypeA(data, variable, unit) {
+function buildTypeA(data) {
 
   const meanWrong = !data.meanOk;
   const uWrong = !data.uOk;
@@ -54,30 +51,25 @@ function buildTypeA(data, variable, unit) {
 
   else if (meanWrong && !uWrong) {
     html += "<li>❌ Moyenne incorrecte</li>";
-    html += "<li>💡 Incertitude correcte — attention à l'arrondi de la moyenne</li>";
+    html += "<li>💡 Incertitude correcte</li>";
   }
 
   else if (!meanWrong && uWrong) {
-    html += "<li>💡 Moyenne correcte 👍</li>";
-    html += "<li>❌ Incertitude incorrecte (chiffres significatifs)</li>";
+    html += "<li>💡 Moyenne correcte</li>";
+    html += "<li>❌ Incertitude incorrecte</li>";
   }
 
   html += "</ul>";
 
-  // message final
   if (!meanWrong && !uWrong) {
-    html += `
-      <p style="color: lightgreen; font-weight: bold;">
-        ✔ Parfait !
-      </p>
-    `;
-  } else {
+    html += `<p style="color:lightgreen;font-weight:bold;">✔ Parfait !</p>`;
+  }
+
+  else {
     html += `
       <p>
         ✔ Réponse attendue :
-        <strong>
-          ${variable} = (${data.meanExpected} ± ${data.uExpected}) ${unit}
-        </strong>
+        <strong>${data.variable ?? "x"} = (${data.meanExpected} ± ${data.uExpected}) ${data.unit ?? ""}</strong>
       </p>
     `;
   }
@@ -89,90 +81,48 @@ function buildTypeA(data, variable, unit) {
 // TYPE B
 // =========================
 
-function formatSig2(x) {
-  if (x === 0) return "0";
-
-  const d = Math.ceil(Math.log10(Math.abs(x)));
-  const power = 2 - d;
-  const magnitude = Math.pow(10, power);
-
-  const rounded = Math.round(x * magnitude) / magnitude;
-
-  // garde les chiffres significatifs correctement
-  return rounded.toString().replace(".", ",");
-}
-
-function formatTypeB(mean, u) {
-
-  if (!isFinite(mean) || !isFinite(u)) {
-    return { mean: "?", u: "?" };
-  }
-
-  // règle 2 : 2 chiffres significatifs
-  const uRounded = roundUpSig(u, 2);
-
-  // règle 1 : alignement décimal mesure/incertitude
-  const decimals =
-    Math.max(0, (uRounded.toString().split(".")[1] || "").length);
-
-  const meanRounded = Number(mean.toFixed(decimals));
-
-  return {
-    mean: formatFR(meanRounded, decimals),
-    u: formatSig2(uRounded)
-  };
-}
-
 function buildTypeB(data) {
 
-  const meanWrong = !data.meanOk;
-  const uWrong = !data.uOk;
+  if (!data) {
+    return "<p style='color:red'>Erreur feedback</p>";
+  }
+
+  const meanOk = !!data.meanOk;
+  const uOk = !!data.uOk;
 
   let html = "<ul>";
 
-  // ❌ tout faux
-  if (meanWrong && uWrong) {
-    html += "<li>❌ Erreur sur la mesure</li>";
-    html += "<li>❌ Erreur sur l'incertitude</li>";
+  if (!meanOk && !uOk) {
+    html += "<li>❌ Valeur et incertitude incorrectes</li>";
   }
 
-  // ❌ mesure fausse, incertitude correcte
-  else if (meanWrong && !uWrong) {
-    html += "<li>❌ Mesure incorrecte</li>";
-    html += "<li>💡 L'incertitude est correcte ✔</li>";
-    html += "<li>👉 La mesure doit être alignée sur l'incertitude (mêmes décimales)</li>";
+  else if (!meanOk && uOk) {
+    html += "<li>❌ Valeur incorrecte</li>";
+    html += "<li>✔ Incertitude correcte</li>";
   }
 
-  // ✔ mesure correcte, incertitude fausse
-  else if (!meanWrong && uWrong) {
-    html += "<li>💡 Mesure correcte 👍</li>";
+  else if (meanOk && !uOk) {
+    html += "<li>✔ Valeur correcte</li>";
     html += "<li>❌ Incertitude incorrecte</li>";
-    html += "<li>👉 Elle doit avoir EXACTEMENT 2 chiffres significatifs</li>";
   }
 
   html += "</ul>";
 
-  // message final
-  if (!meanWrong && !uWrong) {
-
-    html += `
-      <p style="color: lightgreen; font-weight: bold;">
-        ✔ Parfait !
-      </p>
-    `;
+  if (meanOk && uOk) {
+    html += `<p style="color:green;font-weight:bold;">✔ Excellent travail</p>`;
   }
 
-  // réponse attendue si erreur
-  else {
+  else if (data.meanExpected !== undefined) {
 
-    const formatted = formatTypeB(data.meanExpected, data.uExpected);
+    const formatted = window.formatTypeB(
+      Number(data.meanExpected),
+      Number(data.uExpected)
+    );
 
     html += `
       <p>
-        ✔ Réponse attendue :
-        <strong>
-          (${formatted.mean} ± ${formatted.u}) ${data.unit}
-        </strong>
+        ✔ Réponse attendue :<br>
+        ${data.variable ?? "x"} = (${formatted.mean} ± ${formatted.u}) ${data.unit ?? ""}
       </p>
     `;
   }
@@ -195,3 +145,4 @@ function buildTypeC(data) {
 window.incFeedback = {
   showFeedback
 };
+

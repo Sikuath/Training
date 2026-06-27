@@ -1,35 +1,12 @@
 // =========================
-// INCERTITUDES TYPE B - STABLE
+// OUTILS
 // =========================
 
 function randomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-function formatFR(x, digits = 2) {
-  return x.toFixed(digits).replace(".", ",");
-}
-
-function formatSigStrict(x, sig = 2) {
-
-  if (!isFinite(x) || x === 0) return "0,00";
-
-  const exp = Math.floor(Math.log10(Math.abs(x)));
-  const factor = Math.pow(10, sig - 1 - exp);
-
-  const rounded = Math.round(x * factor) / factor;
-
-  const decimals = Math.max(0, sig - 1 - exp);
-
-  return rounded.toFixed(decimals).replace(".", ",");
-}
-
-// =========================
-// GÉNÉRATION
-// =========================
-
-function roundUpSig(x, sig = 2) {
-
+function roundUpSig(x, sig = 1) {
   if (x === 0) return 0;
 
   const pow = Math.pow(
@@ -40,15 +17,31 @@ function roundUpSig(x, sig = 2) {
   return Math.ceil(x * pow) / pow;
 }
 
-function roundSigFig(x, sig = 2) {
-  if (x === 0) return 0;
+// =========================
+// FORMAT AFFICHAGE (UNIQUEMENT UI)
+// =========================
 
-  const d = Math.ceil(Math.log10(Math.abs(x)));
-  const power = sig - d;
-  const magnitude = Math.pow(10, power);
+function formatTypeB(mean, u) {
 
-  return Math.round(x * magnitude) / magnitude;
+  const uRounded = roundUpSig(u, 1);
+
+  const decimals = (() => {
+    const str = uRounded.toString();
+    return str.includes(".") ? str.split(".")[1].length : 0;
+  })();
+
+  const meanRounded = Math.round(mean * Math.pow(10, decimals)) / Math.pow(10, decimals);
+
+  return {
+    mean: meanRounded.toFixed(decimals).replace(".", ","),
+    u: uRounded.toFixed(decimals).replace(".", ","),
+    decimals
+  };
 }
+
+// =========================
+// GENERATION QUESTION TYPE B
+// =========================
 
 function generateTypeBQuestion() {
 
@@ -57,93 +50,101 @@ function generateTypeBQuestion() {
       Math.floor(Math.random() * window.TYPE_B_RELATIONS.length)
     ];
 
-  const inputs = {};
-  const uInputs = {};
+  let inputs = {};
+  let uInputs = {};
 
-  // génération des valeurs
-  relation.inputs.forEach(inp => {
+  let values = [];
+  let uValues = [];
 
-    const value = randomBetween(5, 30);
-    const rawU = value * (Math.random() * 0.05 + 0.01);
-    const u = roundUpSig(rawU, 2);
+  let result, uncertainty;
+  let valid = false;
 
-    inputs[inp.variable] = value;
-    uInputs[inp.variable] = u;
+  while (!valid) {
+
+    values = [];
+    uValues = [];
+
+    // =========================
+    // 1) VALEURS ELEVE (DEJA ARRONDIES)
+    // =========================
+    relation.inputs.forEach(() => {
+
+      const v = Number(randomBetween(5, 50).toFixed(1));
+      const rel = randomBetween(0.01, 0.05);
+      const u = roundUpSig(v * rel, 1);
+
+      values.push(v);
+      uValues.push(u);
+    });
+
+    // =========================
+    // 2) CALCUL PHYSIQUE
+    // =========================
+    result = relation.formula(...values);
+
+    uncertainty = relation.uncertainty(
+      ...values.flatMap((v, i) => [v, uValues[i]])
+    );
+
+    // =========================
+    // 3) CONTRAINTES PEDAGOGIQUES
+    // =========================
+    valid =
+      uValues.every((u, i) => u / values[i] < 0.1) &&
+      uncertainty >= 0.001 &&
+      uncertainty <= 8;
+  }
+
+  // =========================
+  // 4) FIGE POUR AFFICHAGE ELEVE
+  // =========================
+  relation.inputs.forEach((inp, i) => {
+
+    inputs[inp.variable] = values[i];
+    uInputs[inp.variable] = uValues[i];
   });
 
-  const values = relation.inputs.map(i => inputs[i.variable]);
-  const uValues = relation.inputs.map(i => uInputs[i.variable]);
-
-  const result = relation.formula(...values);
-
-  const uncertainty = relation.uncertainty(
-    ...values.flatMap((v, i) => [v, uValues[i]])
-  );
+  const expected = formatTypeB(result, uncertainty);
 
   return {
     type: "typeB",
 
     answer: {
       value: result,
-      uncertainty
+      uncertainty: uncertainty,
+      expected
     },
 
     raw: {
-      relation: relation,   // 🔥 IMPORTANT
-      inputs: inputs,       // valeurs élèves
-      uInputs: uInputs,
-      sig: 2
+      relation,
+      inputs,
+      uInputs
     }
   };
 }
 
 // =========================
-// RENDU
+// RENDU EXERCICE
 // =========================
-
-function alignMeanToUncertainty(mean, u) {
-
-  if (u === 0) return { mean, u, decimals: 0 };
-
-  const decimals =
-    Math.max(0, (u.toString().split(".")[1] || "").length);
-
-  return {
-    mean: Number(mean.toFixed(decimals)),
-    u: Number(u.toFixed(decimals)),
-    decimals
-  };
-}
 
 function renderTypeB(q) {
 
   if (!q?.raw?.relation) {
-    console.error("TypeB invalide :", q);
-    return "<p>Erreur : exercice invalide</p>";
+    return "<p>Erreur exercice</p>";
   }
+
+  // IMPORTANT : source globale pour validation
+  window.currentQuestion = q;
 
   const r = q.raw.relation;
   const v = q.raw.inputs;
   const u = q.raw.uInputs;
 
   let html = `
-
     <hr>
 
-    <p>
-      <strong>Relation à utiliser pour déterminer la mesure:</strong>
-      <span class="formula" style="margin-left: 8px; display: inline-block;">
-        \\( ${r.relationText} \\)
-      </span>
-    </p>
-
-    <p><strong>Relation à utiliser pour déterminer l'incertitude absolue :</strong></p>
-
-    <div class="formula">
-      \\(
-      ${r.relationInc}
-      \\)
-    </div>
+    <p><strong>Relation :</strong> \\( ${r.relationText} \\)</p>
+    <p><strong>Incertitude :</strong> \\( ${r.relationInc} \\)</p>
 
     <hr>
 
@@ -152,60 +153,37 @@ function renderTypeB(q) {
 
   r.inputs.forEach(inp => {
 
-    const meanRaw = v[inp.variable];
-    const uRaw = u[inp.variable];
-
-    // ✔ 2 chiffres significatifs sur l’incertitude
-    const uRounded = roundUpSig(uRaw, r.sig ?? 2);
-
-    // ✔ alignement mesure / incertitude
-    const aligned = alignMeanToUncertainty(meanRaw, uRounded);
+    const formatted = formatTypeB(v[inp.variable], u[inp.variable]);
 
     html += `
       <div class="data-line">
         ${inp.variable} = (
-        ${formatFR(aligned.mean, aligned.decimals)}
-        ±
-        ${formatSigStrict(aligned.u, 2)}
-        )
-        ${inp.unit}
+          ${formatted.mean} ± ${formatted.u}
+        ) ${inp.unit}
       </div>
     `;
-
   });
 
   html += `
-
     <hr>
 
-    <p><strong>Écrire le résultat avec deux chiffres significatifs pour l'incertitude :</strong></p>
+    <p><strong>Réponse :</strong></p>
 
-    <div class="answer-box">
+    <div>
 
-      <p style="white-space: nowrap;">
-
-        ${r.variable} = (
-
-        <input id="meanInput" class="mini-input" />
-
+      ${r.variable} = (
+        <input id="meanInput" style="width:70px;text-align:center;">
         ±
+        <input id="uInput" style="width:70px;text-align:center;">
+      ) ${r.unit}
 
-        <input id="uInput" class="mini-input" />
-
-        )
-
-        ${r.unit}
-
-      </p>
-
-      <button onclick="validateTypeB()">
-        Valider
-      </button>
+      <div style="margin-top:10px;">
+        <button onclick="validateTypeB()">Valider</button>
+      </div>
 
       <p id="resultFeedback"></p>
 
     </div>
-
   `;
 
   return html;
@@ -218,75 +196,36 @@ function renderTypeB(q) {
 function validateTypeB() {
 
   const q = window.currentQuestion;
+  if (!q?.answer) return;
 
-  if (!q?.answer || !q?.raw) return;
-
-  const meanUser = parseFloat(
-    document.getElementById("meanInput").value.replace(",", ".")
+  const expected = window.formatTypeB(
+    q.answer.value,
+    q.answer.uncertainty
   );
 
-  const uUser = parseFloat(
-    document.getElementById("uInput").value.replace(",", ".")
-  );
+  const meanUser = document.getElementById("meanInput").value.trim();
+  const uUser = document.getElementById("uInput").value.trim();
 
-  if (isNaN(meanUser) || isNaN(uUser)) {
-    const feedback = document.getElementById("resultFeedback");
-    feedback.textContent = "⚠ Valeurs invalides";
-    feedback.style.color = "orange";
-    return;
-  }
+  // =========================
+  // NORMALISATION POINTS
+  // =========================
+  const norm = (x) => x.replace(",", ".");
 
-  const meanTrue = q.answer.value;
-  const uTrue = q.answer.uncertainty;
+  const meanOk = Number(norm(meanUser)) === Number(norm(expected.mean));
+  const uOk = Number(norm(uUser)) === Number(norm(expected.u));
 
-  const meanOk =
-    Math.abs(meanUser - meanTrue) / Math.abs(meanTrue) < 0.02;
-
-  const uRounded = roundUpSig(uTrue, 2);
-
-  const uOk =
-    Math.abs(uUser - uRounded) / Math.abs(uRounded) < 0.01;
-
-  const feedback = document.getElementById("resultFeedback");
-
-  if (meanOk && uOk) {
-
-    feedback.textContent = "✔ Correct !";
-    feedback.style.color = "lightgreen";
-
-    window.incFeedback.showFeedback("success", {
-      message: "✔ Bonne réponse"
-    });
-
-    setTimeout(() => load(), 1000);
-
-    return;
-  }
-
-  feedback.textContent = "❌ À corriger";
-  feedback.style.color = "red";
-
-   window.incFeedback.showFeedback("typeB", {
-     meanOk,
-     uOk,
-
-     meanExpected: meanTrue,
-     uExpected: uTrue,   // brut obligatoire
-     unit: q.raw.relation.unit
-   });
-
+  window.incFeedback.showFeedback("typeB", {
+    meanOk,
+    uOk,
+    meanExpected: expected.mean,
+    uExpected: expected.u,
+    variable: q.raw.relation.variable,
+    unit: q.raw.relation.unit
+  });
 }
 
 // =========================
-// UTIL
-// =========================
-
-function randomBetween(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-// =========================
-// EXPORT
+// EXPORT GLOBAL (IMPORTANT)
 // =========================
 
 window.incTypeB = {
@@ -294,3 +233,7 @@ window.incTypeB = {
   renderTypeB,
   validateTypeB
 };
+
+// expose global (IMPORTANT pour onclick HTML)
+window.renderTypeB = renderTypeB;
+window.validateTypeB = validateTypeB;

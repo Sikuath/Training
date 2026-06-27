@@ -230,7 +230,7 @@ const TYPE_B_RELATIONS = [
     instrument: "./images/concentration_molaire.jpg",
     domain: "Chimie",
     variable: "C",
-    unit: "g·L⁻¹",
+    unit: "mol·L⁻¹",
     relationText: "C = \\frac{n}{V}",
     relationInc: "\\frac{u(C)}{C} = \\sqrt{ \\left( \\frac{u(n)}{n} \\right)^2+ \\left( \\frac{u(V)}{V} \\right)^2}",
     inputs: [
