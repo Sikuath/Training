@@ -56,54 +56,63 @@ function generateTypeBQuestion() {
   let values = [];
   let uValues = [];
 
-  let result, uncertainty;
   let valid = false;
+  let result, uncertainty;
 
-  while (!valid) {
+  let guard = 0;
+
+  while (!valid && guard < 50) {
+
+    guard++;
 
     values = [];
     uValues = [];
 
     // =========================
-    // 1) VALEURS ELEVE (DEJA ARRONDIES)
+    // 1. GENERATION "TP REALISTE"
     // =========================
-    relation.inputs.forEach(() => {
+    relation.inputs.forEach(inp => {
 
+      // valeur expérimentale déjà "arrondie TP"
       const v = Number(randomBetween(5, 50).toFixed(1));
-      const rel = randomBetween(0.01, 0.05);
-      const u = roundUpSig(v * rel, 1);
+
+      // incertitude réaliste arrondie DIRECTEMENT
+      const u = roundUpSig(v * randomBetween(0.01, 0.05), 1);
+
+      // 🔥 ON FIGE ICI
+      inputs[inp.variable] = v;
+      uInputs[inp.variable] = u;
 
       values.push(v);
       uValues.push(u);
     });
 
     // =========================
-    // 2) CALCUL PHYSIQUE
+    // 2. CALCUL SUR VALEURS FIGEES
     // =========================
     result = relation.formula(...values);
-
     uncertainty = relation.uncertainty(
       ...values.flatMap((v, i) => [v, uValues[i]])
     );
 
     // =========================
-    // 3) CONTRAINTES PEDAGOGIQUES
+    // 3. VALIDATION PEDAGOGIQUE
     // =========================
     valid =
-      uValues.every((u, i) => u / values[i] < 0.1) &&
+      isFinite(result) &&
+      isFinite(uncertainty) &&
       uncertainty >= 0.001 &&
-      uncertainty <= 8;
+      uncertainty <= 8 &&
+      uValues.every((u, i) => u / values[i] < 0.1);
+  }
+
+  if (!valid) {
+    throw new Error("Impossible de générer un exercice valide");
   }
 
   // =========================
-  // 4) FIGE POUR AFFICHAGE ELEVE
+  // 4. FORMAT FINAL
   // =========================
-  relation.inputs.forEach((inp, i) => {
-
-    inputs[inp.variable] = values[i];
-    uInputs[inp.variable] = uValues[i];
-  });
-
   const expected = formatTypeB(result, uncertainty);
 
   return {
@@ -133,12 +142,13 @@ function renderTypeB(q) {
     return "<p>Erreur exercice</p>";
   }
 
-  // IMPORTANT : source globale pour validation
   window.currentQuestion = q;
 
   const r = q.raw.relation;
   const v = q.raw.inputs;
   const u = q.raw.uInputs;
+
+  const debug = false;   // ← passer à false pour masquer le debug
 
   let html = `
     <hr>
@@ -148,12 +158,19 @@ function renderTypeB(q) {
 
     <hr>
 
-    <p><strong>Données :</strong></p>
+    <p><strong>Données expérimentales :</strong></p>
   `;
+
+  // =========================
+  // AFFICHAGE DES DONNÉES
+  // =========================
 
   r.inputs.forEach(inp => {
 
-    const formatted = formatTypeB(v[inp.variable], u[inp.variable]);
+    const formatted = formatTypeB(
+      v[inp.variable],
+      u[inp.variable]
+    );
 
     html += `
       <div class="data-line">
@@ -164,6 +181,52 @@ function renderTypeB(q) {
     `;
   });
 
+  // =========================
+  // DEBUG
+  // =========================
+
+  if (debug) {
+
+    const expected = formatTypeB(
+      q.answer.value,
+      q.answer.uncertainty
+    );
+
+    html += `
+      <hr>
+
+      <div style="
+        background:#222;
+        color:#8f8;
+        padding:10px;
+        border-radius:6px;
+        font-family:monospace;
+      ">
+
+        <strong>DEBUG MODE</strong><br><br>
+
+        Valeur calculée :
+        <b>${q.answer.value}</b><br>
+
+        Incertitude calculée :
+        <b>${q.answer.uncertainty}</b><br><br>
+
+        Réponse attendue :<br>
+
+        <b>
+          ${r.variable} =
+          (${expected.mean} ± ${expected.u})
+          ${r.unit}
+        </b>
+
+      </div>
+    `;
+  }
+
+  // =========================
+  // SAISIE
+  // =========================
+
   html += `
     <hr>
 
@@ -172,13 +235,25 @@ function renderTypeB(q) {
     <div>
 
       ${r.variable} = (
-        <input id="meanInput" style="width:70px;text-align:center;">
-        ±
-        <input id="uInput" style="width:70px;text-align:center;">
+
+      <input
+        id="meanInput"
+        style="width:80px;text-align:center;"
+      >
+
+      ±
+
+      <input
+        id="uInput"
+        style="width:80px;text-align:center;"
+      >
+
       ) ${r.unit}
 
       <div style="margin-top:10px;">
-        <button onclick="validateTypeB()">Valider</button>
+        <button onclick="validateTypeB()">
+          Valider
+        </button>
       </div>
 
       <p id="resultFeedback"></p>
@@ -206,22 +281,44 @@ function validateTypeB() {
   const meanUser = document.getElementById("meanInput").value.trim();
   const uUser = document.getElementById("uInput").value.trim();
 
-  // =========================
-  // NORMALISATION POINTS
-  // =========================
   const norm = (x) => x.replace(",", ".");
 
-  const meanOk = Number(norm(meanUser)) === Number(norm(expected.mean));
-  const uOk = Number(norm(uUser)) === Number(norm(expected.u));
+  const meanOk = norm(meanUser) === norm(expected.mean);
+  const uOk = norm(uUser) === norm(expected.u);
+
+  // =========================
+  // BONNE REPONSE
+  // =========================
+  if (meanOk && uOk) {
+
+    playGoodSound();
+
+    score++;
+    updateUI();
+
+    window.incFeedback.showFeedback("success", {
+      message: "✔ Bonne réponse"
+    });
+
+    setTimeout(nextQuestion, 800);
+    return;
+  }
+
+  // =========================
+  // MAUVAISE REPONSE
+  // =========================
+  playBadSound();
 
   window.incFeedback.showFeedback("typeB", {
     meanOk,
     uOk,
-    meanExpected: expected.mean,
-    uExpected: expected.u,
+    meanExpected: q.answer.value,
+    uExpected: q.answer.uncertainty,
     variable: q.raw.relation.variable,
     unit: q.raw.relation.unit
   });
+
+  setTimeout(endGame, 2000);
 }
 
 // =========================

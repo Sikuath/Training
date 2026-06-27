@@ -92,37 +92,53 @@ function buildTypeB(data) {
 
   let html = "<ul>";
 
+  // =========================
+  // CAS ERREUR
+  // =========================
   if (!meanOk && !uOk) {
-    html += "<li>❌ Valeur et incertitude incorrectes</li>";
+    html += "<li>❌ La valeur et son incertitude sont incorrectes</li>";
   }
 
   else if (!meanOk && uOk) {
-    html += "<li>❌ Valeur incorrecte</li>";
-    html += "<li>✔ Incertitude correcte</li>";
+    html += "<li>❌ La valeur est incorrecte</li>";
+    html += "<li>✔ Cependant, l'Incertitude est correcte 👍</li>";
   }
 
   else if (meanOk && !uOk) {
-    html += "<li>✔ Valeur correcte</li>";
-    html += "<li>❌ Incertitude incorrecte</li>";
+    html += "<li>✔ La valeur est  correcte 👍</li>";
+    html += "<li>❌ L'incertitude ne convient pas (ne pas oublier de majorer et garder 1 chiffre significatif)</li>";
   }
 
   html += "</ul>";
 
+  // =========================
+  // CAS PARFAIT
+  // =========================
   if (meanOk && uOk) {
-    html += `<p style="color:green;font-weight:bold;">✔ Excellent travail</p>`;
+
+    html += `
+      <p style="color:green;font-weight:bold;">
+        ✔ Excellent travail !
+      </p>
+    `;
   }
 
-  else if (data.meanExpected !== undefined) {
+  // =========================
+  // REPONSE ATTENDUE (IMPORTANT)
+  // =========================
+  else if (window.currentQuestion?.answer) {
+
+    const q = window.currentQuestion;
 
     const formatted = window.formatTypeB(
-      Number(data.meanExpected),
-      Number(data.uExpected)
+      q.answer.value,
+      q.answer.uncertainty
     );
 
     html += `
       <p>
-        ✔ Réponse attendue :<br>
-        ${data.variable ?? "x"} = (${formatted.mean} ± ${formatted.u}) ${data.unit ?? ""}
+        ✔ Réponse attendue :
+        ${q.raw.relation.variable} = (${formatted.mean} ± ${formatted.u}) ${q.raw.relation.unit}
       </p>
     `;
   }
