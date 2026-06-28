@@ -74,7 +74,7 @@ function generateTypeBQuestion() {
     relation.inputs.forEach(inp => {
 
       // valeur expérimentale déjà "arrondie TP"
-      const v = Number(randomBetween(5, 50).toFixed(1));
+      const v = Number(randomBetween(0.1, 5).toFixed(1));
 
       // incertitude réaliste arrondie DIRECTEMENT
       const u = roundUpSig(v * randomBetween(0.01, 0.05), 1);
@@ -148,13 +148,14 @@ function renderTypeB(q) {
   const v = q.raw.inputs;
   const u = q.raw.uInputs;
 
-  const debug = false;   // ← passer à false pour masquer le debug
+  const debug = false;
 
   let html = `
     <hr>
 
-    <p><strong>Relation :</strong> \\( ${r.relationText} \\)</p>
-    <p><strong>Incertitude :</strong> \\( ${r.relationInc} \\)</p>
+    <p><strong>Relations à utiliser :</strong></p>
+    <p>\\( ${r.relationText} \\)</p>
+    <p>\\( ${r.relationInc} \\)</p>
 
     <hr>
 
@@ -162,7 +163,7 @@ function renderTypeB(q) {
   `;
 
   // =========================
-  // AFFICHAGE DES DONNÉES
+  // DONNÉES
   // =========================
 
   r.inputs.forEach(inp => {
@@ -230,36 +231,64 @@ function renderTypeB(q) {
   html += `
     <hr>
 
-    <p><strong>Réponse :</strong></p>
+    <div style="
+      margin:15px 0;
+      padding:12px;
+      background:rgba(255,152,0,0.18);
+      border-left:5px solid #ff9800;
+      border-radius:8px;
+      color:#ffd54f;
+      font-size:1.05em;
+      font-weight:bold;
+    ">
+      ⚠️ L'incertitude doit être donnée avec
+      <span style="color:white;">un seul chiffre significatif</span>.
+    </div>
 
     <div>
 
       ${r.variable} = (
 
-      <input
-        id="meanInput"
-        style="width:80px;text-align:center;"
-      >
+      <input id="meanInput" style="width:80px;text-align:center;">
 
       ±
 
-      <input
-        id="uInput"
-        style="width:80px;text-align:center;"
-      >
+      <input id="uInput" style="width:80px;text-align:center;">
 
       ) ${r.unit}
 
-      <div style="margin-top:10px;">
+      <div id="exerciseButtons"
+           style="
+              display:flex;
+              justify-content:center;
+              align-items:center;
+              gap:20px;
+              margin-top:18px;
+           ">
+
         <button onclick="validateTypeB()">
           Valider
         </button>
+
       </div>
 
       <p id="resultFeedback"></p>
 
     </div>
   `;
+
+  // Déplacer le bouton Fin à côté de Valider
+  setTimeout(() => {
+
+    const stopBtn = document.getElementById("stopBtn");
+    const container = document.getElementById("exerciseButtons");
+
+    if (stopBtn && container) {
+      stopBtn.style.display = "inline-block";
+      container.appendChild(stopBtn);
+    }
+
+  }, 0);
 
   return html;
 }

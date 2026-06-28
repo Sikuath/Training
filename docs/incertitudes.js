@@ -36,7 +36,7 @@ function generateQuestion() {
       break;
 
     case "typeC":
-      ex = incTypeC?.generateTypeCQuestion?.();
+      ex = incTypeC.generateTypeCQuestion();
       break;
 
     default:
@@ -83,6 +83,9 @@ function load() {
     context = currentQuestion.raw.relation;
   }
 
+  if (window.INCERTITUDE_MODE === "typeC") {
+    context = currentQuestion.raw.relation;
+  }
   if (context) {
 
     const img = document.getElementById("instrumentImg");
@@ -120,6 +123,10 @@ function load() {
     case "typeB":
       container.innerHTML = incTypeB.renderTypeB(currentQuestion);
       break;
+    
+    case "typeC":
+  container.innerHTML = incTypeC.renderTypeC(currentQuestion);
+  break;
   }
 
   // =========================

@@ -157,7 +157,7 @@ const TYPE_B_RELATIONS = [
     variable: "P",
     unit: "W",
     relationText: "P = U \\times I",
-    relationInc: "\\frac{u(P)}{P} = \\sqrt{ \\left( \\frac{u(U)}{I} \\right)^2+ \\left( \\frac{u(I)}{I} \\right)^2}",
+    relationInc: "\\frac{u(P)}{P} = \\sqrt{ \\left( \\frac{u(U)}{U} \\right)^2+ \\left( \\frac{u(I)}{I} \\right)^2}",
     inputs: [
       { variable: "U", unit: "V" },
       { variable: "I", unit: "A" }
@@ -223,8 +223,113 @@ const TYPE_B_RELATIONS = [
   },
 
   // =========================
-  // CONCENTRATION (TP dosage / dilution)
+  // ACCELERATION MOYENNE
   // =========================
+  {
+  label: "Accélération moyenne",
+  instrument: "./images/acceleration.jpg",
+  domain: "Mécanique",
+  variable: "a",
+  unit: "m·s⁻²",
+  relationText: "a = \\frac{\\Delta v}{\\Delta t}",
+  relationInc: "\\frac{u(a)}{a}=\\sqrt{\\left(\\frac{u(\\Delta v)}{\\Delta v}\\right)^2+\\left(\\frac{u(\\Delta t)}{\\Delta t}\\right)^2}",
+  inputs: [
+    { variable: "Δv", unit: "m·s⁻¹" },
+    { variable: "Δt", unit: "s" }
+  ],
+
+  formula: (dv, dt) => dv / dt,
+
+  uncertainty: (dv, udv, dt, udt) =>
+    Math.abs(dv / dt) *
+    Math.sqrt(
+      (udv / dv) ** 2 +
+      (udt / dt) ** 2
+    )
+},
+
+  // =========================
+  // GRANDISSEMENT
+  // =========================
+{
+  label: "Grandissement",
+  instrument: "./images/lens.jpg",
+  domain: "Optique",
+  variable: "γ",
+  unit: "",
+  relationText: "\\gamma = \\frac{A'B'}{AB}",
+  relationInc: "\\frac{u(\\gamma)}{\\gamma}=\\sqrt{\\left(\\frac{u(A'B')}{A'B'}\\right)^2+\\left(\\frac{u(AB)}{AB}\\right)^2}",
+  inputs: [
+    { variable: "A'B'", unit: "cm" },
+    { variable: "AB", unit: "cm" }
+  ],
+
+  formula: (ApBp, AB) => ApBp / AB,
+
+  uncertainty: (ApBp, u1, AB, u2) =>
+    Math.abs(ApBp / AB) *
+    Math.sqrt(
+      (u1 / ApBp) ** 2 +
+      (u2 / AB) ** 2
+    )
+},
+
+// =========================
+  // GROSSISSEMENT
+  // =========================
+{
+  label: "Grossissement",
+  instrument: "./images/lunette.jpg",
+  domain: "Optique",
+  variable: "γ",
+  unit: "",
+  relationText: "\\gamma = \\frac{α'}{α}",
+  relationInc: "\\frac{u(\\gamma)}{\\gamma}=\\sqrt{\\left(\\frac{u(α')}{α'}\\right)^2+\\left(\\frac{u(α)}{α}\\right)^2}",
+  inputs: [
+    { variable: "α'", unit: "°" },
+    { variable: "α", unit: "°" }
+  ],
+
+  formula: (ApBp, AB) => ApBp / AB,
+
+  uncertainty: (ApBp, u1, AB, u2) =>
+    Math.abs(ApBp / AB) *
+    Math.sqrt(
+      (u1 / ApBp) ** 2 +
+      (u2 / AB) ** 2
+    )
+},
+
+  // =========================
+  // CAPACITE THERMIQUE
+  // =========================
+{
+  label: "Capacité thermique",
+  instrument: "./images/calorimetre.png",
+  domain: "Thermodynamique",
+  variable: "C",
+  unit: "J·K⁻¹",
+  relationText: "C = \\frac{Q}{\\Delta T}",
+  relationInc: "\\frac{u(C)}{C}=\\sqrt{\\left(\\frac{u(Q)}{Q}\\right)^2+\\left(\\frac{u(\\Delta T)}{\\Delta T}\\right)^2}",
+  inputs: [
+    { variable: "Q", unit: "J" },
+    { variable: "ΔT", unit: "K" }
+  ],
+
+  formula: (Q, dT) => Q / dT,
+
+  uncertainty: (Q, uQ, dT, udT) =>
+    Math.abs(Q / dT) *
+    Math.sqrt(
+      (uQ / Q) ** 2 +
+      (udT / dT) ** 2
+    )
+},
+
+  // =========================
+  // CONCENTRATION MOLAIRE
+  // =========================
+
   {
     label: "Concentration molaire",
     instrument: "./images/concentration_molaire.jpg",
@@ -261,3 +366,61 @@ window.TYPE_B_GENERAL_RULE = {
   formula:
     "u(Y)/Y = √[(u(x1)/x1)² + (u(x2)/x2)² + ...]"
 };
+
+// =========================
+// TYPE C - Z-SCORE (VALIDATION EXPERIMENTALE)
+// =========================
+// =========================
+// TYPE C - RELATIONS (Z-score TP)
+// =========================
+
+const TYPE_C_RELATIONS = [
+
+  {
+    label: "Accélération",
+    variable: "a",
+    unit: "m·s⁻²",
+    domain: "Mécanique",
+
+    reference: () => randomBetween(1, 10)
+  },
+
+  {
+    label: "Tension",
+    variable: "U",
+    unit: "V",
+    domain: "Electricité",
+
+    reference: () => randomBetween(1, 12)
+  },
+
+  {
+    label: "Masse",
+    variable: "m",
+    unit: "kg",
+    domain: "Mécanique",
+
+    reference: () => randomBetween(0.5, 5)
+  },
+
+  {
+    label: "pH",
+    variable: "pH",
+    unit: "",
+    domain: "Chimie",
+
+    reference: () => randomBetween(3, 10)
+  }
+
+];
+
+window.TYPE_C_RELATIONS = TYPE_C_RELATIONS;
+
+// =========================
+// EXPORT GLOBAL
+// =========================
+
+window.TYPE_C_RULE = TYPE_C_RULE;
+window.TYPE_C_CONTEXTS = TYPE_C_CONTEXTS;
+window.ALLOWED_UNITS_TYPE_C = ALLOWED_UNITS_TYPE_C;
+window.TYPE_C_CONFIG = TYPE_C_CONFIG;
