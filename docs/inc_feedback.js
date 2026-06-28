@@ -31,6 +31,15 @@ function showFeedback(type, data = {}) {
       `;
       break;
   }
+
+  // =========================
+  // 🔥 FORCER RENDU LATEX
+  // =========================
+  if (window.MathJax?.typesetPromise) {
+    MathJax.typesetPromise([box]);
+  } else if (window.MathJax?.typeset) {
+    MathJax.typeset();
+  }
 }
 
 // =========================
@@ -150,46 +159,56 @@ function buildTypeB(data) {
 // TYPE C
 // =========================
 
-// =========================
-// TYPE C
-// =========================
-
 function buildTypeC(data) {
 
   if (!data) {
     return "<p style='color:red'>Erreur feedback</p>";
   }
 
-  const expected = Math.abs(data.expectedZ);
+  const expected = Math.abs(data.expectedZ ?? 0);
   const zFR = expected.toFixed(2).replace(".", ",");
 
-  // 🔥 sécurité : si validate n’a rien envoyé correctement
-  const signError = data.signError ?? false;
+  // 🔥 récupération robuste de la variable physique
+  const variable = data.relation?.variable ?? "x";
+
+  const formula = `\\[
+z = \\frac{ ${variable} - ${variable}_{ref} }{ u(${variable}) }
+\\]`;
 
   let html = "<ul>";
 
   // =========================
-  // CAS SIGNÉ NÉGATIF
+  // CAS ERREUR DE SIGNE
   // =========================
-  if (signError === true) {
+  if (data.signError === true) {
 
-    html += `
-      <li>❌ Attention : le z-score ne doit pas être négatif</li>
-      <li>💡 On travaille avec la valeur absolue |z|</li>
-    `;
+    if (data.absOk === true) {
+      html += `
+        <li>⚠️ Oubli de la valeur absolue |z|</li>
+        <li>✔ Bon ordre de grandeur en valeur absolue</li>
+        <li>ℹ️ z attendu : <strong>${zFR}</strong></li>
+      `;
+    } else {
+      html += `
+        <li>❌ Erreur de signe et de calcul</li>
+        <li>ℹ️ z attendu : <strong>${zFR}</strong></li>
+      `;
+    }
 
   } else {
 
     html += `
       <li>ℹ️ z-score attendu : <strong>${zFR}</strong></li>
+      <li>${data.interpretation ?? ""}</li>
     `;
   }
 
-  html += "</ul>";
+  html += `
+    <li>📌 Formule :</li>
+    <div>${formula}</div>
+  `;
 
-  if (data.interpretation) {
-    html += `<p>${data.interpretation}</p>`;
-  }
+  html += "</ul>";
 
   return html;
 }

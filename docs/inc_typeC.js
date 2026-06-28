@@ -121,10 +121,6 @@ function generateTypeCQuestion() {
 }
 
 // =========================
-// INTERPRETATION PHYSIQUE
-// =========================
-
-// =========================
 // INTERPRETATION PHYSIQUE (z-score positif)
 // =========================
 
@@ -239,15 +235,22 @@ function validateTypeC() {
   const q = window.currentQuestion;
   if (!q?.answer) return;
 
-  const expectedZ = Math.abs(q.answer.z); // 🔥 toujours positif côté attendu
+  const expectedZ = Math.abs(q.answer.z);
+  const r = q.raw.relation;
+  const inputRaw = document.getElementById("zInput").value;
 
-  const inputRaw = document.getElementById("zInput").value.trim();
-  const normalized = inputRaw.replace(",", ".");
+  // =========================
+  // NORMALISATION ROBUSTE
+  // =========================
+  const normalized = inputRaw
+    .replace(",", ".")
+    .replace("−", "-")
+    .trim();
+
   const userZRaw = parseFloat(normalized);
 
   const isNegative = normalized.startsWith("-");
 
-  // sécurité entrée invalide
   if (isNaN(userZRaw)) {
     playBadSound();
     window.incFeedback.showFeedback("typeC", {
@@ -256,32 +259,51 @@ function validateTypeC() {
     return;
   }
 
-  // 🔥 on compare en valeur absolue
   const userZ = Math.abs(userZRaw);
-
   const ok = Math.abs(userZ - expectedZ) < 0.01;
 
   // =========================
-  // CAS 1 : erreur de signe
+  // CAS 1 : valeur négative MAIS correcte en absolu
   // =========================
-  if (ok && isNegative) {
+  if (isNegative && ok) {
 
     playBadSound();
 
     window.incFeedback.showFeedback("typeC", {
       expectedZ,
-      interpretation: interpretZ(expectedZ),
-      signError: true
+      interpretation: "✔ Bon ordre de grandeur mais oubli de la valeur absolue",
+      signError: true,
+      relation: r,
+      absOk: true
     });
 
-    setTimeout(endGame, 2500);
+    setTimeout(endGame, 8000);
     return;
   }
 
   // =========================
-  // CAS 2 : bonne réponse
+  // CAS 2 : valeur négative ET mauvaise (double erreur)
   // =========================
-  if (ok && !isNegative) {
+  if (isNegative && !ok) {
+
+    playBadSound();
+
+    window.incFeedback.showFeedback("typeC", {
+      expectedZ,
+      interpretation: "❌ Erreur de signe et erreur de calcul",
+      signError: true,
+      relation: r,
+      absOk: false
+    });
+
+    setTimeout(endGame, 8000);
+    return;
+  }
+
+  // =========================
+  // CAS 3 : réponse correcte
+  // =========================
+  if (!isNegative && ok) {
 
     playGoodSound();
 
@@ -298,17 +320,18 @@ function validateTypeC() {
   }
 
   // =========================
-  // CAS 3 : erreur normale
+  // CAS 4 : erreur classique
   // =========================
   playBadSound();
 
   window.incFeedback.showFeedback("typeC", {
     expectedZ,
-    interpretation: interpretZ(expectedZ),
-    signError: false
+    interpretation: "❌ Le calcul du z-score est incorrect",
+    signError: false,
+    relation: r
   });
 
-  setTimeout(endGame, 5000);
+  setTimeout(endGame, 8000);
 }
 
 // =========================
