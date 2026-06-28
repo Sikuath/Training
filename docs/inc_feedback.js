@@ -150,8 +150,48 @@ function buildTypeB(data) {
 // TYPE C
 // =========================
 
+// =========================
+// TYPE C
+// =========================
+
 function buildTypeC(data) {
-  return `<p>❌ Type C non traité ici</p>`;
+
+  if (!data) {
+    return "<p style='color:red'>Erreur feedback</p>";
+  }
+
+  const expected = Math.abs(data.expectedZ);
+  const zFR = expected.toFixed(2).replace(".", ",");
+
+  // 🔥 sécurité : si validate n’a rien envoyé correctement
+  const signError = data.signError ?? false;
+
+  let html = "<ul>";
+
+  // =========================
+  // CAS SIGNÉ NÉGATIF
+  // =========================
+  if (signError === true) {
+
+    html += `
+      <li>❌ Attention : le z-score ne doit pas être négatif</li>
+      <li>💡 On travaille avec la valeur absolue |z|</li>
+    `;
+
+  } else {
+
+    html += `
+      <li>ℹ️ z-score attendu : <strong>${zFR}</strong></li>
+    `;
+  }
+
+  html += "</ul>";
+
+  if (data.interpretation) {
+    html += `<p>${data.interpretation}</p>`;
+  }
+
+  return html;
 }
 
 // =========================

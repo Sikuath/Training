@@ -124,6 +124,10 @@ function generateTypeCQuestion() {
 // INTERPRETATION PHYSIQUE
 // =========================
 
+// =========================
+// INTERPRETATION PHYSIQUE (z-score positif)
+// =========================
+
 function interpretZ(z) {
 
   const a = Math.abs(z);
@@ -133,10 +137,10 @@ function interpretZ(z) {
   }
 
   if (a < 2) {
-    return "⚠ écart acceptable (incertitudes expérimentales)";
+    return "⚠ écart modéré (compatible avec les incertitudes expérimentales)";
   }
 
-  return "❌ valeur suspecte (erreur expérimentale probable)";
+  return "❌ écart important (mesure probablement non compatible)";
 }
 
 // =========================
@@ -157,10 +161,7 @@ function renderTypeC(q) {
   let html = `
     <hr>
 
-    <p><strong>Validation d'une mesure expérimentale</strong></p>
-
-    <p>
-      TP de <strong>${r.domain}</strong>
+    <p>Validation d'une mesure expérimentale lors d'un TP de <strong>Physique Chimie</strong>
     </p>
 
     <hr>
@@ -238,15 +239,49 @@ function validateTypeC() {
   const q = window.currentQuestion;
   if (!q?.answer) return;
 
-  const expectedZ = q.answer.z;
+  const expectedZ = Math.abs(q.answer.z); // 🔥 toujours positif côté attendu
 
-  const userZ = parseFloat(
-    document.getElementById("zInput").value.replace(",", ".")
-  );
+  const inputRaw = document.getElementById("zInput").value.trim();
+  const normalized = inputRaw.replace(",", ".");
+  const userZRaw = parseFloat(normalized);
+
+  const isNegative = normalized.startsWith("-");
+
+  // sécurité entrée invalide
+  if (isNaN(userZRaw)) {
+    playBadSound();
+    window.incFeedback.showFeedback("typeC", {
+      error: "invalid"
+    });
+    return;
+  }
+
+  // 🔥 on compare en valeur absolue
+  const userZ = Math.abs(userZRaw);
 
   const ok = Math.abs(userZ - expectedZ) < 0.01;
 
-  if (ok) {
+  // =========================
+  // CAS 1 : erreur de signe
+  // =========================
+  if (ok && isNegative) {
+
+    playBadSound();
+
+    window.incFeedback.showFeedback("typeC", {
+      expectedZ,
+      interpretation: interpretZ(expectedZ),
+      signError: true
+    });
+
+    setTimeout(endGame, 2500);
+    return;
+  }
+
+  // =========================
+  // CAS 2 : bonne réponse
+  // =========================
+  if (ok && !isNegative) {
 
     playGoodSound();
 
@@ -262,14 +297,18 @@ function validateTypeC() {
     return;
   }
 
+  // =========================
+  // CAS 3 : erreur normale
+  // =========================
   playBadSound();
 
   window.incFeedback.showFeedback("typeC", {
     expectedZ,
-    interpretation: interpretZ(expectedZ)
+    interpretation: interpretZ(expectedZ),
+    signError: false
   });
 
-  setTimeout(endGame, 2000);
+  setTimeout(endGame, 5000);
 }
 
 // =========================
@@ -277,9 +316,9 @@ function validateTypeC() {
 // =========================
 
 window.incTypeC = {
-    generateTypeCQuestion,
-    renderTypeC,
-    validateTypeC
+  generateTypeCQuestion,
+  renderTypeC,
+  validateTypeC
 };
 
 window.renderTypeC = renderTypeC;

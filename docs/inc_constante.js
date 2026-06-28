@@ -358,18 +358,9 @@ window.TYPE_B_RELATIONS = TYPE_B_RELATIONS;
 window.PHYSICS_CONTEXT = PHYSICS_CONTEXT;
 window.ALLOWED_UNITS = ALLOWED_UNITS;
 window.TYPE_B_GENERAL_RULE = {
-  title: "Calcul des incertitudes dans le cas de produits et/ou de quotient",
 
-  text:
-    "Les incertitudes relatives se combinent par somme quadratique.",
-
-  formula:
-    "u(Y)/Y = √[(u(x1)/x1)² + (u(x2)/x2)² + ...]"
 };
 
-// =========================
-// TYPE C - Z-SCORE (VALIDATION EXPERIMENTALE)
-// =========================
 // =========================
 // TYPE C - RELATIONS (Z-score TP)
 // =========================
@@ -378,6 +369,7 @@ const TYPE_C_RELATIONS = [
 
   {
     label: "Accélération",
+    instrument: "./images/acceleration.jpg",
     variable: "a",
     unit: "m·s⁻²",
     domain: "Mécanique",
@@ -387,6 +379,7 @@ const TYPE_C_RELATIONS = [
 
   {
     label: "Tension",
+    instrument: "./images/voltmetre.png",
     variable: "U",
     unit: "V",
     domain: "Electricité",
@@ -396,6 +389,7 @@ const TYPE_C_RELATIONS = [
 
   {
     label: "Masse",
+    instrument: "./images/masse.jpg",
     variable: "m",
     unit: "kg",
     domain: "Mécanique",
@@ -405,22 +399,78 @@ const TYPE_C_RELATIONS = [
 
   {
     label: "pH",
+    instrument: "./images/phmetre.png",
     variable: "pH",
     unit: "",
     domain: "Chimie",
 
     reference: () => randomBetween(3, 10)
-  }
+  },
+
+  {
+  label: "Accélération de la pesanteur",
+  instrument: "./images/poids.jpg",
+  variable: "g",
+  unit: "m·s⁻²",
+  domain: "Mécanique",
+
+  reference: () => randomBetween(9.75, 9.83)
+  },
+
+  {
+  label: "Vitesse du son dans l'air",
+  instrument: "./images/vitesse_son.jpg",
+  variable: "v",
+  unit: "m·s⁻¹",
+  domain: "Ondes",
+
+  reference: () => randomBetween(338, 345)
+  },
+
+  {
+  label: "Résistance d'un dipôle",
+  instrument: "./images/ohm.jpg",
+  variable: "R",
+  unit: "Ω",
+  domain: "Électricité",
+
+  reference: () => randomBetween(95, 110)
+  },
+
+  {
+  label: "Masse volumique de l'eau",
+  instrument: "./images/masse_volumique.jpg",
+  variable: "ρ",
+  unit: "kg·m⁻³",
+  domain: "Chimie",
+
+  reference: () => randomBetween(998, 1002)
+  },
+
+  {
+  label: "Longueur d'onde laser rouge",
+  instrument: "./images/laser.jpg",
+  variable: "λ",
+  unit: "nm",
+  domain: "Optique",
+
+  reference: () => randomBetween(635, 650)
+  },
+
+  {
+  label: "Capacité thermique massique de l'eau",
+  instrument: "./images/calorimetre.png",
+  variable: "c",
+  unit: "kJ·kg⁻¹·K⁻¹",
+  domain: "Thermodynamique",
+
+  reference: () => randomBetween(4.15, 4.18)
+}
 
 ];
 
+// =========================
+// EXPORT GLOBAL (SAFE)
+// =========================
+
 window.TYPE_C_RELATIONS = TYPE_C_RELATIONS;
-
-// =========================
-// EXPORT GLOBAL
-// =========================
-
-window.TYPE_C_RULE = TYPE_C_RULE;
-window.TYPE_C_CONTEXTS = TYPE_C_CONTEXTS;
-window.ALLOWED_UNITS_TYPE_C = ALLOWED_UNITS_TYPE_C;
-window.TYPE_C_CONFIG = TYPE_C_CONFIG;
