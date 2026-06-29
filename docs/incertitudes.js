@@ -39,6 +39,10 @@ function generateQuestion() {
       ex = incTypeC.generateTypeCQuestion();
       break;
 
+    case "typeD":
+      ex = incTypeD.generateTypeDQuestion();
+      break;
+
     default:
       ex = incTypeB.generateTypeBQuestion();
   }
@@ -86,6 +90,10 @@ function load() {
   if (window.INCERTITUDE_MODE === "typeC") {
     context = currentQuestion.raw.relation;
   }
+
+  if (window.INCERTITUDE_MODE === "typeD") {
+  context = currentQuestion.raw.relation;
+}
   if (context) {
 
     const img = document.getElementById("instrumentImg");
@@ -125,8 +133,13 @@ function load() {
       break;
     
     case "typeC":
-  container.innerHTML = incTypeC.renderTypeC(currentQuestion);
+      container.innerHTML = incTypeC.renderTypeC(currentQuestion);
+      break;
+
+    case "typeD":
+  container.innerHTML = incTypeD.renderTypeD(currentQuestion);
   break;
+  
   }
 
   // =========================

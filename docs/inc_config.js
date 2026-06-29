@@ -2,4 +2,4 @@
 // CONFIG GLOBALE EXERCICES
 // =========================
 
-window.INCERTITUDE_MODE = "typeC"; // "typeA" | "typeB" | "typeC"
+window.INCERTITUDE_MODE = "typeD"; // "typeA" | "typeB" | "typeC"
