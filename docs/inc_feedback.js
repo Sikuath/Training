@@ -23,6 +23,10 @@ function showFeedback(type, data = {}) {
       box.innerHTML = buildTypeC(data);
       break;
 
+    case "typeD":
+      box.innerHTML = buildTypeD(data);
+      break;
+      
     case "success":
       box.innerHTML = `
         <p style="color: lightgreen; font-weight: bold;">
@@ -54,30 +58,35 @@ function buildTypeA(data) {
   let html = "<ul>";
 
   if (meanWrong && uWrong) {
-    html += "<li>❌ Erreur sur la moyenne</li>";
-    html += "<li>❌ Erreur sur l'incertitude</li>";
+    html += `
+      <p>❌ La moyenne est incorrecte.</p>
+      <p>❌ L'incertitude est incorrecte.</p>
+    `;
   }
 
   else if (meanWrong && !uWrong) {
-    html += "<li>❌ Moyenne incorrecte</li>";
-    html += "<li>💡 Incertitude correcte</li>";
+    html += `
+      <p>❌ La moyenne est incorrecte.</p>
+      <p>💡 L'incertitude est correcte.</p>
+    `;
   }
 
   else if (!meanWrong && uWrong) {
-    html += "<li>💡 Moyenne correcte</li>";
-    html += "<li>❌ Incertitude incorrecte</li>";
+    html += `
+      <p>💡 La moyenne est correcte.</p>
+      <p>❌ l'incertitude est incorrecte.</p>
+    `;
   }
 
   html += "</ul>";
 
   if (!meanWrong && !uWrong) {
-    html += `<p style="color:lightgreen;font-weight:bold;">✔ Parfait !</p>`;
+    html += `<p style="color:lightgreen;font-weight:bold;">✔ Bonne réponse !</p>`;
   }
 
   else {
     html += `
-      <p>
-        ✔ Réponse attendue :
+      <p>✔ La réponse attendue est :
         <strong>${data.variable ?? "x"} = (${data.meanExpected} ± ${data.uExpected}) ${data.unit ?? ""}</strong>
       </p>
     `;
@@ -105,17 +114,25 @@ function buildTypeB(data) {
   // CAS ERREUR
   // =========================
   if (!meanOk && !uOk) {
-    html += "<li>❌ La valeur et son incertitude sont incorrectes</li>";
+    html += `
+     <p>❌ La valeur est incorrecte.</p>
+     <p>❌ L'incertitude est incorrecte.</p>
+     `;
   }
 
   else if (!meanOk && uOk) {
-    html += "<li>❌ La valeur est incorrecte</li>";
-    html += "<li>✔ Cependant, l'Incertitude est correcte 👍</li>";
+    html += `
+      <p>❌ La valeur est incorrecte.</p>
+      <p>👍 L'incertitude est correcte.</p>
+    `;
   }
 
   else if (meanOk && !uOk) {
-    html += "<li>✔ La valeur est  correcte 👍</li>";
-    html += "<li>❌ L'incertitude ne convient pas (ne pas oublier de majorer et garder 1 chiffre significatif)</li>";
+    html += `
+      <p>👍 La valeur est  correcte.</p>
+      <p>❌ L'incertitude ne convient pas.</p>
+      <p>💡 Ne pas oublier de majorer et garder 1 chiffre significatif pour l'incertitude.</p>
+    `;
   }
 
   html += "</ul>";
@@ -147,7 +164,7 @@ function buildTypeB(data) {
     html += `
       <p>
         ✔ Réponse attendue :
-        ${q.raw.relation.variable} = (${formatted.mean} ± ${formatted.u}) ${q.raw.relation.unit}
+        <strong>${q.raw.relation.variable} = (${formatted.mean} ± ${formatted.u}) ${q.raw.relation.unit}</strong>
       </p>
     `;
   }
@@ -237,6 +254,53 @@ function buildTypeC(data) {
       MathJax.typeset();
     }
   }, 0);
+
+  return html;
+}
+
+// =========================
+// TYPE D
+// =========================
+
+function buildTypeD(data) {
+
+  if (!data) {
+    return "<p style='color:red'>Erreur feedback</p>";
+  }
+
+  const z = data.expectedZ;
+
+  let html = "";
+
+  if (data.expected === true) {
+
+    html += `
+      <p>❌ Cette mesure est <strong>compatible</strong> avec la valeur de référence.</p>
+    `;
+
+  } else {
+
+    html += `
+      <p>❌ Cette mesure <strong>n'est pas compatible</strong> avec la valeur de référence.</p>
+    `;
+  }
+
+  html += `
+    <p>
+      💡 Rappel :
+      une mesure est considérée compatible si son z-score respecte la condition :
+      \\(
+      |z|\\le 2
+      \\)
+    </p>
+  `;
+
+  html += `
+    <p>
+      🚀 z-score donné :
+      <strong>z = ${z}</strong>
+    </p>
+  `;
 
   return html;
 }

@@ -157,12 +157,12 @@ function renderTypeC(q) {
   let html = `
     <hr>
 
-    <p>Validation d'une mesure expérimentale lors d'un TP de <strong>Physique Chimie</strong>
+    <p>z-score pour valider une mesure expérimentale lors d'un TP de <strong>Physique Chimie</strong>
     </p>
 
     <hr>
 
-    <p><strong>Données :</strong></p>
+    <p><strong>Données expérimentales :</strong></p>
 
     <div class="data-line">
       \\(
@@ -195,9 +195,11 @@ function renderTypeC(q) {
     </div>
 
     <hr>
-
-    <p><strong>Calculer le z-score.</strong></p>
-
+    
+    <p class="tp-instruction">
+      <strong>Calculer le <span style="color:white;">z-score</span></strong>
+    </p>
+    
     <div>
       z =
       <input id="zInput" style="width:90px;text-align:center;">

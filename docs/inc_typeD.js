@@ -120,7 +120,7 @@ function interpretZ(z) {
   const a = Math.abs(z);
 
   if (a < 1) return "✔ Très compatible";
-  if (a < 2) return "⚠ Compatible mais incertitude notable";
+  if (a <= 2) return "⚠ Compatible mais incertitude notable";
   return "❌ Non compatible";
 }
 
@@ -151,11 +151,11 @@ function renderTypeD(q) {
   return `
     <hr>
 
-    <p><strong>Voici les mesures lors d'un TP de Physique-Chimie</strong></p>
+    <p><strong>z-score pour valider une mesure expérimentale lors d'un TP de <strong>Physique Chimie</strong></p>
 
     <hr>
 
-    <p><strong>Données :</strong></p>
+    <p><strong>Données expérimenatles:</strong></p>
 
     <div class="data-line">
       \\(${r.variable} = ${f.value} \\; ${r.unit}\\)
@@ -174,9 +174,10 @@ function renderTypeD(q) {
     <p>On donne le z-score correspondant :<strong> z = ${zFR}</p></strong>
 
     <hr>
-
-    <p><strong>La mesure est-elle compatible ?</strong></p>
-
+    <p class="tp-instruction">
+      <strong>La mesure est-elle <span style="color:white;">compatible</span> avec celle attendue?</strong>
+    </p>
+    
     <div id="exerciseButtons" style="display:flex;gap:20px;justify-content:center;">
       <button onclick="answerTypeD(true)">✔ Compatible</button>
       <button onclick="answerTypeD(false)">❌ Non compatible</button>
@@ -217,11 +218,11 @@ function answerTypeD(userChoice) {
     playBadSound();
 
     window.incFeedback.showFeedback("typeD", {
-      expectedZ: formatZ(z),
-      interpretation: interpretZ(z)
+    expected: expected,
+    expectedZ: formatZ(z)
     });
 
-    setTimeout(endGame, 4000);
+  setTimeout(endGame, 6000);
   }
 }
 

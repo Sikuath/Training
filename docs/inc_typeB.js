@@ -227,10 +227,11 @@ function renderTypeB(q) {
   // =========================
   // SAISIE
   // =========================
-
-  html += `
+    html += `
     <hr>
-
+    <p class="tp-instruction">
+      <strong>Écrire le résultat sous la forme : <span style="color:white;">${r.variable} ± u(${r.variable})</span></strong>
+    </p>
     <div style="
       margin:15px 0;
       padding:12px;
@@ -242,7 +243,7 @@ function renderTypeB(q) {
       font-weight:bold;
     ">
       ⚠️ L'incertitude doit être donnée avec
-      <span style="color:white;">un seul chiffre significatif</span>.
+      <span style="color:white;">1 chiffre significatif</span>.
     </div>
 
     <div>
@@ -347,7 +348,7 @@ function validateTypeB() {
     unit: q.raw.relation.unit
   });
 
-  setTimeout(endGame, 2000);
+  setTimeout(endGame, 6000);
 }
 
 // =========================

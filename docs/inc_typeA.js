@@ -31,10 +31,12 @@ function render(question) {
     v.toFixed(decimals).replace(".", ",")
   );
 
-  const instruction =
-    `Écrire le résultat sous la forme : (${context.variable} ± u(${context.variable})) ${context.unit}`;
-
   const sig = question.raw.sig;
+
+  const sigText =
+    sig === 1
+      ? "chiffre significatif."
+      : "chiffres significatifs.";
 
   let table = `
     <table class="measure-table">
@@ -54,7 +56,7 @@ function render(question) {
     </table>
   `;
 
-  return `
+  const html = `
     ${table}
 
     <div class="stats">
@@ -70,20 +72,27 @@ function render(question) {
     </div>
 
     <p class="tp-instruction">
-      Écrire le résultat sous la forme :
-      ${context.variable} ± u(${context.variable})
+      <strong>Écrire le résultat sous la forme :
+      <span style="color:white;">${context.variable} ± u(${context.variable})</span></strong>
     </p>
 
-    <p class="tp-instruction">
-      🔢 Nombre de chiffres significatifs à respecter pour l’incertitude :
-      <strong>${sig}</strong>
-    </p>
+    <div style="
+      margin:15px 0;
+      padding:12px;
+      background:rgba(255,152,0,0.18);
+      border-left:5px solid #ff9800;
+      border-radius:8px;
+      color:#ffd54f;
+      font-size:1.05em;
+      font-weight:bold;
+    ">
+      ⚠️ L'incertitude doit être donnée avec <span style="color:white;"><strong>${sig} ${sigText}</strong></span>
+    </div>
+
     <div class="answer-box">
 
-      <p style="margin-bottom: 8px;">
-        <strong>
-          ${context.variable} = (
-        </strong>
+      <p style="margin-bottom:8px;">
+        <strong>${context.variable} = (</strong>
         <input id="meanInput" class="mini-input" />
         ±
         <input id="uInput" class="mini-input" />
@@ -91,13 +100,35 @@ function render(question) {
         ${context.unit}
       </p>
 
-      <button onclick="validateAnswer()">Valider</button>
+      <div id="exerciseButtons"
+           style="display:flex;
+                  justify-content:center;
+                  align-items:center;
+                  gap:20px;
+                  margin-top:18px;">
+
+        <button onclick="validateAnswer()">Valider</button>
+
+      </div>
 
       <p id="resultFeedback"></p>
 
     </div>
-
   `;
+
+  setTimeout(() => {
+
+    const stopBtn = document.getElementById("stopBtn");
+    const container = document.getElementById("exerciseButtons");
+
+    if (stopBtn && container) {
+      stopBtn.style.display = "inline-block";
+      container.appendChild(stopBtn);
+    }
+
+  }, 0);
+
+  return html;
 }
 
 // -------------------------
@@ -215,12 +246,9 @@ function validateAnswer() {
   const feedback =
     document.getElementById("resultFeedback");
 
-  feedback.textContent = "✘ Incorrect";
-  feedback.style.color = "red";
-
-  setTimeout(() => {
+    setTimeout(() => {
     endGame();
-  }, 2500);
+  }, 6000);
 }
 
 // -------------------------
