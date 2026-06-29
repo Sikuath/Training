@@ -201,9 +201,6 @@ function validateAnswer() {
     const feedback =
       document.getElementById("resultFeedback");
 
-    feedback.textContent = "✔ Correct !";
-    feedback.style.color = "lightgreen";
-
     playGoodSound();
 
     score++;
@@ -215,7 +212,7 @@ function validateAnswer() {
 
     setTimeout(() => {
       load();
-    }, 1200);
+    }, 0);
 
     return;
   }

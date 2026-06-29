@@ -1,9 +1,54 @@
 let score = 0;
-let timeLeft = 180;
+let timeLeft = 300;
 let timer = null;
 
 let gameOver = false;
 let currentQuestion = null;
+
+// =========================
+// MODE DE JEU
+// =========================
+
+const MODE_DISTRIBUTION = {
+  easy: [
+    ["typeD", 70],
+    ["typeC", 30]
+  ],
+
+  medium: [
+    ["typeA", 70],
+    ["typeC", 15],
+    ["typeD", 15]
+  ],
+
+  hard: [
+    ["typeB", 40],
+    ["typeA", 60]
+  ]
+};
+
+function weightedRandom(choices) {
+
+  const total = choices.reduce((sum, [, w]) => sum + w, 0);
+
+  let r = Math.random() * total;
+
+  for (const [type, weight] of choices) {
+    r -= weight;
+    if (r <= 0) return type;
+  }
+
+  return choices[choices.length - 1][0];
+}
+
+function pickExerciseType() {
+
+  const mode = getMode();
+
+  const choices = MODE_DISTRIBUTION[mode];
+
+  return weightedRandom(choices);
+}
 
 /* =========================
    FEEDBACK
@@ -20,12 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function generateQuestion() {
 
+  const type = pickExerciseType();
   const mode = getMode();
 
   let ex;
 
-  // SWITCH CENTRAL
-  switch (window.INCERTITUDE_MODE) {
+  switch (type) {
 
     case "typeA":
       ex = incTypeA.generateUncertaintyQuestion();
@@ -44,13 +89,14 @@ function generateQuestion() {
       break;
 
     default:
-      ex = incTypeB.generateTypeBQuestion();
+      ex = incTypeA.generateUncertaintyQuestion();
   }
 
   return {
     ...ex,
     mode,
-    hint: `Mode actif : ${window.INCERTITUDE_MODE}`
+    type,
+    hint: `Mode: ${mode} | Exercice: ${type}`
   };
 }
 
@@ -59,8 +105,8 @@ function generateQuestion() {
 ========================= */
 
 function getMode() {
-  if (score >= 10) return "hard";
-  if (score >= 5) return "medium";
+  if (score >= 8) return "hard";
+  if (score >= 4) return "medium";
   return "easy";
 }
 
@@ -77,23 +123,25 @@ function load() {
   // CONTEXTE PHYSIQUE
   // =========================
 
+  const type = currentQuestion.type;
   let context = null;
 
-  if (window.INCERTITUDE_MODE === "typeA") {
+  if (type === "typeA") {
     context = currentQuestion.raw.context;
   }
 
-  if (window.INCERTITUDE_MODE === "typeB") {
+  if (type === "typeB") {
     context = currentQuestion.raw.relation;
   }
 
-  if (window.INCERTITUDE_MODE === "typeC") {
+  if (type === "typeC") {
     context = currentQuestion.raw.relation;
   }
 
-  if (window.INCERTITUDE_MODE === "typeD") {
-  context = currentQuestion.raw.relation;
-}
+  if (type === "typeD") {
+    context = currentQuestion.raw.relation;
+  }
+
   if (context) {
 
     const img = document.getElementById("instrumentImg");
@@ -122,7 +170,7 @@ function load() {
 
   if (!container) return;
 
-  switch (window.INCERTITUDE_MODE) {
+  switch (currentQuestion.type) {
 
     case "typeA":
       container.innerHTML = incTypeA.render(currentQuestion);
@@ -131,15 +179,14 @@ function load() {
     case "typeB":
       container.innerHTML = incTypeB.renderTypeB(currentQuestion);
       break;
-    
+
     case "typeC":
       container.innerHTML = incTypeC.renderTypeC(currentQuestion);
       break;
 
     case "typeD":
-  container.innerHTML = incTypeD.renderTypeD(currentQuestion);
-  break;
-  
+      container.innerHTML = incTypeD.renderTypeD(currentQuestion);
+      break;
   }
 
   // =========================
@@ -150,7 +197,7 @@ function load() {
   if (feedback) feedback.textContent = "";
 
   // =========================
-  // RENDU MATHJAX
+  // MATHJAX
   // =========================
 
   if (window.MathJax) {
@@ -273,7 +320,7 @@ function startTimer() {
 function startGame() {
 
   score = 0;
-  timeLeft = 180;
+  timeLeft = 300;
   gameOver = false;
 
   load();

@@ -22,6 +22,10 @@ function formatZ(z) {
   return z.toFixed(2).replace(".", ",");
 }
 
+function zIsCompatible(z) {
+  return Math.abs(Number(z.toFixed(2))) <= 2;
+}
+
 // =========================
 // FORMAT IDENTIQUE TYPE C
 // =========================
@@ -117,7 +121,7 @@ function generateTypeDQuestion() {
 
 function interpretZ(z) {
 
-  const a = Math.abs(z);
+  const a = Math.abs(Number(z.toFixed(2)));
 
   if (a < 1) return "✔ Très compatible";
   if (a <= 2) return "⚠ Compatible mais incertitude notable";
@@ -139,7 +143,7 @@ function renderTypeD(q) {
   const r = q.raw.relation;
   const f = q.answer.formatted;
 
-  const z = Math.abs(q.answer.z);
+  const z = Number(Math.abs(q.answer.z).toFixed(2));
   const zFR = formatZ(z);
 
   const formula = `
@@ -196,8 +200,10 @@ function answerTypeD(userChoice) {
   const q = window.currentQuestion;
   if (!q?.answer) return;
 
-  const z = Math.abs(q.answer.z);
-  const expected = (z <= 2);
+  const zRaw = Math.abs(q.answer.z);
+  const zRounded = Number(zRaw.toFixed(2));
+
+  const expected = (zRounded <= 2);
 
   if (userChoice === expected) {
 
@@ -208,7 +214,7 @@ function answerTypeD(userChoice) {
 
     window.incFeedback.showFeedback("success", {
       message: "✔ Bonne interprétation",
-      interpretation: interpretZ(z)
+      interpretation: interpretZ(zRounded)
     });
 
     setTimeout(nextQuestion, 800);
@@ -218,11 +224,11 @@ function answerTypeD(userChoice) {
     playBadSound();
 
     window.incFeedback.showFeedback("typeD", {
-    expected: expected,
-    expectedZ: formatZ(z)
+      expected: expected,
+      expectedZ: formatZ(zRounded)
     });
 
-  setTimeout(endGame, 6000);
+    setTimeout(endGame, 6000);
   }
 }
 
