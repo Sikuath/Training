@@ -12,10 +12,6 @@ Plateforme de jeux éducatifs en **physique-chimie niveau lycée**
 ### 🧮 1. Conversions d’unités
 - Conversions SI (m, g, s, A, V, J, W, Pa, Hz…)
 - Gestion des préfixes (milli, kilo, micro…)
-- Modes :
-  - 🟢 Easy → conversions simples
-  - 🟡 Medium → décimaux
-  - 🔴 Hard → unités composées
 
 ---
 
@@ -73,12 +69,6 @@ Système composé de 4 mini-jeux :
   - 🟡 Medium
   - 🔴 Hard
 
-### Répartition des exercices :
-
-- 🟢 Easy → Type C / Type D  
-- 🟡 Medium → Type A / C / D  
-- 🔴 Hard → Type A / B  
-
 ---
 
 ## 🔊 Effets sonores
@@ -88,13 +78,21 @@ Système composé de 4 mini-jeux :
 
 ---
 
+## 🎮 Tableau des scores
+
+✔ Possibilité de rentrer un pseudo (3 lettres) style jeu rétro
+✔ Hall of fame qui conserve les données pour les 4 jeux
+
+---
+
 ## 🧠 Objectifs pédagogiques
 
+✔ Feedback pour les exercices
 ✔ Maîtriser les formules physiques  
 ✔ Manipuler les expressions littérales  
 ✔ Comprendre les incertitudes expérimentales  
 ✔ Développer la rigueur scientifique  
-✔ S’entraîner en autonomie type lycée  
+✔ S’entraîner en autonomie type lycée
 
 ---
 
@@ -111,5 +109,6 @@ Système composé de 4 mini-jeux :
 ## ⚙️ Installation
 
 ```bash
-git clone https://github.com/ton-repo/training-physique.git
-cd training-physique
+git clone https://github.com/Sikuath/Training.git
+
+ouvrir index.html
