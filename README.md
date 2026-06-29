@@ -2,61 +2,99 @@ https://sikuath.github.io/Training/
 
 # 🎮 Training Physique-Chimie
 
-Mini plateforme de jeux éducatifs en **physique-chimie niveau lycée**  
-👉 Objectif : entraîner les élèves de manière interactive et ludique.
+Plateforme de jeux éducatifs en **physique-chimie niveau lycée**  
+👉 Objectif : entraînement progressif, automatisé et ludique.
 
 ---
 
-## 🚀 Fonctionnalités
+## 🚀 Jeux disponibles
 
-### 🧮 1. Jeu des conversions
-- Conversions d’unités SI (m, g, s, A, V, J, W, Pa, Hz…)
-- Gestion automatique des **préfixes SI** (milli, kilo, micro…)
-- Mode **progressif** :
+### 🧮 1. Conversions d’unités
+- Conversions SI (m, g, s, A, V, J, W, Pa, Hz…)
+- Gestion des préfixes (milli, kilo, micro…)
+- Modes :
   - 🟢 Easy → conversions simples
-  - 🟡 Medium → valeurs décimales
-  - 🔴 Hard → unités composées (ex : g·L⁻¹, m·s⁻¹, W·m⁻²)
-
-- Affichage scientifique :
-  - virgule française 🇫🇷
-  - notation scientifique (×10ⁿ)
-  - unités en écriture physique réelle (ex : m·s⁻¹)
+  - 🟡 Medium → décimaux
+  - 🔴 Hard → unités composées
 
 ---
 
-### 🔢 2. Jeu des chiffres significatifs
-- Génération automatique de nombres :
-  - entiers
-  - décimaux
-  - notation scientifique
-- Niveau progressif
-- Feedback immédiat
-- Timer + score
+### 🔢 2. Chiffres significatifs
+- Nombres entiers, décimaux, scientifiques
+- Gestion des règles de précision
+- Validation stricte
+- Score + timer
 
 ---
 
-### 🎯 Gameplay
-- Timer global
-- Score en temps réel
-- Fin immédiate si erreur (mode challenge)
-- Sauvegarde des scores via **localStorage**
-- Page **Game Over + classement**
+### 📐 3. Expressions littérales (QCM physique-chimie)
+- Environ **40 expressions physiques courantes**
+- Manipulation d’expressions littérales :
+  - formules de vitesse
+  - énergie
+  - densité
+  - puissance
+  - loi d’Ohm
+  - etc.
+- Questions type QCM / choix de forme correcte
+- Objectif : automatiser la manipulation des formules
+
+---
+
+### ⚗️ 4. Incertitudes expérimentales (système complet)
+
+Système composé de 4 mini-jeux :
+
+#### 🟢 Type A — Mesures expérimentales
+- Moyenne + incertitude type A
+- Traitement de séries de mesures
+- Chiffres significatifs
+
+#### 🟡 Type B — Propagation d’incertitudes
+- Calculs à partir de formules physiques
+- Incertitudes composées
+
+#### 🔵 Type C — Z-score
+- Comparaison expérience / valeur théorique
+- Interprétation statistique
+
+#### 🔴 Type D — Compatibilité expérimentale
+- Données réalistes générées automatiquement
+- Décision via z-score
+
+---
+
+## 🎯 Gameplay global
+
+- Timer global ⏱️
+- Score en temps réel 🧮
+- Difficulté dynamique :
+  - 🟢 Easy
+  - 🟡 Medium
+  - 🔴 Hard
+
+### Répartition des exercices :
+
+- 🟢 Easy → Type C / Type D  
+- 🟡 Medium → Type A / C / D  
+- 🔴 Hard → Type A / B  
 
 ---
 
 ## 🔊 Effets sonores
-- Son de réussite ✔
-- Son d’erreur ✘  
-👉 améliore l’engagement des élèves
+
+- ✔ Bonne réponse
+- ✘ Erreur
 
 ---
 
 ## 🧠 Objectifs pédagogiques
 
-✔ Maîtriser les conversions d’unités  
-✔ Comprendre les puissances de 10  
-✔ Travailler la rigueur scientifique  
-✔ S’entraîner de manière autonome  
+✔ Maîtriser les formules physiques  
+✔ Manipuler les expressions littérales  
+✔ Comprendre les incertitudes expérimentales  
+✔ Développer la rigueur scientifique  
+✔ S’entraîner en autonomie type lycée  
 
 ---
 
@@ -65,7 +103,8 @@ Mini plateforme de jeux éducatifs en **physique-chimie niveau lycée**
 - HTML5
 - CSS3
 - JavaScript (vanilla)
-- LocalStorage (classement)
+- MathJax
+- LocalStorage
 
 ---
 
@@ -74,23 +113,3 @@ Mini plateforme de jeux éducatifs en **physique-chimie niveau lycée**
 ```bash
 git clone https://github.com/ton-repo/training-physique.git
 cd training-physique
-
----
-
-## ⚙️Utilisation
-
-👉 Aucun serveur nécessaire
-
-ouvrir simplement le fichier "index.html"
-
-## License
-
-### Code
-The code of this project is licensed under the MIT License.
-
-### Educational content
-All educational content (texts, exercises, explanations) is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
-
-You are free to use, modify, and share this content, provided you give appropriate credit and distribute your contributions under the same license.
-
-© 2026 Sikuath
