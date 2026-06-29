@@ -80,7 +80,7 @@ Système composé de 4 mini-jeux :
 
 ## 🎮 Tableau des scores
 
-✔ Possibilité de rentrer un pseudo (3 lettres) style jeu rétro
+✔ Possibilité de rentrer un pseudo (3 lettres) style jeu rétro  
 ✔ Hall of fame qui conserve les données pour les 4 jeux
 
 ---
