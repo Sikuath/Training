@@ -237,11 +237,9 @@ function validateTypeC() {
 
   const expectedZ = Math.abs(q.answer.z);
   const r = q.raw.relation;
+
   const inputRaw = document.getElementById("zInput").value;
 
-  // =========================
-  // NORMALISATION ROBUSTE
-  // =========================
   const normalized = inputRaw
     .replace(",", ".")
     .replace("−", "-")
@@ -253,56 +251,49 @@ function validateTypeC() {
 
   if (isNaN(userZRaw)) {
     playBadSound();
+
     window.incFeedback.showFeedback("typeC", {
-      error: "invalid"
+      error: "invalid",
+      relation: r
     });
+
     return;
   }
 
   const userZ = Math.abs(userZRaw);
   const ok = Math.abs(userZ - expectedZ) < 0.01;
 
-  // =========================
-  // CAS 1 : valeur négative MAIS correcte en absolu
-  // =========================
+  // Cas 1 : signe faux mais calcul correct
   if (isNegative && ok) {
 
     playBadSound();
 
     window.incFeedback.showFeedback("typeC", {
-      expectedZ,
-      interpretation: "✔ Bon ordre de grandeur mais oubli de la valeur absolue",
-      signError: true,
       relation: r,
-      absOk: true
+      expectedZ,
+      errorType: "sign"
     });
 
     setTimeout(endGame, 8000);
     return;
   }
 
-  // =========================
-  // CAS 2 : valeur négative ET mauvaise (double erreur)
-  // =========================
+  // Cas 2 : signe faux + calcul faux
   if (isNegative && !ok) {
 
     playBadSound();
 
     window.incFeedback.showFeedback("typeC", {
-      expectedZ,
-      interpretation: "❌ Erreur de signe et erreur de calcul",
-      signError: true,
       relation: r,
-      absOk: false
+      expectedZ,
+      errorType: "signAndCalc"
     });
 
     setTimeout(endGame, 8000);
     return;
   }
 
-  // =========================
-  // CAS 3 : réponse correcte
-  // =========================
+  // Cas 3 : bonne réponse
   if (!isNegative && ok) {
 
     playGoodSound();
@@ -319,16 +310,13 @@ function validateTypeC() {
     return;
   }
 
-  // =========================
-  // CAS 4 : erreur classique
-  // =========================
+  // Cas 4 : calcul faux
   playBadSound();
 
   window.incFeedback.showFeedback("typeC", {
+    relation: r,
     expectedZ,
-    interpretation: "❌ Le calcul du z-score est incorrect",
-    signError: false,
-    relation: r
+    errorType: "calc"
   });
 
   setTimeout(endGame, 8000);

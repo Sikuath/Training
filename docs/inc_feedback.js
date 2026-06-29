@@ -168,47 +168,75 @@ function buildTypeC(data) {
   const expected = Math.abs(data.expectedZ ?? 0);
   const zFR = expected.toFixed(2).replace(".", ",");
 
-  // 🔥 récupération robuste de la variable physique
   const variable = data.relation?.variable ?? "x";
 
-  const formula = `\\[
-z = \\frac{ ${variable} - ${variable}_{ref} }{ u(${variable}) }
-\\]`;
-
-  let html = "<ul>";
+  let html = "";
 
   // =========================
-  // CAS ERREUR DE SIGNE
+  // Message d'erreur
   // =========================
-  if (data.signError === true) {
 
-    if (data.absOk === true) {
+  switch (data.errorType) {
+
+    case "sign":
       html += `
-        <li>⚠️ Oubli de la valeur absolue |z|</li>
-        <li>✔ Bon ordre de grandeur en valeur absolue</li>
-        <li>ℹ️ z attendu : <strong>${zFR}</strong></li>
+        <p>❌ Le z-score ne peut pas être négatif.</p>
+        <p>✔ Le z-score est correct en valeur absolue.</p>
       `;
-    } else {
+      break;
+
+    case "signAndCalc":
       html += `
-        <li>❌ Erreur de signe et de calcul</li>
-        <li>ℹ️ z attendu : <strong>${zFR}</strong></li>
+        <p>❌ Le z-score ne peut pas être négatif.</p>
+        <p>❌ Le calcul du z-score est également incorrect.</p>
       `;
-    }
+      break;
 
-  } else {
+    case "calc":
+      html += `
+        <p>❌ Le calcul du z-score est incorrect.</p>
+      `;
+      break;
 
-    html += `
-      <li>ℹ️ z-score attendu : <strong>${zFR}</strong></li>
-      <li>${data.interpretation ?? ""}</li>
-    `;
+    default:
+      html += `
+        <p>❌ Réponse incorrecte.</p>
+      `;
   }
 
+  // =========================
+  // Formule
+  // =========================
+
   html += `
-    <li>📌 Formule :</li>
-    <div>${formula}</div>
+  <p>
+    💡 Rappel de la relation à utiliser :
+    \\(
+      z=
+      \\frac{\\left| ${variable}-${variable}_{\\rm ref} \\right|}{u(${variable})}
+    \\)
+  </p>
+`;
+
+  // =========================
+  // Réponse attendue
+  // =========================
+
+  html += `
+    <p>
+      🚀z-score attendu : 
+      <strong>z = ${zFR}</strong>
+    </p>
   `;
 
-  html += "</ul>";
+  // indispensable pour MathJax
+  setTimeout(() => {
+    if (window.MathJax?.typesetPromise) {
+      MathJax.typesetPromise();
+    } else if (window.MathJax?.typeset) {
+      MathJax.typeset();
+    }
+  }, 0);
 
   return html;
 }
