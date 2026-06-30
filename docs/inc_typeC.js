@@ -268,7 +268,7 @@ function validateTypeC() {
   // Cas 1 : signe faux mais calcul correct
   if (isNegative && ok) {
 
-    playBadSound();
+    window.playBadSound();
 
     window.incFeedback.showFeedback("typeC", {
       relation: r,
@@ -276,14 +276,14 @@ function validateTypeC() {
       errorType: "sign"
     });
 
-    setTimeout(endGame, 8000);
+    setTimeout(() => window.endGame(), 6000);
     return;
   }
 
   // Cas 2 : signe faux + calcul faux
   if (isNegative && !ok) {
 
-    playBadSound();
+    window.playBadSound();
 
     window.incFeedback.showFeedback("typeC", {
       relation: r,
@@ -291,14 +291,14 @@ function validateTypeC() {
       errorType: "signAndCalc"
     });
 
-    setTimeout(endGame, 8000);
+    setTimeout(() => window.endGame(), 6000);
     return;
   }
 
   // Cas 3 : bonne réponse
   if (!isNegative && ok) {
 
-    playGoodSound();
+    window.playGoodSound();
 
     window.setScore(window.getScore() + 1);
     window.updateUI();
@@ -308,12 +308,12 @@ function validateTypeC() {
       interpretation: interpretZ(expectedZ)
     });
 
-    setTimeout(nextQuestion, 800);
+    setTimeout(() => window.nextQuestion(), 200);
     return;
   }
 
   // Cas 4 : calcul faux
-  playBadSound();
+  window.playBadSound();
 
   window.incFeedback.showFeedback("typeC", {
     relation: r,
@@ -321,7 +321,7 @@ function validateTypeC() {
     errorType: "calc"
   });
 
-  setTimeout(endGame, 8000);
+  setTimeout(() => window.endGame(), 6000);
 }
 
 // =========================

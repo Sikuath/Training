@@ -439,19 +439,15 @@ function playBadSound() {
 ========================= */
 
 function nextQuestion() {
-
-  if (gameOver) return;
-
-  setTimeout(() => {
-    load();
-  }, 300);
+  load();
 }
-
-window.addEventListener("DOMContentLoaded", updateHUD);
-window.startGame = startGame;
-window.updateUI = updateUI;
+window.addEventListener("DOMContentLoaded", loadBestPlayer);
 window.nextQuestion = nextQuestion;
+window.startGame = startGame;
+window.endGame = endGame;
+window.nextQuestion = nextQuestion;
+window.updateUI = updateUI;
+window.playGoodSound = playGoodSound;
+window.playBadSound = playBadSound;
 window.getScore = () => score;
 window.setScore = (v) => { score = v; };
-window.playBadSound = playBadSound;
-window.playGoodSound = playGoodSound;

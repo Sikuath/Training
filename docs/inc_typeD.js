@@ -207,7 +207,7 @@ function answerTypeD(userChoice) {
 
   if (userChoice === expected) {
 
-    playGoodSound();
+    window.playGoodSound();
 
     window.setScore(window.getScore() + 1);
     window.updateUI();
@@ -217,18 +217,18 @@ function answerTypeD(userChoice) {
       interpretation: interpretZ(zRounded)
     });
 
-    setTimeout(nextQuestion, 800);
+    setTimeout(() => window.nextQuestion(), 200);
 
   } else {
 
-    playBadSound();
+    window.playBadSound();
 
     window.incFeedback.showFeedback("typeD", {
       expected: expected,
       expectedZ: formatZ(zRounded)
     });
 
-    setTimeout(endGame, 6000);
+    setTimeout(() => window.endGame(), 6000);
   }
 }
 

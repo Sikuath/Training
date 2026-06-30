@@ -201,7 +201,7 @@ function validateAnswer() {
     const feedback =
       document.getElementById("resultFeedback");
 
-    playGoodSound();
+    window.playGoodSound();
 
     window.setScore(window.getScore() + 1);
     window.updateUI();
@@ -210,9 +210,7 @@ function validateAnswer() {
       message: "✔ Bonne réponse"
     });
 
-    setTimeout(() => {
-      load();
-    }, 0);
+    setTimeout(() => window.nextQuestion(), 200);
 
     return;
   }
@@ -221,7 +219,7 @@ function validateAnswer() {
   // MAUVAISE RÉPONSE
   // =========================
 
-  playBadSound();
+  window.playBadSound();
 
   window.incFeedback.showFeedback(
     "typeA",
@@ -243,9 +241,7 @@ function validateAnswer() {
   const feedback =
     document.getElementById("resultFeedback");
 
-    setTimeout(() => {
-    endGame();
-  }, 6000);
+    setTimeout(() => window.endGame(), 6000);
 }
 
 // -------------------------

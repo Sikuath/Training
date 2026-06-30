@@ -148,7 +148,7 @@ function renderTypeB(q) {
   const v = q.raw.inputs;
   const u = q.raw.uInputs;
 
-  const debug = true;
+  const debug = false;
 
   let html = `
     <hr>
@@ -321,7 +321,7 @@ function validateTypeB() {
   // =========================
   if (meanOk && uOk) {
 
-    playGoodSound();
+    window.playGoodSound();
 
     window.setScore(window.getScore() + 1);
     window.updateUI();
@@ -330,14 +330,14 @@ function validateTypeB() {
       message: "✔ Bonne réponse"
     });
 
-    setTimeout(nextQuestion, 800);
+    setTimeout(() => window.nextQuestion(), 200);
     return;
   }
 
   // =========================
   // MAUVAISE REPONSE
   // =========================
-  playBadSound();
+  window.playBadSound();
 
   window.incFeedback.showFeedback("typeB", {
     meanOk,
@@ -348,7 +348,7 @@ function validateTypeB() {
     unit: q.raw.relation.unit
   });
 
-  setTimeout(endGame, 6000);
+  setTimeout(() => window.endGame(), 6000);
 }
 
 // =========================
