@@ -1,3 +1,7 @@
+import {
+  getBestPlayer
+} from "./scoreService.js";
+
 let questions = [];
 let i = 0;
 
@@ -16,28 +20,27 @@ let currentQuestion = null; // ✅ AJOUT
 /* =========================
    RECUP DATA
 ========================= */
+let bestPlayer = {
+    name: "---",
+    score: 0
+};
 
-import { getBestScore } from "./scoreService.js";
+async function loadBestPlayer() {
 
-async function updateHUD() {
+    try {
+        bestPlayer = await getBestPlayer("significatifs");
+    }
+    catch (e) {
+        console.error(e);
+    }
 
-  const player = localStorage.getItem("player") || "AAA";
-
-  let best = 0;
-
-  try {
-    best = await getBestScore("significatifs");
-  } catch (e) {
-    console.error("Firebase best score error:", e);
-  }
-
-  const playerEl = document.getElementById("player");
-  const bestEl = document.getElementById("best");
-
-  if (playerEl) playerEl.textContent = player;
-  if (bestEl) bestEl.textContent = best;
+    updateHUD();
 }
+function updateHUD() {
 
+    document.getElementById("best").textContent = bestPlayer.score;
+    document.getElementById("bestName").textContent = bestPlayer.name;
+}
 /* =========================
    GLOBAL EXPORT
 ========================= */
@@ -268,10 +271,9 @@ function startGame() {
   load();
 
   updateUI();
-
   updateHUD();
 
-  document.getElementById("startBtn").style.display = "none";
+    document.getElementById("startBtn").style.display = "none";
   document.getElementById("validateBtn").style.display = "inline-block";
   document.getElementById("stopBtn").style.display = "inline-block";
 
@@ -293,8 +295,7 @@ function load() {
 
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
-
-  updateHUD();
+  
 }
 
 /* =========================
@@ -319,8 +320,7 @@ function submit() {
     score++;
     i++;
     updateUI();
-  
-    updateHUD();
+        
     load();
 
   } else {
@@ -335,6 +335,7 @@ function submit() {
   }
 
   updateUI();
+  updateHUD();
 }
 
 /* =========================
@@ -435,3 +436,4 @@ function updateUI() {
   const bestEl = document.getElementById("best");
   if (bestEl) bestEl.textContent = best;
 }
+window.addEventListener("DOMContentLoaded", loadBestPlayer);

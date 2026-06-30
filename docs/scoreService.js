@@ -63,7 +63,7 @@ export async function getRanking(game) {
 
   return ranking;
 }
-export async function getBestScore(game) {
+export async function getBestPlayer(game) {
 
   const q = query(
     collection(db, "scores"),
@@ -74,7 +74,8 @@ export async function getBestScore(game) {
 
   const snap = await getDocs(q);
 
-  if (snap.empty) return 0;
+  if (snap.empty)
+    return { name: "---", score: 0 };
 
-  return snap.docs[0].data().score;
+  return snap.docs[0].data();
 }
