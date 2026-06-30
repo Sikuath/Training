@@ -344,23 +344,22 @@ function endGame() {
 
   const finalScore = Number(score || 0);
 
-  // ❌ AVANT (localStorage supprimé)
-  // ✔ MAINTENANT FIREBASE
+  const nameInput = document.getElementById("playerName");
+  const playerName = nameInput?.value?.trim() || "Anonymous";
 
   import("./scoreService.js").then(({ addScore }) => {
 
-    addScore("incertitudes", "AAA", finalScore)
+    addScore("incertitudes", playerName, finalScore)
       .catch(console.error);
 
   });
 
   setTimeout(() => {
-
     window.location.href =
       "gameover.html?game=incertitudes&score=" + finalScore;
-
   }, 800);
 }
+
 function quitGame() {
 
   if (gameOver) return;
