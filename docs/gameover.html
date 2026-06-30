@@ -13,13 +13,19 @@
 <div class="container">
   <p>SCORE : <span id="score">0</span></p>
 
-  <input id="pseudo" maxlength="3" placeholder="AAA" autofocus />
+  <input id="pseudo"
+         maxlength="3"
+         placeholder="AAA"
+         autofocus
+         autocomplete="off" />
   <br>
 
   <button id="okBtn">SAVE</button>
 </div>
 
-<script>
+<script type="module">
+
+import { addScore } from "./scoreService.js";
 
 const params = new URLSearchParams(window.location.search);
 
@@ -29,7 +35,7 @@ const score = Number(params.get("score") || 0);
 document.getElementById("score").textContent = score;
 
 /* =========================
-   TITRE DYNAMIQUE 4 JEUX
+   TITRE DYNAMIQUE
 ========================= */
 
 document.getElementById("title").textContent =
@@ -44,31 +50,40 @@ document.getElementById("title").textContent =
           : "GAME OVER";
 
 /* =========================
-   SAVE SCORE UNIFIÉ
+   SAVE SCORE
 ========================= */
 
-document.getElementById("okBtn").addEventListener("click", () => {
+document.getElementById("okBtn").addEventListener("click", async () => {
 
-  const name = document.getElementById("pseudo").value
-    .toUpperCase()
-    .trim()
-    .slice(0, 3);
+    const name = document
+        .getElementById("pseudo")
+        .value
+        .toUpperCase()
+        .trim()
+        .slice(0,3);
 
-  if (!name) return;
+    if (!name)
+        return;
 
-  const key = "ranking_" + game;
+    document.getElementById("okBtn").disabled = true;
 
-  let ranking = JSON.parse(localStorage.getItem(key) || "[]");
+    try {
 
-  ranking.push({ name, score });
+        await addScore(game, name, score);
 
-  ranking.sort((a, b) => b.score - a.score);
+        window.location.href = "score.html";
 
-  ranking = ranking.slice(0, 10);
+    }
+    catch(err){
 
-  localStorage.setItem(key, JSON.stringify(ranking));
+        console.error(err);
 
-  window.location.href = "score.html";
+        alert("Impossible d'enregistrer le score.");
+
+        document.getElementById("okBtn").disabled = false;
+
+    }
+
 });
 
 </script>

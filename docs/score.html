@@ -16,7 +16,7 @@
 
 <div class="scores-container">
 
-  <!-- ===================== SIGNIFICATIFS ===================== -->
+  <!-- SIGNIFICATIFS -->
   <div class="score-block">
     <h2>📐 Significatifs</h2>
     <div class="scoreboard">
@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <!-- ===================== CONVERSIONS ===================== -->
+  <!-- CONVERSIONS -->
   <div class="score-block">
     <h2>🔢 Conversions</h2>
     <div class="scoreboard">
@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <!-- ===================== EXPRESSIONS ===================== -->
+  <!-- EXPRESSIONS -->
   <div class="score-block">
     <h2>🧮 Expressions</h2>
     <div class="scoreboard">
@@ -49,7 +49,7 @@
     </div>
   </div>
 
-  <!-- ===================== INCERTITUDES ===================== -->
+  <!-- INCERTITUDES -->
   <div class="score-block">
     <h2>📊 Incertitudes</h2>
     <div class="scoreboard">
@@ -62,16 +62,22 @@
 
 </div>
 
-<script>
+<script type="module">
 
-function display(key, id) {
+import { getRanking } from "./scoreService.js";
 
-  let data = JSON.parse(localStorage.getItem(key) || "[]");
+/* =========================
+   AFFICHAGE FIREBASE
+========================= */
+
+async function display(game, id) {
+
+  const data = await getRanking(game);
 
   const container = document.getElementById(id);
   container.innerHTML = "";
 
-  if (!Array.isArray(data) || data.length === 0) {
+  if (!data || data.length === 0) {
     container.innerHTML = "<div class='row empty'>Aucun score</div>";
     return;
   }
@@ -79,6 +85,7 @@ function display(key, id) {
   data.forEach((e, i) => {
 
     const row = document.createElement("div");
+
     row.className = "row";
 
     row.innerHTML = `
@@ -88,17 +95,19 @@ function display(key, id) {
     `;
 
     container.appendChild(row);
+
   });
+
 }
 
 /* =========================
-   4 JEUX OFFICIELS
+   CHARGEMENT DES 4 JEUX
 ========================= */
 
-display("ranking_significatifs", "sig");
-display("ranking_conversions", "conv");
-display("ranking_expressions", "expr");
-display("ranking_incertitudes", "incert");
+display("significatifs", "sig");
+display("conversions", "conv");
+display("expressions", "expr");
+display("incertitudes", "incert");
 
 </script>
 

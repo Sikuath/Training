@@ -1,28 +1,58 @@
-function getRanking(game) {
-  return JSON.parse(localStorage.getItem("ranking_" + game) || "[]");
+import { db } from "./firebase.js";
+
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    limit
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+
+export async function addScore(game, name, score) {
+
+    await addDoc(collection(db, "scores"), {
+
+        game,
+        name,
+        score,
+        timestamp: Date.now()
+
+    });
+
 }
 
-function saveRanking(game, data) {
-  localStorage.setItem("ranking_" + game, JSON.stringify(data));
+
+export async function getRanking(game) {
+
+    const q = query(
+        collection(db, "scores"),
+        where("game", "==", game),
+        orderBy("score", "desc"),
+        limit(10)
+    );
+
+    const snap = await getDocs(q);
+
+ "   let ranking = [];
+
+    snap.forEach(doc => ranking.push(doc.data()));
+
+    return ranking;
+
 }
 
-function addScore(game, name, score) {
 
-  let ranking = getRanking(game);
+export async function getBestScore(game) {
 
-  if (!Array.isArray(ranking)) ranking = [];
+    const ranking = await getRanking(game);
 
-  ranking.push({ name, score });
+    if (ranking.length === 0)
+        return 0;
 
-  ranking.sort((a, b) => b.score - a.score);
+    return ranking[0].score;
 
-  ranking = ranking.slice(0, 10);
-
-  saveRanking(game, ranking);
-}
-
-function getBestScore(game) {
-  const ranking = getRanking(game);
-  if (!ranking.length) return 0;
-  return Math.max(...ranking.map(e => e.score));
 }
