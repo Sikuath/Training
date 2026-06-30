@@ -14,11 +14,12 @@
   <p>SCORE : <span id="score">0</span></p>
 
   <input id="pseudo"
-         maxlength="3"
-         placeholder="AAA"
+         maxlength="10"
+         placeholder="Ton nom"
          autofocus
          autocomplete="off" />
-  <br>
+
+  <br><br>
 
   <button id="okBtn">SAVE</button>
 </div>
@@ -27,10 +28,18 @@
 
 import { addScore } from "./scoreService.js";
 
+/* =========================
+   PARAMS URL
+========================= */
+
 const params = new URLSearchParams(window.location.search);
 
 const game = params.get("game") || "unknown";
 const score = Number(params.get("score") || 0);
+
+/* =========================
+   UI SCORE
+========================= */
 
 document.getElementById("score").textContent = score;
 
@@ -38,16 +47,15 @@ document.getElementById("score").textContent = score;
    TITRE DYNAMIQUE
 ========================= */
 
+const titles = {
+  conversions: "CONVERSIONS - GAME OVER",
+  significatifs: "SIGNIFICATIFS - GAME OVER",
+  expressions: "EXPRESSIONS - GAME OVER",
+  incertitudes: "INCERTITUDES - GAME OVER"
+};
+
 document.getElementById("title").textContent =
-  game === "conversions"
-    ? "CONVERSIONS - GAME OVER"
-    : game === "significatifs"
-      ? "SIGNIFICATIFS - GAME OVER"
-      : game === "expressions"
-        ? "EXPRESSIONS - GAME OVER"
-        : game === "incertitudes"
-          ? "INCERTITUDES - GAME OVER"
-          : "GAME OVER";
+  titles[game] || "GAME OVER";
 
 /* =========================
    SAVE SCORE
@@ -55,34 +63,34 @@ document.getElementById("title").textContent =
 
 document.getElementById("okBtn").addEventListener("click", async () => {
 
-    const name = document
-        .getElementById("pseudo")
-        .value
-        .toUpperCase()
-        .trim()
-        .slice(0,3);
+  const name = document
+    .getElementById("pseudo")
+    .value
+    .trim()
+    .toUpperCase()
+    .slice(0, 10);
 
-    if (!name)
-        return;
+  if (!name) {
+    alert("Entre un nom !");
+    return;
+  }
 
-    document.getElementById("okBtn").disabled = true;
+  document.getElementById("okBtn").disabled = true;
 
-    try {
+  try {
 
-        await addScore(game, name, score);
+    await addScore(game, name, score);
 
-        window.location.href = "score.html";
+    window.location.href = "score.html";
 
-    }
-    catch(err){
+  } catch (err) {
 
-        console.error(err);
+    console.error(err);
 
-        alert("Impossible d'enregistrer le score.");
+    alert("Erreur enregistrement score");
 
-        document.getElementById("okBtn").disabled = false;
-
-    }
+    document.getElementById("okBtn").disabled = false;
+  }
 
 });
 

@@ -631,16 +631,6 @@ function endGame() {
 
   const finalScore = Number(score || 0);
 
-  // ❌ AVANT (localStorage supprimé)
-  // ✔ MAINTENANT FIREBASE
-
-  import("./scoreService.js").then(({ addScore }) => {
-
-    addScore("conversions", "AAA", finalScore)
-      .catch(console.error);
-
-  });
-
   setTimeout(() => {
 
     window.location.href =
