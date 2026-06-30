@@ -209,8 +209,8 @@ function answerTypeD(userChoice) {
 
     playGoodSound();
 
-    score++;
-    updateUI();
+    window.setScore(window.getScore() + 1);
+    window.updateUI();
 
     window.incFeedback.showFeedback("success", {
       message: "✔ Bonne interprétation",

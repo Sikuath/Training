@@ -354,6 +354,7 @@ function startGame() {
 
   load();
   updateUI();
+  updateHUD();
   startTimer();
 
   document.getElementById("startBtn").style.display = "none";
@@ -403,10 +404,20 @@ window.quitGame = quitGame;
 
 function updateUI() {
 
-  document.getElementById("score").textContent = score;
+  const s = document.getElementById("score");
+  if (s) s.textContent = score;
 
-  const mode = getMode();
-  document.getElementById("mode").textContent = mode;
+  const modeEl = document.getElementById("mode");
+
+  if (modeEl) {
+    const mode = getMode();
+    modeEl.textContent = mode;
+
+    modeEl.style.color =
+      mode === "easy" ? "#7CFC00" :
+      mode === "medium" ? "#FFD700" :
+      "#FF4500";
+  }
 }
 
 /* =========================
@@ -427,10 +438,6 @@ function playBadSound() {
    EXPORT
 ========================= */
 
-window.startGame = startGame;
-window.submit = submit;
-window.endGame = endGame;
-
 function nextQuestion() {
 
   if (gameOver) return;
@@ -439,4 +446,12 @@ function nextQuestion() {
     load();
   }, 300);
 }
+
 window.addEventListener("DOMContentLoaded", updateHUD);
+window.startGame = startGame;
+window.updateUI = updateUI;
+window.nextQuestion = nextQuestion;
+window.getScore = () => score;
+window.setScore = (v) => { score = v; };
+window.playBadSound = playBadSound;
+window.playGoodSound = playGoodSound;

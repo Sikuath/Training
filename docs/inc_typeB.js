@@ -148,7 +148,7 @@ function renderTypeB(q) {
   const v = q.raw.inputs;
   const u = q.raw.uInputs;
 
-  const debug = false;
+  const debug = true;
 
   let html = `
     <hr>
@@ -323,8 +323,8 @@ function validateTypeB() {
 
     playGoodSound();
 
-    score++;
-    updateUI();
+    window.setScore(window.getScore() + 1);
+    window.updateUI();
 
     window.incFeedback.showFeedback("success", {
       message: "✔ Bonne réponse"
