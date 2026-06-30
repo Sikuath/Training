@@ -625,15 +625,28 @@ function startTimer() {
 function endGame() {
 
   if (gameOver) return;
-
   gameOver = true;
 
   clearInterval(timer);
 
+  const finalScore = Number(score || 0);
+
+  // ❌ AVANT (localStorage supprimé)
+  // ✔ MAINTENANT FIREBASE
+
+  import("./scoreService.js").then(({ addScore }) => {
+
+    addScore("conversions", "AAA", finalScore)
+      .catch(console.error);
+
+  });
+
   setTimeout(() => {
+
     window.location.href =
-      "gameover.html?game=conversions&score=" + score;
-  }, 8000);
+      "gameover.html?game=expressions&score=" + finalScore;
+
+  }, 800);
 }
 
 function quitGame() {

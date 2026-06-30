@@ -344,24 +344,26 @@ function startTimer() {
 function endGame() {
 
   if (gameOver) return;
-
   gameOver = true;
-  playing = false;
 
-  if (timer) {
-    clearInterval(timer);
-    timer = null;
-  }
+  clearInterval(timer);
 
   const finalScore = Number(score || 0);
 
-  console.log("FINAL SCORE =", finalScore);
+  // ❌ AVANT (localStorage supprimé)
+  // ✔ MAINTENANT FIREBASE
+
+  import("./scoreService.js").then(({ addScore }) => {
+
+    addScore("significatifs", "AAA", finalScore)
+      .catch(console.error);
+
+  });
 
   setTimeout(() => {
 
     window.location.href =
-      "gameover.html?game=significatifs&score=" +
-      encodeURIComponent(finalScore);
+      "gameover.html?game=expressions&score=" + finalScore;
 
   }, 800);
 }

@@ -338,14 +338,28 @@ function startGame() {
 function endGame() {
 
   if (gameOver) return;
-
   gameOver = true;
+
   clearInterval(timer);
 
+  const finalScore = Number(score || 0);
+
+  // ❌ AVANT (localStorage supprimé)
+  // ✔ MAINTENANT FIREBASE
+
+  import("./scoreService.js").then(({ addScore }) => {
+
+    addScore("incertitudess", "AAA", finalScore)
+      .catch(console.error);
+
+  });
+
   setTimeout(() => {
+
     window.location.href =
-      "gameover.html?game=incertitudes&score=" + score;
-  }, 1500);
+      "gameover.html?game=expressions&score=" + finalScore;
+
+  }, 800);
 }
 function quitGame() {
 

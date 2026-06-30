@@ -391,7 +391,6 @@ function startGame() {
 /* =========================================================
    END
 ========================================================= */
-
 function endGame() {
 
   if (gameOver) return;
@@ -399,17 +398,24 @@ function endGame() {
 
   clearInterval(timer);
 
-  let ranking = JSON.parse(localStorage.getItem("ranking") || "[]");
+  const finalScore = Number(score || 0);
 
-  ranking.push({ score });
+  // ❌ AVANT (localStorage supprimé)
+  // ✔ MAINTENANT FIREBASE
 
-  ranking.sort((a,b) => b.score - a.score);
+  import("./scoreService.js").then(({ addScore }) => {
 
-  localStorage.setItem("ranking", JSON.stringify(ranking));
+    addScore("expressions", "AAA", finalScore)
+      .catch(console.error);
+
+  });
 
   setTimeout(() => {
-    window.location.href = "gameover.html?score=" + score;
-  }, 8000);
+
+    window.location.href =
+      "gameover.html?game=expressions&score=" + finalScore;
+
+  }, 800);
 }
 /* =========================================================
    QUITGAME
