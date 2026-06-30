@@ -63,3 +63,18 @@ export async function getRanking(game) {
 
   return ranking;
 }
+export async function getBestScore(game) {
+
+  const q = query(
+    collection(db, "scores"),
+    where("game", "==", game),
+    orderBy("score", "desc"),
+    limit(1)
+  );
+
+  const snap = await getDocs(q);
+
+  if (snap.empty) return 0;
+
+  return snap.docs[0].data().score;
+}

@@ -14,6 +14,31 @@ let lastGoodAnswer = null;
 let currentQuestion = null; // ✅ AJOUT
 
 /* =========================
+   RECUP DATA
+========================= */
+
+import { getBestScore } from "./scoreService.js";
+
+async function updateHUD() {
+
+  const player = localStorage.getItem("player") || "AAA";
+
+  let best = 0;
+
+  try {
+    best = await getBestScore("significatifs");
+  } catch (e) {
+    console.error("Firebase best score error:", e);
+  }
+
+  const playerEl = document.getElementById("player");
+  const bestEl = document.getElementById("best");
+
+  if (playerEl) playerEl.textContent = player;
+  if (bestEl) bestEl.textContent = best;
+}
+
+/* =========================
    GLOBAL EXPORT
 ========================= */
 
@@ -240,9 +265,11 @@ function startGame() {
 
   timeLeft = 180;
 
-  load(); // 🔥 plus de generate()
+  load();
 
   updateUI();
+
+  updateHUD();
 
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("validateBtn").style.display = "inline-block";
@@ -266,6 +293,8 @@ function load() {
 
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";
+
+  updateHUD();
 }
 
 /* =========================
@@ -289,7 +318,9 @@ function submit() {
 
     score++;
     i++;
-
+    updateUI();
+  
+    updateHUD();
     load();
 
   } else {
