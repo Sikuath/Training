@@ -357,7 +357,7 @@ function endGame() {
   setTimeout(() => {
 
     window.location.href =
-      "gameover.html?game=expressions&score=" + finalScore;
+      "gameover.html?game=incertitudes&score=" + finalScore;
 
   }, 800);
 }

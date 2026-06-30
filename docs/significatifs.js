@@ -363,7 +363,7 @@ function endGame() {
   setTimeout(() => {
 
     window.location.href =
-      "gameover.html?game=expressions&score=" + finalScore;
+      "gameover.html?game=significatifs&score=" + finalScore;
 
   }, 800);
 }

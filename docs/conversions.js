@@ -644,7 +644,7 @@ function endGame() {
   setTimeout(() => {
 
     window.location.href =
-      "gameover.html?game=expressions&score=" + finalScore;
+      "gameover.html?game=conversions&score=" + finalScore;
 
   }, 800);
 }
