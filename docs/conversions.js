@@ -1,3 +1,7 @@
+import {
+  getBestPlayer
+} from "./scoreService.js";
+
 let score = 0;
 let current = 0;
 
@@ -7,6 +11,31 @@ let timer = null;
 let gameOver = false;
 
 let currentQuestion = null;
+
+/* =========================
+   RECUP DATA
+========================= */
+let bestPlayer = {
+    name: "---",
+    score: 0
+};
+
+async function loadBestPlayer() {
+
+    try {
+        bestPlayer = await getBestPlayer("conversions");
+    }
+    catch (e) {
+        console.error(e);
+    }
+
+    updateHUD();
+}
+function updateHUD() {
+
+    document.getElementById("best").textContent = bestPlayer.score;
+    document.getElementById("bestName").textContent = bestPlayer.name;
+}
 
 /* =========================
    SON
@@ -590,7 +619,7 @@ function startGame() {
   score = 0;
   current = 0;
   gameOver = false;
-
+  updateHUD();
   generateQuestion();
 
   timeLeft = 180;
@@ -670,3 +699,8 @@ function updateUI() {
       "#FF4500";
   }
 }
+window.addEventListener("DOMContentLoaded", loadBestPlayer);
+window.startGame = startGame;
+window.submitAnswer = submitAnswer;
+window.quitGame = quitGame;
+window.endGame = endGame;

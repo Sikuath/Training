@@ -1,9 +1,38 @@
+import {
+  getBestPlayer
+} from "./scoreService.js";
+
 let score = 0;
 let timeLeft = 300;
 let timer = null;
 
 let gameOver = false;
 let currentQuestion = null;
+
+/* =========================
+   RECUP DATA
+========================= */
+let bestPlayer = {
+    name: "---",
+    score: 0
+};
+
+async function loadBestPlayer() {
+
+    try {
+        bestPlayer = await getBestPlayer("incertitudes");
+    }
+    catch (e) {
+        console.error(e);
+    }
+
+    updateHUD();
+}
+function updateHUD() {
+
+    document.getElementById("best").textContent = bestPlayer.score;
+    document.getElementById("bestName").textContent = bestPlayer.name;
+}
 
 // =========================
 // MODE DE JEU
@@ -410,3 +439,4 @@ function nextQuestion() {
     load();
   }, 300);
 }
+window.addEventListener("DOMContentLoaded", updateHUD);

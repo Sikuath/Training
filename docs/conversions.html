@@ -11,11 +11,10 @@
     sessionStorage.setItem("lastExercise", window.location.href);
   </script>
 
-  <!-- ✅ MATHJAX -->
   <script>
-  window.MathJax = {
-    tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
-  };
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }
+    };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
@@ -28,37 +27,62 @@
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
-  <h2>Conversions</h2>
+  <!-- HUD -->
+  <div class="hud">
+    <div>⏱ Temps : <span id="timer">180s</span></div>
+    <div>⭐ Score : <span id="score">0</span></div>
+    <div>🎯 Mode : <span id="mode">easy</span></div>
+    <div>🥇 Best : <span id="best">0</span></div>
+    <div>👑 <span id="bestName">---</span></div>
+  </div>
 
-  <div class="game-card">
+  <!-- Barre de progression -->
+  <div class="progress-bar">
+    <div id="progress"></div>
+  </div>
 
-    <div class="hud">
-      <div>⏱ Temps : <span id="timer">180s</span></div>
-      <div>⭐ Score : <span id="score">0</span></div>
-      <div>🎯 Mode : <span id="mode">easy</span></div>
-    </div>
+  <!-- Carte -->
+  <div class="quiz-card">
+
+    <h2>Conversions</h2>
 
     <p id="question">Clique sur Démarrer</p>
 
     <input type="text" id="answer" placeholder="Réponse">
 
-    <!-- 🔥 IMPORTANT : wrapper MathJax -->
     <div id="feedback-wrapper">
       <p id="feedback"></p>
     </div>
 
     <div class="buttons">
+
       <button id="startBtn" onclick="startGame()">Démarrer</button>
-      <button id="validateBtn" onclick="submitAnswer()" style="display:none;">Valider</button>
-      <button id="stopBtn" onclick="quitGame()" style="display:none;">Fin</button>
+
+      <button id="validateBtn"
+              onclick="submitAnswer()"
+              style="display:none;">
+        Valider
+      </button>
+
+      <button id="stopBtn"
+              onclick="quitGame()"
+              style="display:none;">
+        Fin
+      </button>
+
     </div>
 
   </div>
 
-  <audio id="goodSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-  <audio id="badLight" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg" preload="auto"></audio>
+  <audio id="goodSound"
+         src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"
+         preload="auto"></audio>
 
-<script src="conversions.js"></script>
+  <audio id="badLight"
+         src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"
+         preload="auto"></audio>
+
+  <script type="module" src="conversions.js"></script>
 
 </body>
 </html>

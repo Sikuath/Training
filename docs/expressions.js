@@ -4,11 +4,9 @@ import { generateDistractors } from "./exp_distractors.js"
 import { toLatex, displayExpr } from "./exp_latex.js";
 import { showFeedback } from "./exp_feedback.js";
 import { EXPRESSION_TYPES } from "./exp_types.js";
-
-/* =========================================================
-   PHYSICS TRAINER - MOTEUR ALGÉBRIQUE PAR FAMILLES
-   VERSION REFAITE COMPLÈTEMENT
-========================================================= */
+import {
+  getBestPlayer
+} from "./scoreService.js";
 
 /* =========================================================
    GLOBAL
@@ -21,6 +19,31 @@ let timer = null;
 let gameOver = false;
 let currentQuestion = null;
 let recentQuestions = [];
+
+/* =========================
+   RECUP DATA
+========================= */
+let bestPlayer = {
+    name: "---",
+    score: 0
+};
+
+async function loadBestPlayer() {
+
+    try {
+        bestPlayer = await getBestPlayer("expressions");
+    }
+    catch (e) {
+        console.error(e);
+    }
+
+    updateHUD();
+}
+function updateHUD() {
+
+    document.getElementById("best").textContent = bestPlayer.score;
+    document.getElementById("bestName").textContent = bestPlayer.name;
+}
 
 /* =========================================================
    COMPARAISON
@@ -538,3 +561,4 @@ function playBadSound() {
 
 window.startGame = startGame;
 window.quitGame = quitGame;
+window.addEventListener("DOMContentLoaded", updateHUD);
