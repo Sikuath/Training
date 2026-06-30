@@ -261,3 +261,17 @@ body:not(.score-page) {
   display: block;
   margin: 10px auto;
 }
+.hint {
+  color: #00ff66;
+  font-family: monospace;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+  letter-spacing: 1px;
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
