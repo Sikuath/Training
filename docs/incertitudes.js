@@ -349,7 +349,7 @@ function endGame() {
 
   import("./scoreService.js").then(({ addScore }) => {
 
-    addScore("incertitudess", "AAA", finalScore)
+    addScore("incertitudes", "AAA", finalScore)
       .catch(console.error);
 
   });
