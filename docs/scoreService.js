@@ -37,7 +37,7 @@ export async function getRanking(game) {
 
     const snap = await getDocs(q);
 
- "   let ranking = [];
+    let ranking = [];
 
     snap.forEach(doc => ranking.push(doc.data()));
 

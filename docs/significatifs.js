@@ -353,10 +353,17 @@ function endGame() {
     timer = null;
   }
 
+  const finalScore = Number(score || 0);
+
+  console.log("FINAL SCORE =", finalScore);
+
   setTimeout(() => {
+
     window.location.href =
-      "gameover.html?game=significatifs&score=" + score;
-  }, 8000);
+      "gameover.html?game=significatifs&score=" +
+      encodeURIComponent(finalScore);
+
+  }, 800);
 }
 
 function quitGame() {
