@@ -15,7 +15,8 @@ let timeLeft = 180;
 let timer = null;
 
 let lastGoodAnswer = null;
-let currentQuestion = null; // ✅ AJOUT
+let currentQuestion = null;
+let feedbackActive = false;
 
 /* =========================
    RECUP DATA
@@ -68,6 +69,7 @@ console.log("JS CHARGÉ OK");
 window.startGame = startGame;
 window.submit = submit;
 window.endGame = endGame;
+window.quitGame = quitGame;
 
 /* =========================
    SON (AJOUT)
@@ -105,6 +107,7 @@ function getMode() {
 
 function feedback(question, user, good) {
 
+  feedbackActive = true;
   const fb = document.getElementById("feedback");
   if (!fb) return;
 
@@ -149,6 +152,8 @@ function feedback(question, user, good) {
   `;
 
   fb.classList.add("active");
+  document.getElementById("validateBtn").disabled = true;
+  document.getElementById("stopBtn").disabled = true;
 }
 
 /* =========================
@@ -272,6 +277,10 @@ function genHardcore() {
 
 function startGame() {
 
+  feedbackActive = false;
+
+  document.getElementById("validateBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = false;
   if (timer) {
     clearInterval(timer);
     timer = null;
@@ -303,8 +312,12 @@ function startGame() {
 ========================= */
 
 function load() {
+  
+  feedbackActive = false;
 
-  currentQuestion = generateOne(); // 🔥 dynamique
+  document.getElementById("validateBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = false;
+    currentQuestion = generateOne(); // 🔥 dynamique
 
   lastGoodAnswer = currentQuestion.a;
 
@@ -322,6 +335,7 @@ function load() {
 
 function submit() {
 
+  
   if (gameOver) return;
 
   const input = document.getElementById("answer").value;
@@ -410,7 +424,8 @@ function endGame() {
 }
 
 function quitGame() {
-
+  
+  if (feedbackActive) return;
   if (gameOver) return;
 
   const confirmQuit = confirm("Êtes-vous sûr de vouloir quitter la partie ?");

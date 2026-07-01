@@ -67,29 +67,16 @@ input {
 }
 
 /* buttons */
-button {
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  background: #ff9800;
-  color: white;
-  cursor: pointer;
+.buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
 }
 
 button:hover {
   background: #e68900;
 }
 
-/* =========================
-   FEEDBACK BASE
-========================= */
-
-#feedback {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #ff4444;
-}
 
 /* =========================
    OVERLAY ACTIVE (IMPORTANT)
