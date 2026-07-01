@@ -94,8 +94,8 @@ function playBadSound() {
 ========================= */
 
 function getMode() {
-  if (score >= 10) return "hard";
-  if (score >= 5) return "medium";
+  if (score >= 8) return "hard";
+  if (score >= 4) return "medium";
   return "easy";
 }
 
@@ -434,25 +434,15 @@ function updateUI() {
 
   const mode = getMode();
 
-  const lvl = document.getElementById("level");
-  if (lvl) {
-    lvl.textContent = mode;
+  const el = document.getElementById("mode"); // 👈 IMPORTANT
 
-    lvl.style.color =
+  if (el) {
+    el.textContent = mode;
+
+    el.style.color =
       mode === "easy" ? "#7CFC00" :
       mode === "medium" ? "#FFD700" :
       "#FF4500";
   }
-
-  const ranking = JSON.parse(
-    localStorage.getItem("ranking_significatifs") || "[]"
-  );
-
-  const best = ranking.length
-    ? Math.max(...ranking.map(x => x.score))
-    : 0;
-
-  const bestEl = document.getElementById("best");
-  if (bestEl) bestEl.textContent = best;
 }
 window.addEventListener("DOMContentLoaded", loadBestPlayer);

@@ -478,24 +478,31 @@ function quitGame() {
 
 function updateUI() {
 
-  document.getElementById("score")
-    .textContent = score;
+  document.getElementById("score").textContent = score;
 
-  const mode =
+  let mode;
+  let color;
 
-    score > 10
-      ? "hard"
+  if (score > 8) {
+    mode = "hard";
+    color = "#FF4500";
+  }
+  else if (score > 4) {
+    mode = "medium";
+    color = "#FFD700";
+  }
+  else {
+    mode = "easy";
+    color = "#7CFC00";
+  }
 
-      : score > 4
-        ? "medium"
+  const m = document.getElementById("mode");
 
-        : "easy";
-
-  const m =
-    document.getElementById("mode");
-
-  if (m)
+  if (m) {
     m.textContent = mode;
+    m.style.color = color;
+    m.style.fontWeight = "bold";
+  }
 }
 
 /* =========================================================
