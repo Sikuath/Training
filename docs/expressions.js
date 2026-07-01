@@ -14,11 +14,12 @@ import {
 
 let score = 0;
 let current = 0;
-let timeLeft = 180;
+let timeLeft = 300;
 let timer = null;
 let gameOver = false;
 let currentQuestion = null;
 let recentQuestions = [];
+let gameStarted = false;
 
 /* =========================
    RECUP DATA
@@ -64,6 +65,24 @@ function updateProgress(score, bestscore) {
 
 function refreshProgress() {
     updateProgress(score, bestPlayer.score);
+}
+
+/* =========================================================
+   BOUTON SWITCH
+========================================================= */
+
+function toggleGame() {
+
+  if (!gameStarted) {
+    startGame();
+    gameStarted = true;
+
+    const btn = document.getElementById("gameBtn");
+    btn.textContent = "Fin";
+  } 
+  else {
+    quitGame();
+  }
 }
 
 /* =========================================================
@@ -403,7 +422,7 @@ function startTimer() {
 
     if (timeLeft <= 0) endGame();
 
-  }, 2000);
+  }, 1000);
 }
 
 /* =========================================================
@@ -421,7 +440,7 @@ function startGame() {
   score = 0;
   current = 0;
   gameOver = false;
-  timeLeft = 180;
+  timeLeft = 300;
 
   generateQuestion();
 
@@ -433,6 +452,9 @@ function startGame() {
   });
 
   startTimer();
+  gameStarted = true;
+
+  document.getElementById("gameBtn").textContent = "Fin";
 }
 
 /* =========================================================
@@ -446,13 +468,21 @@ function endGame() {
   clearInterval(timer);
 
   const finalScore = Number(score || 0);
+  gameStarted = false;
 
-  setTimeout(() => {
+  const btn = document.getElementById("gameBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Fin";
+  }
+  
+    setTimeout(() => {
 
     window.location.href =
       "gameover.html?game=expressions&score=" + finalScore;
 
   }, 8000);
+
 }
 /* =========================================================
    QUITGAME
@@ -468,7 +498,10 @@ function quitGame() {
 
   gameOver = true;
   clearInterval(timer);
+  gameStarted = false;
 
+  const btn = document.getElementById("gameBtn");
+  if (btn) btn.textContent = "Démarrer";
   window.location.href = "index.html";
 }
 
@@ -593,3 +626,4 @@ function playBadSound() {
 window.addEventListener("DOMContentLoaded", loadBestPlayer);
 window.startGame = startGame;
 window.quitGame = quitGame;
+window.toggleGame = toggleGame;

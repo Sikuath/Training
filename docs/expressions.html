@@ -32,7 +32,7 @@
 
       <!-- HUD -->
   <div class="hud">
-    <div>⏱ Temps : <span id="timer">180s</span></div>
+    <div>⏱ Temps : <span id="timer">300s</span></div>
     <div>⭐ Score : <span id="score">0</span></div>
     <div>🎯 Mode : <span id="mode" style="color:#7CFC00; font-weight:bold;">easy</span></div>
     <div>🥇 Best : <span id="best">0</span></div>
@@ -62,13 +62,14 @@
     <div class="panel center">
 
       
-      <div id="question">Clique sur Démarrer</div>
+      <h2>Expressions littérales</h2>
+
+      <p id="question">On donne des expressions littérales niveau lycée, il faut trouver la bonne expression</p>
 
       <div id="choices" class="choices"></div>
 
       <div class="buttons">
-        <button id="startBtn" onclick="startGame()">Démarrer</button>
-        <button id="stopBtn" onclick="quitGame()">Fin</button>
+      <button id="gameBtn" onclick="toggleGame()">Démarrer</button>
       </div>
 
     </div>

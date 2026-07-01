@@ -322,7 +322,7 @@ function load() {
   lastGoodAnswer = currentQuestion.a;
 
   document.getElementById("question").innerHTML =
-    "Combien de chiffres significatifs dans : " + currentQuestion.q;
+    `Combien y a-t-il de chiffres significatifs dans le nombre <strong> ${currentQuestion.q}</strong> ?`;
 
   document.getElementById("answer").value = "";
   document.getElementById("feedback").textContent = "";

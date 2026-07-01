@@ -11,6 +11,7 @@ let timer = null;
 let gameOver = false;
 
 let currentQuestion = null;
+let feedbackActive = false;
 
 /* =========================
    RECUP DATA
@@ -356,7 +357,7 @@ function generateQuestion() {
   }
 
   currentQuestion = {
-    q: `${formatFR(value)} ${item.from} → ${item.to}`,
+    q: `<strong>${formatFR(value)} ${item.from} → ??? ${item.to}</strong>`,
     a: value * item.factor,
     value,
     from: item.from,
@@ -413,6 +414,7 @@ function buildTable(from, to) {
 
 function showFeedback(isCorrect) {
 
+  feedbackActive = true;
   const fb = document.getElementById("feedback");
   if (!fb) return;
 
@@ -591,6 +593,8 @@ function showFeedback(isCorrect) {
   }
 
   fb.innerHTML = content;
+  document.getElementById("validateBtn").disabled = true;
+  document.getElementById("stopBtn").disabled = true;
 }
 
 /* =========================
@@ -629,6 +633,11 @@ function submitAnswer() {
 }
 
 function load() {
+  
+  feedbackActive = false;
+
+  document.getElementById("validateBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = false;
   document.getElementById("question").innerHTML = currentQuestion.q;
   document.getElementById("answer").value = "";
   document.getElementById("feedback").classList.remove("active");
@@ -636,6 +645,9 @@ function load() {
 
 function startGame() {
 
+  feedbackActive = false;
+  document.getElementById("validateBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = false;
   score = 0;
   current = 0;
   gameOver = false;
