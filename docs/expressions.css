@@ -53,9 +53,9 @@ body.expressions-page {
 /* image responsive propre */
 #illustration {
   width: 100%;
+  max-width: 220px;
   height: auto;
-  border-radius: 12px;
-  display: block;
+  display: block
 }
 
 /* domaine + loi */

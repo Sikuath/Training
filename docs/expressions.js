@@ -45,6 +45,25 @@ function updateHUD() {
     document.getElementById("bestName").textContent = bestPlayer.name;
 }
 
+/* =========================
+   PROGRESS BAR
+========================= */
+
+function updateProgress(score, bestscore) {
+
+  if (!bestscore || bestscore <= 0) {
+    bestscore = 1; // sécurité anti division par zéro
+  }
+
+  const percent = Math.min(100, (score / bestscore) * 100);
+
+  document.getElementById("progress").style.width = percent + "%";
+}
+
+function refreshProgress() {
+    updateProgress(score, bestPlayer.score);
+}
+
 /* =========================================================
    COMPARAISON
 ========================================================= */
@@ -348,6 +367,7 @@ function submitAnswer(i) {
     current++;
 
     updateUI();
+    refreshProgress();
 
     generateQuestion();
     load();
@@ -406,6 +426,8 @@ function startGame() {
   requestAnimationFrame(() => {
     load();
     updateUI();
+    updateHUD();
+    refreshProgress();
   });
 
   startTimer();
@@ -559,6 +581,6 @@ function playBadSound() {
    EXPORT GLOBAL HTML
 ========================================================= */
 
+window.addEventListener("DOMContentLoaded", loadBestPlayer);
 window.startGame = startGame;
 window.quitGame = quitGame;
-window.addEventListener("DOMContentLoaded", updateHUD);
