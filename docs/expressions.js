@@ -358,7 +358,7 @@ function submitAnswer(i) {
 
     showFeedback(currentQuestion, EXPRESSION_TYPES, toLatex);
 
-    setTimeout(endGame,2000);
+    endGame();
   }
 }
 
@@ -381,7 +381,7 @@ function startTimer() {
 
     if (timeLeft <= 0) endGame();
 
-  }, 1000);
+  }, 2000);
 }
 
 /* =========================================================
@@ -428,7 +428,7 @@ function endGame() {
     window.location.href =
       "gameover.html?game=expressions&score=" + finalScore;
 
-  }, 800);
+  }, 8000);
 }
 /* =========================================================
    QUITGAME

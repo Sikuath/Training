@@ -400,7 +400,7 @@ function endGame() {
     window.location.href =
       "gameover.html?game=incertitudes&score=" + finalScore;
 
-  }, 800);
+  }, 2000);
 }
 
 function quitGame() {

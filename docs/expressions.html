@@ -30,6 +30,20 @@
     <a class="rappel" href="rappels.html">📘 Rappels</a>
   </nav>
 
+      <!-- HUD -->
+  <div class="hud">
+    <div>⏱ Temps : <span id="timer">180s</span></div>
+    <div>⭐ Score : <span id="score">0</span></div>
+    <div>🎯 Mode : <span id="mode">easy</span></div>
+    <div>🥇 Best : <span id="best">0</span></div>
+    <div>👑 <span id="bestName">---</span></div>
+  </div>
+
+  <!-- Barre de progression -->
+  <div class="progress-bar">
+    <div id="progress"></div>
+  </div>
+
   <!-- ===================== 3 COLONNES ===================== -->
   <div class="game-container">
 
@@ -47,12 +61,7 @@
     <!-- 🟨 CENTRE : JEU -->
     <div class="panel center">
 
-      <div class="hud">
-        <div>⏱ <span id="timer">180s</span></div>
-        <div>⭐ <span id="score">0</span></div>
-        <div>🎯 <span id="mode">easy</span></div>
-      </div>
-
+      
       <div id="question">Clique sur Démarrer</div>
 
       <div id="choices" class="choices"></div>
@@ -66,9 +75,9 @@
 
     <!-- 🟥 DROITE : FEEDBACK -->
     <div class="panel right">
-
+      
       <div id="feedback"></div>
-
+    
     </div>
 
   </div>

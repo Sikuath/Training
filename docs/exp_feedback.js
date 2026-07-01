@@ -46,10 +46,6 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
       `;
       break;
 
-
-
-
-
     /* =========================================================
        PRODUIT THERMAL
     ========================================================= */
@@ -757,11 +753,10 @@ export function showFeedback(q, EXPRESSION_TYPES, toLatex) {
 
     <br><br>
 
-    ✔ Bonne réponse :<br><br>
-
-    \\[
-      ${toLatex(q.target)} = ${toLatex(q.answers[q.target])}
-    \\]
+        <div class="feedback-line">
+    ✔ Bonne réponse :
+    \\[\\boldsymbol{${toLatex(q.target)} = ${toLatex(q.answers[q.target])}}\\]
+        </div>
 
   `;
 

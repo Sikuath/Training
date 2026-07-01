@@ -18,7 +18,7 @@ body.incertitudes-page {
 
 .hud {
   width: 420px;
-  margin: 90px auto 10px auto;
+  margin: 5px auto 10px auto;
 
   display: flex;
   justify-content: space-between;
