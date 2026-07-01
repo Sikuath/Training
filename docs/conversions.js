@@ -38,6 +38,21 @@ function updateHUD() {
 }
 
 /* =========================
+   PROGRESS BAR
+========================= */
+
+function updateProgress(score, bestscore) {
+
+  if (!bestscore || bestscore <= 0) {
+    bestscore = 1; // sécurité anti division par zéro
+  }
+
+  const percent = Math.min(100, (score / bestscore) * 100);
+
+  document.getElementById("progress").style.width = percent + "%";
+}
+
+/* =========================
    SON
 ========================= */
 
@@ -597,6 +612,7 @@ function submitAnswer() {
     current++;
 
     updateUI();
+    updateProgress(score, bestPlayer.score);
 
     generateQuestion();
     load();
@@ -604,7 +620,9 @@ function submitAnswer() {
   } else {
 
     showFeedback(false);
-    setTimeout(() => endGame(), 2500);
+    setTimeout(() => {
+      endGame(true);
+    }, 4000);
   }
 }
 

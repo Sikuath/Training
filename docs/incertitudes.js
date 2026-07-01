@@ -34,6 +34,25 @@ function updateHUD() {
     document.getElementById("bestName").textContent = bestPlayer.name;
 }
 
+/* =========================
+   PROGRESS BAR
+========================= */
+
+function updateProgress(score, bestscore) {
+
+  if (!bestscore || bestscore <= 0) {
+    bestscore = 1; // sécurité anti division par zéro
+  }
+
+  const percent = Math.min(100, (score / bestscore) * 100);
+
+  document.getElementById("progress").style.width = percent + "%";
+}
+
+function refreshProgress() {
+    updateProgress(score, bestPlayer.score);
+}
+
 // =========================
 // MODE DE JEU
 // =========================
@@ -289,6 +308,7 @@ function submit() {
     playGoodSound();
     score++;
     updateUI();
+    refreshProgress();
 
     center.innerHTML = `
       <p style="color: lightgreen; font-weight: bold;">
@@ -346,19 +366,20 @@ function startTimer() {
    START
 ========================= */
 
-function startGame() {
+async function startGame() {
 
   score = 0;
   timeLeft = 300;
   gameOver = false;
 
+  await loadBestPlayer();
+
   load();
   updateUI();
   updateHUD();
-  startTimer();
+  refreshProgress();
 
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("stopBtn").style.display = "inline-block";
+  startTimer();
 }
 
 /* =========================
@@ -442,10 +463,10 @@ function nextQuestion() {
   load();
 }
 window.addEventListener("DOMContentLoaded", loadBestPlayer);
+window.refreshProgress = refreshProgress;
 window.nextQuestion = nextQuestion;
 window.startGame = startGame;
 window.endGame = endGame;
-window.nextQuestion = nextQuestion;
 window.updateUI = updateUI;
 window.playGoodSound = playGoodSound;
 window.playBadSound = playBadSound;

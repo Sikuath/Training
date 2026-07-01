@@ -41,6 +41,22 @@ function updateHUD() {
     document.getElementById("best").textContent = bestPlayer.score;
     document.getElementById("bestName").textContent = bestPlayer.name;
 }
+
+/* =========================
+   PROGRESS BAR
+========================= */
+
+function updateProgress(score, bestscore) {
+
+  if (!bestscore || bestscore <= 0) {
+    bestscore = 1; // sécurité anti division par zéro
+  }
+
+  const percent = Math.min(100, (score / bestscore) * 100);
+
+  document.getElementById("progress").style.width = percent + "%";
+}
+
 /* =========================
    GLOBAL EXPORT
 ========================= */
@@ -273,7 +289,7 @@ function startGame() {
   updateUI();
   updateHUD();
 
-    document.getElementById("startBtn").style.display = "none";
+  document.getElementById("startBtn").style.display = "none";
   document.getElementById("validateBtn").style.display = "inline-block";
   document.getElementById("stopBtn").style.display = "inline-block";
 
@@ -320,6 +336,7 @@ function submit() {
     score++;
     i++;
     updateUI();
+    updateProgress(score, bestPlayer.score);
         
     load();
 
@@ -331,7 +348,7 @@ function submit() {
 
     setTimeout(() => {
       endGame(true);
-    }, 2000);
+    }, 4000);
   }
 
   updateUI();

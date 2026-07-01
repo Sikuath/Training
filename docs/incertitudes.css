@@ -17,14 +17,17 @@ body.incertitudes-page {
 }
 
 .hud {
+  width: 420px;
+  margin: 90px auto 10px auto;
+
   display: flex;
   justify-content: space-between;
-  margin: 20px auto;
-  width: 420px;
 
-  background: rgba(0,0,0,0.7);
-  padding: 10px;
-  border-radius: 10px;
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.75);
+  border-radius: 12px;
+
+  font-size: 14px;
 }
 
 /* QCM */
@@ -33,6 +36,22 @@ body.incertitudes-page {
   flex-direction: column;
   gap: 10px;
   margin-top: 15px;
+}
+/* ================= PROGRESS BAR ================= */
+.progress-bar {
+  width: 420px;
+  height: 10px;
+  margin: 10px auto;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,#4caf50,#8bc34a);
+  transition: 0.3s;
 }
 
 #choices button {
@@ -214,6 +233,9 @@ button:hover {
   background: rgba(0,0,0,0.6);
   border-radius: 18px;
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   min-height: 200px;
 }

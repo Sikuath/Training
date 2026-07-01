@@ -325,6 +325,7 @@ function validateTypeB() {
 
     window.setScore(window.getScore() + 1);
     window.updateUI();
+    window.refreshProgress();
 
     window.incFeedback.showFeedback("success", {
       message: "✔ Bonne réponse"
