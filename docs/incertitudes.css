@@ -47,11 +47,18 @@ body.incertitudes-page {
   overflow: hidden;
 }
 
+/* barre interne */
 #progress {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg,#4caf50,#8bc34a);
-  transition: 0.3s;
+  background: linear-gradient(
+    90deg,
+    #4caf50 0%,
+    #f1c40f 50%,
+    #e67e22 75%,
+    #e74c3c 100%
+  );
+  transition: width 0.3s ease;
 }
 
 #choices button {

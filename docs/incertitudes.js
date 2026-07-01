@@ -40,13 +40,15 @@ function updateHUD() {
 
 function updateProgress(score, bestscore) {
 
-  if (!bestscore || bestscore <= 0) {
-    bestscore = 1; // sécurité anti division par zéro
-  }
+    if (!bestscore || bestscore <= 0) {
+        bestscore = 1;
+    }
 
-  const percent = Math.min(100, (score / bestscore) * 100);
+    const percent = Math.min(100, (score / bestscore) * 100);
 
-  document.getElementById("progress").style.width = percent + "%";
+    const bar = document.getElementById("progress");
+
+    bar.style.width = percent + "%";
 }
 
 function refreshProgress() {
