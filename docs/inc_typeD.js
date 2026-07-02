@@ -182,11 +182,6 @@ function renderTypeD(q) {
       <strong>La mesure est-elle <span style="color:white;">compatible</span> avec celle attendue?</strong>
     </p>
     
-    <div id="exerciseButtons" style="display:flex;gap:20px;justify-content:center;">
-      <button onclick="answerTypeD(true)">✔ Compatible</button>
-      <button onclick="answerTypeD(false)">❌ Non compatible</button>
-    </div>
-
     <p id="resultFeedback"></p>
   `;
 }

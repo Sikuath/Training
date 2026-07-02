@@ -27,6 +27,61 @@ function toggleGame() {
   }
 }
 
+function updateButtons() {
+
+  const compat = document.getElementById("compatBtn");
+  const incompat = document.getElementById("incompatBtn");
+  const validate = document.getElementById("validateBtn");
+
+  const isTypeD = currentQuestion?.type === "typeD";
+
+  if (isTypeD) {
+    if (validate) validate.style.display = "none";
+    if (compat) compat.style.display = "inline-block";
+    if (incompat) incompat.style.display = "inline-block";
+  } 
+  else {
+    if (validate) validate.style.display = "inline-block";
+    if (compat) compat.style.display = "none";
+    if (incompat) incompat.style.display = "none";
+  }
+}
+
+function renderTypeDButtons() {
+
+  const container = document.getElementById("exerciseButtons");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const btn1 = document.createElement("button");
+  btn1.textContent = "✔ Compatible";
+  btn1.onclick = () => incTypeD.answerTypeD(true);
+
+  const btn2 = document.createElement("button");
+  btn2.textContent = "❌ Non compatible";
+  btn2.onclick = () => incTypeD.answerTypeD(false);
+
+  container.appendChild(btn1);
+  container.appendChild(btn2);
+}
+
+function submitIncompatible() {
+  const q = window.currentQuestion;
+  if (!q) return;
+
+  // faux = non compatible
+  window.incTypeD.answerTypeD(false);
+}
+
+function submitCompatible() {
+  const q = window.currentQuestion;
+  if (!q) return;
+
+  // vrai = compatible
+  window.incTypeD.answerTypeD(true);
+}
+
 /* =========================
    RECUP DATA
 ========================= */
@@ -187,27 +242,25 @@ function load() {
   currentQuestion = generateQuestion();
   window.currentQuestion = currentQuestion;
 
+  const { type, raw } = currentQuestion;
+
   // =========================
   // CONTEXTE PHYSIQUE
   // =========================
 
-  const type = currentQuestion.type;
   let context = null;
 
-  if (type === "typeA") {
-    context = currentQuestion.raw.context;
-  }
+  switch (type) {
 
-  if (type === "typeB") {
-    context = currentQuestion.raw.relation;
-  }
+    case "typeA":
+      context = raw.context;
+      break;
 
-  if (type === "typeC") {
-    context = currentQuestion.raw.relation;
-  }
-
-  if (type === "typeD") {
-    context = currentQuestion.raw.relation;
+    case "typeB":
+    case "typeC":
+    case "typeD":
+      context = raw.relation;
+      break;
   }
 
   if (context) {
@@ -235,10 +288,9 @@ function load() {
   // =========================
 
   const container = document.getElementById("question");
-
   if (!container) return;
 
-  switch (currentQuestion.type) {
+  switch (type) {
 
     case "typeA":
       container.innerHTML = incTypeA.render(currentQuestion);
@@ -265,11 +317,36 @@ function load() {
   if (feedback) feedback.textContent = "";
 
   // =========================
+  // BOUTONS UI (TON SYSTÈME ACTUEL)
+  // =========================
+
+  // IMPORTANT : Type D a ses propres boutons HTML injectés
+  if (type === "typeD") {
+
+    // laisse le renderTypeD gérer ses boutons
+    // MAIS on évite updateButtons qui peut casser l'affichage
+    if (typeof updateButtons === "function") {
+      updateButtons();
+    }
+
+  } else {
+
+    // types A/B/C utilisent le système global (validateBtn etc)
+    if (typeof updateButtons === "function") {
+      updateButtons();
+    }
+  }
+
+  // =========================
   // MATHJAX
   // =========================
 
   if (window.MathJax) {
-    MathJax.typesetPromise();
+    if (MathJax.typesetPromise) {
+      setTimeout(() => MathJax.typesetPromise(), 0);
+    } else {
+      MathJax.typeset();
+    }
   }
 }
 
@@ -283,6 +360,11 @@ function submit() {
 
   const q = window.currentQuestion;
   if (!q || !q.raw) return;
+
+  // 🔥 ROUTAGE PAR TYPE
+  if (q.type === "typeC") {
+    return validateTypeC();
+  }
 
   const center = document.getElementById("feedback");
   if (!center) return;
@@ -320,9 +402,6 @@ function submit() {
 
   center.innerHTML = "";
 
-  // =========================
-  // BONNE RÉPONSE
-  // =========================
   if (meanOk && uOk) {
 
     playGoodSound();
@@ -344,9 +423,6 @@ function submit() {
     return;
   }
 
-  // =========================
-  // MAUVAISE RÉPONSE
-  // =========================
   playBadSound();
 
   window.incFeedback.showFeedback("typeA", {
@@ -391,6 +467,7 @@ async function startGame() {
   score = 0;
   timeLeft = 300;
   gameOver = false;
+
   await loadBestPlayer();
 
   load();
@@ -401,7 +478,11 @@ async function startGame() {
   startTimer();
   gameStarted = true;
 
-  document.getElementById("gameBtn").textContent = "Fin";
+  const btn = document.getElementById("gameBtn");
+  if (btn) {
+    btn.textContent = "Fin";
+    btn.disabled = false;
+  }
 }
 
 /* =========================
@@ -493,7 +574,10 @@ function nextQuestion() {
   load();
 }
 window.addEventListener("DOMContentLoaded", loadBestPlayer);
+window.submitIncompatible = submitIncompatible;
+window.submitCompatible = submitCompatible;
 window.toggleGame = toggleGame;
+window.submit = submit;
 window.refreshProgress = refreshProgress;
 window.nextQuestion = nextQuestion;
 window.startGame = startGame;

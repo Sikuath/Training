@@ -203,14 +203,7 @@ function renderTypeC(q) {
     <div>
       z =
       <input id="zInput" style="width:90px;text-align:center;">
-
-      <div id="exerciseButtons"
-           style="display:flex;justify-content:center;gap:20px;margin-top:18px;">
-
-        <button onclick="validateTypeC()">Valider</button>
-
-      </div>
-
+ 
       <p id="resultFeedback"></p>
     </div>
   `;

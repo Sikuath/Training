@@ -310,3 +310,14 @@ button:hover {
 #feedbackBox li {
   text-align: left;
 }
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap; /* évite débordement sur petits écrans */
+}
+
+.buttons button {
+  min-width: 120px;
+}
