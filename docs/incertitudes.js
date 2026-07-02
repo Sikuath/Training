@@ -8,6 +8,24 @@ let timer = null;
 
 let gameOver = false;
 let currentQuestion = null;
+let gameStarted = false;
+
+/* =========================
+   BOUTONS
+========================= */
+function toggleGame() {
+
+  if (!gameStarted) {
+    startGame();
+    gameStarted = true;
+
+    const btn = document.getElementById("gameBtn");
+    btn.textContent = "Fin";
+  } 
+  else {
+    quitGame();
+  }
+}
 
 /* =========================
    RECUP DATA
@@ -373,7 +391,6 @@ async function startGame() {
   score = 0;
   timeLeft = 300;
   gameOver = false;
-
   await loadBestPlayer();
 
   load();
@@ -382,6 +399,9 @@ async function startGame() {
   refreshProgress();
 
   startTimer();
+  gameStarted = true;
+
+  document.getElementById("gameBtn").textContent = "Fin";
 }
 
 /* =========================
@@ -395,13 +415,19 @@ function endGame() {
 
   clearInterval(timer);
 
+  gameStarted = false;
+
+  const btn = document.getElementById("gameBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Fin";
+  }
+
   const finalScore = Number(score || 0);
 
   setTimeout(() => {
-
     window.location.href =
       "gameover.html?game=incertitudes&score=" + finalScore;
-
   }, 2000);
 }
 
@@ -416,6 +442,8 @@ function quitGame() {
   gameOver = true;
   clearInterval(timer);
 
+  const btn = document.getElementById("gameBtn");
+  if (btn) btn.textContent = "Démarrer";
   window.location.href = "index.html";
 }
 
@@ -465,6 +493,7 @@ function nextQuestion() {
   load();
 }
 window.addEventListener("DOMContentLoaded", loadBestPlayer);
+window.toggleGame = toggleGame;
 window.refreshProgress = refreshProgress;
 window.nextQuestion = nextQuestion;
 window.startGame = startGame;
