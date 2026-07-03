@@ -99,18 +99,7 @@ function render(question) {
         )
         ${context.unit}
       </p>
-
-      <div id="exerciseButtons"
-           style="display:flex;
-                  justify-content:center;
-                  align-items:center;
-                  gap:20px;
-                  margin-top:18px;">
-
-        <button onclick="validateAnswer()">Valider</button>
-
-      </div>
-
+    
       <p id="resultFeedback"></p>
 
     </div>
@@ -206,10 +195,6 @@ function validateAnswer() {
     window.setScore(window.getScore() + 1);
     window.updateUI();
     window.refreshProgress();
-
-    window.incFeedback.showFeedback("success", {
-      message: "✔ Bonne réponse"
-    });
 
     setTimeout(() => window.nextQuestion(), 200);
 

@@ -258,20 +258,7 @@ function renderTypeB(q) {
 
       ) ${r.unit}
 
-      <div id="exerciseButtons"
-           style="
-              display:flex;
-              justify-content:center;
-              align-items:center;
-              gap:20px;
-              margin-top:18px;
-           ">
-
-        <button onclick="validateTypeB()">
-          Valider
-        </button>
-
-      </div>
+      
 
       <p id="resultFeedback"></p>
 

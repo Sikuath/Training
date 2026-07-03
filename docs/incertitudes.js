@@ -228,8 +228,8 @@ function generateQuestion() {
 ========================= */
 
 function getMode() {
-  if (score >= 8) return "hard";
-  if (score >= 4) return "medium";
+  if (score >= 2) return "hard";
+  if (score >= 1) return "medium";
   return "easy";
 }
 
@@ -408,13 +408,7 @@ function submit() {
     score++;
     updateUI();
     refreshProgress();
-
-    center.innerHTML = `
-      <p style="color: lightgreen; font-weight: bold;">
-        ✔ Bonne réponse
-      </p>
-    `;
-
+    
     window.incFeedback.showFeedback("success", {
       message: "✔ Bonne réponse"
     });

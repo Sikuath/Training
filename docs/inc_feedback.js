@@ -312,4 +312,3 @@ function buildTypeD(data) {
 window.incFeedback = {
   showFeedback
 };
-
