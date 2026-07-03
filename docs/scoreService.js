@@ -4,6 +4,11 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  setDoc,
+  updateDoc,
+  doc,
+  increment,
   query,
   where,
   orderBy,
@@ -78,4 +83,56 @@ export async function getBestPlayer(game) {
     return { name: "---", score: 0 };
 
   return snap.docs[0].data();
+}
+
+/* =========================
+   VISITEURS
+========================= */
+
+export async function incrementVisitorCount() {
+
+  const ref = doc(db, "stats", "global");
+
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+
+    await setDoc(ref, {
+      visitors: 1
+    });
+
+  } else {
+
+    await updateDoc(ref, {
+      visitors: increment(1)
+    });
+
+  }
+}
+
+
+export async function getVisitorCount() {
+
+  const ref = doc(db, "stats", "global");
+
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return 0;
+
+  return snap.data().visitors || 0;
+}
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+export function shouldCountVisit() {
+  const last = localStorage.getItem("lastVisit");
+  const today = getTodayKey();
+
+  return last !== today;
+}
+
+export function markVisit() {
+  localStorage.setItem("lastVisit", getTodayKey());
 }
