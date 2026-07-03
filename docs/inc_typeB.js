@@ -318,7 +318,7 @@ function validateTypeB() {
       message: "✔ Bonne réponse"
     });
 
-    setTimeout(() => window.nextQuestion(), 200);
+    setTimeout(() => window.nextQuestion(), 600);
     return;
   }
 

@@ -20,6 +20,7 @@ let gameOver = false;
 let currentQuestion = null;
 let recentQuestions = [];
 let gameStarted = false;
+let inputLocked = false;
 
 /* =========================
    RECUP DATA
@@ -44,6 +45,22 @@ function updateHUD() {
 
     document.getElementById("best").textContent = bestPlayer.score;
     document.getElementById("bestName").textContent = bestPlayer.name;
+}
+
+function setUIBlocked(state) {
+
+  inputLocked = state;
+
+  const choices = document.getElementById("choices");
+  if (choices) {
+    choices.style.pointerEvents = state ? "none" : "auto";
+    choices.style.opacity = state ? "0.5" : "1";
+  }
+
+  const btn = document.getElementById("gameBtn");
+  if (btn) {
+    btn.disabled = state;
+  }
 }
 
 /* =========================
@@ -283,6 +300,7 @@ function generateQuestion() {
 function load() {
 
   const q = currentQuestion;
+  setUIBlocked(false);
 
   document.getElementById("question").innerHTML = `
 
@@ -378,6 +396,7 @@ function renderChoices(q) {
 
 function submitAnswer(i) {
 
+  if (gameOver || inputLocked) return;
   if (gameOver) return;
 
   if (i === currentQuestion.answer) {
@@ -393,14 +412,18 @@ function submitAnswer(i) {
     generateQuestion();
     load();
 
-  } else {
+} else {
 
-    playBadSound();
+  playBadSound();
 
-    showFeedback(currentQuestion, EXPRESSION_TYPES, toLatex);
+  setUIBlocked(true); // 🔒 bloque tout
 
+  showFeedback(currentQuestion, EXPRESSION_TYPES, toLatex);
+
+  setTimeout(() => {
     endGame();
-  }
+  }, 8000);
+}
 }
 
 /* =========================================================
@@ -481,7 +504,7 @@ function endGame() {
     window.location.href =
       "gameover.html?game=expressions&score=" + finalScore;
 
-  }, 8000);
+  }, 0);
 
 }
 /* =========================================================

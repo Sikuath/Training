@@ -7,27 +7,38 @@ function showFeedback(type, data = {}) {
   const box = document.getElementById("feedbackBox");
   if (!box) return;
 
+  // Désactive les boutons pendant l'affichage du feedback
+  window.setButtonsEnabled(false);
+
   box.innerHTML = "";
+
+  // Durée d'affichage par défaut
+  let duration = 6000;
 
   switch (type) {
 
     case "typeA":
+      duration = 6000;
       box.innerHTML = buildTypeA(data);
       break;
 
     case "typeB":
+      duration = 6000;
       box.innerHTML = buildTypeB(data);
       break;
 
     case "typeC":
+      duration = 6000;
       box.innerHTML = buildTypeC(data);
       break;
 
     case "typeD":
+      duration = 6000;
       box.innerHTML = buildTypeD(data);
       break;
-      
+
     case "success":
+      duration = 200;
       box.innerHTML = `
         <p style="color: lightgreen; font-weight: bold;">
           ${data.message ?? "✔ Bonne réponse"}
@@ -37,13 +48,27 @@ function showFeedback(type, data = {}) {
   }
 
   // =========================
-  // 🔥 FORCER RENDU LATEX
+  // FORCER RENDU LATEX
   // =========================
   if (window.MathJax?.typesetPromise) {
     MathJax.typesetPromise([box]);
   } else if (window.MathJax?.typeset) {
     MathJax.typeset();
   }
+
+  // =========================
+  // MASQUER LE FEEDBACK
+  // =========================
+  setTimeout(() => {
+
+    // On efface uniquement les feedbacks d'erreur
+    if (type !== "success") {
+        box.innerHTML = "";
+    }
+
+    window.setButtonsEnabled(true);
+
+}, duration);
 }
 
 // =========================

@@ -82,6 +82,20 @@ function submitCompatible() {
   window.incTypeD.answerTypeD(true);
 }
 
+function setButtonsEnabled(enabled) {
+
+  [
+    "validateBtn",
+    "compatBtn",
+    "incompatBtn",
+    "gameBtn"
+  ].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = !enabled;
+  });
+
+}
+
 /* =========================
    RECUP DATA
 ========================= */
@@ -228,8 +242,8 @@ function generateQuestion() {
 ========================= */
 
 function getMode() {
-  if (score >= 2) return "hard";
-  if (score >= 1) return "medium";
+  if (score >= 8) return "hard";
+  if (score >= 4) return "medium";
   return "easy";
 }
 
@@ -361,10 +375,29 @@ function submit() {
   const q = window.currentQuestion;
   if (!q || !q.raw) return;
 
-  // 🔥 ROUTAGE PAR TYPE
-  if (q.type === "typeC") {
-    return validateTypeC();
+  // =========================
+  // ROUTAGE PAR TYPE
+  // =========================
+  switch (q.type) {
+
+    case "typeB":
+      return window.validateTypeB();
+
+    case "typeC":
+      return window.validateTypeC();
+
+    case "typeD":
+      // Le type D utilise les boutons Compatible / Non compatible
+      return;
+
+    case "typeA":
+    default:
+      break;
   }
+
+  // =========================
+  // TYPE A
+  // =========================
 
   const center = document.getElementById("feedback");
   if (!center) return;
@@ -408,12 +441,12 @@ function submit() {
     score++;
     updateUI();
     refreshProgress();
-    
+
     window.incFeedback.showFeedback("success", {
       message: "✔ Bonne réponse"
     });
 
-    setTimeout(nextQuestion, 800);
+    setTimeout(nextQuestion, 200);
     return;
   }
 
@@ -428,7 +461,7 @@ function submit() {
     uExpected: formatFR(uExpected, decimals)
   });
 
-  setTimeout(() => endGame(), 2000);
+  setTimeout(() => endGame(), 6000);
 }
 
 /* =========================
@@ -500,10 +533,7 @@ function endGame() {
 
   const finalScore = Number(score || 0);
 
-  setTimeout(() => {
-    window.location.href =
-      "gameover.html?game=incertitudes&score=" + finalScore;
-  }, 2000);
+  window.location.href = "gameover.html?game=incertitudes&score=" + finalScore;
 }
 
 function quitGame() {
@@ -572,6 +602,7 @@ window.submitIncompatible = submitIncompatible;
 window.submitCompatible = submitCompatible;
 window.toggleGame = toggleGame;
 window.submit = submit;
+window.setButtonsEnabled = setButtonsEnabled;
 window.refreshProgress = refreshProgress;
 window.nextQuestion = nextQuestion;
 window.startGame = startGame;
