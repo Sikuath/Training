@@ -197,12 +197,14 @@ button:hover {
     color: #90caf9;
     font-size: 1.2rem;
     margin-bottom: 20px;
+    text-align: left;
 }
 
 .intro {
     color: #ddd;
     line-height: 1.6;
     margin-bottom: 25px;
+    text-align: left;
 }
 
 .features {
