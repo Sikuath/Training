@@ -2,7 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Entraînement Physique-Chimie</title>
+
+  <title>Physique-Chimie - Entraînement interactif lycée</title>
+
+  <meta name="description" content="Plateforme d'entraînement en physique-chimie pour le lycée : exercices interactifs, incertitudes, conversions, expressions littérales et chiffres significatifs.">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Open Graph (réseaux sociaux) -->
+  <meta property="og:title" content="Entraînement Physique-Chimie">
+  <meta property="og:description" content="Exercices interactifs pour progresser en physique-chimie au lycée">
+  <meta property="og:type" content="website">
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="layout.css">
@@ -25,9 +35,36 @@
   </aside>
 
   <main class="main-content">
-    <h1>Physique-Chimie</h1>
-    <p>Choisis un chapitre</p>
-  </main>
+
+  <div class="home-card">
+
+    <h1>🧪 Physique-Chimie</h1>
+
+    <p class="subtitle">
+      
+      Cette plateforme permet aux élèves de lycée de s'entraîner en physique-chimie sur les notions fondamentales :
+      incertitudes de mesure, conversions, chiffres significatifs et expressions littérales.
+    
+    </p>
+
+    <p class="intro">
+      Choisissez un mini-jeu dans le menu à gauche pour commencer.
+      Chaque exercice est chronométré et vos performances sont enregistrées.
+    </p>
+
+    <div class="features">
+      <div>🎮 4 mini-jeux progressifs</div>
+      <div>⏱️ Chronomètre intégré</div>
+      <div>📈 Difficulté adaptative</div>
+      <div>🏆 Classement en ligne</div>
+      <button id="randomGameBtn" class="start-btn">
+      ▶ Commencer un exercice aléatoire
+      </button>
+    </div>
+
+  </div>
+
+</main>
 
   <!-- Footer -->
   <footer class="site-footer">
@@ -37,6 +74,8 @@
   </p>
 
  <p id="visitorCount">Chargement...</p>
+
+ <div id="statsBoard"></div>
 </footer>
 
 </body>

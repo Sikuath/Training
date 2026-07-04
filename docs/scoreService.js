@@ -136,3 +136,39 @@ export function shouldCountVisit() {
 export function markVisit() {
   localStorage.setItem("lastVisit", getTodayKey());
 }
+
+export async function getGameStats(game) {
+
+  const q = query(
+    collection(db, "scores"),
+    where("game", "==", game)
+  );
+
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    return {
+      best: 0,
+      players: 0
+    };
+  }
+
+  let best = 0;
+  const names = new Set();
+
+  snap.forEach(doc => {
+
+    const data = doc.data();
+
+    if (data.score > best)
+      best = data.score;
+
+    names.add(data.name.trim().toLowerCase());
+
+  });
+
+  return {
+    best,
+    players: names.size
+  };
+}
